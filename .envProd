@@ -1,0 +1,16 @@
+# Server Configuration
+HOST=localhost
+PORT=5000
+
+# Config Database Postgres
+PGHOST=localhost
+PGUSER=
+PGPASSWORD=
+PGDATABASE=
+PGPORT=5432
+
+# authentications
+ACCESS_TOKEN_KEY=
+REFRESH_TOKEN_KEY=
+# 30 Menit
+ACCESS_TOKEN_AGE= 1800
