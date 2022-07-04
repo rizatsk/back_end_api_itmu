@@ -2,7 +2,7 @@
 1. Create database "itindosolution_api" in your database postgres
 2. Change .envProd => .env
 3. Fill in .env data as needed
-4. For Access Token And Refresh Token , user node : "require('crypto').randomBytes(64).toString('hex')"
+4. For Access Token And Refresh Token , use node : "require('crypto').randomBytes(64).toString('hex')"
 5. Install node package "npm install"
 6. Migration in your database "npm migrate up"
 7. Running program "npm run start-dev"
