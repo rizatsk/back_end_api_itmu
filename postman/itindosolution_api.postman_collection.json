@@ -123,37 +123,6 @@
 					"response": []
 				},
 				{
-					"name": "deleteAuthenticationsValid",
-					"request": {
-						"auth": {
-							"type": "noauth"
-						},
-						"method": "DELETE",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"refreshToken\" : \"{{refreshToken}}\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "localhost:5000/authentications/admin",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"authentications",
-								"admin"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "putAuthenticationsValid",
 					"event": [
 						{
@@ -207,6 +176,37 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "deleteAuthenticationsValid",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"refreshToken\" : \"{{refreshToken}}\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "localhost:5000/authentications/admin",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"authentications",
+								"admin"
+							]
+						}
+					},
+					"response": []
 				}
 			]
 		},
@@ -214,7 +214,7 @@
 			"name": "users",
 			"item": [
 				{
-					"name": "putPasswordAdminUser",
+					"name": "postRegisterAdminUser",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -226,11 +226,11 @@
 								}
 							]
 						},
-						"method": "PUT",
+						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"password\": \"Gaeng123\"\n}",
+							"raw": "{\n    \"fullname\": \"rizat sakmir\",\n    \"username\": \"rizatsk\",\n    \"email\": \"rizatsakmir@gmail.com\",\n    \"password\": \"Amir00734\",\n    \"status\" : true\n} ",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -238,7 +238,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5000/user/admin/password",
+							"raw": "http://localhost:5000/user/admin",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -246,48 +246,7 @@
 							"port": "5000",
 							"path": [
 								"user",
-								"admin",
-								"password"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "putPasswordAdminUserWithUserId Copy",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{accessToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"userId\" : \"user-0007\",\n    \"password\": \"amir00734\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:5000/user/admin/password",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"user",
-								"admin",
-								"password"
+								"admin"
 							]
 						}
 					},
@@ -379,7 +338,7 @@
 					"response": []
 				},
 				{
-					"name": "postRegisterAdminUser",
+					"name": "putPasswordAdminUser",
 					"request": {
 						"auth": {
 							"type": "bearer",
@@ -391,11 +350,11 @@
 								}
 							]
 						},
-						"method": "POST",
+						"method": "PUT",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"fullname\": \"rizat sakmir\",\n    \"username\": \"rizatsk\",\n    \"email\": \"rizatsakmir@gmail.com\",\n    \"password\": \"Amir00734\",\n    \"status\" : true\n} ",
+							"raw": "{\n    \"password\": \"Gaeng123\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -403,7 +362,7 @@
 							}
 						},
 						"url": {
-							"raw": "http://localhost:5000/user/admin",
+							"raw": "http://localhost:5000/user/admin/password",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -411,7 +370,48 @@
 							"port": "5000",
 							"path": [
 								"user",
-								"admin"
+								"admin",
+								"password"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "putPasswordAdminUserWithUserId Copy",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"userId\" : \"user-0007\",\n    \"password\": \"amir00734\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/user/admin/password",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"user",
+								"admin",
+								"password"
 							]
 						}
 					},
@@ -554,7 +554,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"web programming\",\n    \"products\": [\"company profile\", \"bala bala\", \"testing\"],\n    \"price\": 3000000,\n    \"typeService\": \"website\"\n\n}",
+							"raw": "{\n    \"name\": \"web programmings\",\n    \"products\": [\n        \"company profile\",\n        \"bala bala\",\n        \"testing\"\n    ],\n    \"price\": 3000000,\n    \"typeService\": \"website\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -608,7 +608,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:5000/package/service/package-WCkJvOo8",
+							"raw": "http://localhost:5000/package/service/package-nqjIQ5_M",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -617,7 +617,7 @@
 							"path": [
 								"package",
 								"service",
-								"package-WCkJvOo8"
+								"package-nqjIQ5_M"
 							]
 						}
 					},
@@ -640,7 +640,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"packageServiceId\": \"package-SbMWYw2K\",\n    \"name\": \"web programming\",\n    \"products\": [\"company profile\", \"bala bala\", \"testing\", \"oncom goreng\"],\n    \"price\": 3000000,\n    \"typeService\": \"website\"\n\n}",
+							"raw": "{\n    \"packageServiceId\": \"package-SbMWYw2K\",\n    \"name\": \"web programming\",\n    \"products\": [\n        \"company profile\",\n        \"bala bala\",\n        \"testing\",\n        \"oncom goreng\"\n    ],\n    \"price\": 3000000,\n    \"typeService\": \"website\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -697,6 +697,373 @@
 								"package",
 								"service",
 								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postImagePackageService",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "image",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/home/whoami/Pictures/patrick star.jpg"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/package/service/images/package-nqjIQ5_M",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"package",
+								"service",
+								"images",
+								"package-nqjIQ5_M"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteImagePackageService",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "image",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fileName\": \"1657086219834.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/package/service/images/package-nqjIQ5_M",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"package",
+								"service",
+								"images",
+								"package-nqjIQ5_M"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Products",
+			"item": [
+				{
+					"name": "postProducts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"name\": \"monitor\",\n    \"price\": 600000,\n    \"typeProduct\": \"cctv\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProducts",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "getProductById",
+					"request": {
+						"auth": {
+							"type": "noauth"
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://localhost:5000/products/product-IJ6TtmX1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"products",
+								"product-IJ6TtmX1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "puttProductsById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": \"product-IJ6TtmX1\",\n    \"name\": \"monitor lg\",\n    \"price\": 610000,\n    \"typeProduct\": \"monitor\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/products",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"products"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "putStatusProductsById",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"productId\": \"product-IJ6TtmX1\",\n    \"status\": false\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/products/status",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"products",
+								"status"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "postImageProducts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [
+							{
+								"key": "image",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "image",
+									"type": "file",
+									"src": "/home/whoami/Pictures/patrick star.jpg"
+								}
+							],
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/products/images/product-IJ6TtmX1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"products",
+								"images",
+								"product-IJ6TtmX1"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "deleteImageProducts",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "{{accessToken}}",
+									"type": "string"
+								}
+							]
+						},
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "image",
+								"value": "",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n    \"fileName\": \"1657086152978.jpg\"\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://localhost:5000/products/images/product-IJ6TtmX1",
+							"protocol": "http",
+							"host": [
+								"localhost"
+							],
+							"port": "5000",
+							"path": [
+								"products",
+								"images",
+								"product-IJ6TtmX1"
 							]
 						}
 					},
