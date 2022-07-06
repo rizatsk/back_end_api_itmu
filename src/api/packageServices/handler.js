@@ -17,7 +17,7 @@ class PackageServiceHandler {
     const {id: credentialUserId} = request.auth.credentials;
     const {name, products, price, typeService} = request.payload;
 
-    const packageServiceId = await this._service.postPackageService({credentialUserId, name, products, price, typeService});
+    const packageServiceId = await this._service.addPackageService({credentialUserId, name, products, price, typeService});
 
     await this._logActivityService.postLogActivity({credentialUserId, activity: 'menambahkan package service', refersId: packageServiceId});
 
@@ -40,7 +40,7 @@ class PackageServiceHandler {
     };
   }
 
-  async getPackageServiceHandler(request, h) {
+  async getPackageServiceHandler() {
     const packageService = await this._service.getPackageServices();
 
     return {
@@ -57,7 +57,7 @@ class PackageServiceHandler {
     const {id: credentialUserId} = request.auth.credentials;
     const {packageServiceId, name, products, price, typeService} = request.payload;
 
-    await this._service.updatePackageServicesById({credentialUserId, packageServiceId, name, products, price, typeService});
+    await this._service.editPackageServicesById({credentialUserId, packageServiceId, name, products, price, typeService});
 
     await this._logActivityService.postLogActivity({credentialUserId, activity: 'update data package service', refersId: packageServiceId});
 
@@ -73,7 +73,7 @@ class PackageServiceHandler {
     const {id: credentialUserId} = request.auth.credentials;
     const {packageServiceId, status} = request.payload;
 
-    await this._service.updateStatusPackageServiceById({credentialUserId, packageServiceId, status});
+    await this._service.editStatusPackageServiceById({credentialUserId, packageServiceId, status});
 
     await this._logActivityService.postLogActivity({credentialUserId, activity: 'update status package service', refersId: packageServiceId});
 

@@ -1,6 +1,6 @@
 exports.up = (pgm) => {
-  pgm.createTable('package_services', {
-    package_service_id: {
+  pgm.createTable('products', {
+    product_id: {
       type: 'VARCHAR(50)',
       primaryKey: true,
     },
@@ -8,10 +8,6 @@ exports.up = (pgm) => {
       type: 'VARCHAR',
       notNull: true,
       unique: true,
-    },
-    products: {
-      type: 'VARCHAR[]',
-      notNull: true,
     },
     price: {
       type: 'DOUBLE PRECISION',
@@ -21,11 +17,11 @@ exports.up = (pgm) => {
       type: 'TEXT[]',
       notNull: false,
     },
-    type_service: {
+    type_product: {
       type: 'VARCHAR',
       notNull: true,
     },
-    deskripsi_package: {
+    deskripsi_product: {
       type: 'TEXT',
       notNull: false,
     },
@@ -57,5 +53,6 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('package_services');
+  pgm.dropTable('products');
 };
+

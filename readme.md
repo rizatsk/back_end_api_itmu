@@ -14,7 +14,8 @@
 - Register
 - User admins
 - Log activity
-- Package service
+- Package service (crud, and images)
+- Products (crud, and images)
 
 ## Environment postman
 - accessToken

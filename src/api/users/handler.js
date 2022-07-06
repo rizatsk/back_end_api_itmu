@@ -66,7 +66,7 @@ class UsersHandler {
     const userId = !inputUserId ? credentialUserId : inputUserId;
 
     await this._service.verifyAdminItindoCredentialForOtherAdminUser({credentialUserId, inputUserId});
-    await this._service.putPasswordAdminUser(credentialUserId, userId, password);
+    await this._service.editPasswordAdminUser(credentialUserId, userId, password);
     await this._serviceAuthentication.deleteRefreshTokenByUserId(userId);
 
     await this._logActivityService.postLogActivity({credentialUserId, activity: 'ganti password', refersId: userId});
@@ -85,7 +85,7 @@ class UsersHandler {
     const userId = !inputUserId ? credentialUserId : inputUserId;
 
     await this._service.verifyAdminItindoCredentialForOtherAdminUser({credentialUserId, inputUserId});
-    await this._service.updateAdminUserById({credentialUserId, userId, fullname, email});
+    await this._service.editAdminUserById({credentialUserId, userId, fullname, email});
 
     await this._logActivityService.postLogActivity({credentialUserId, activity: 'merubah data admin user', refersId: userId});
 
@@ -102,7 +102,7 @@ class UsersHandler {
     const {userId, status} = request.payload;
 
     await this._service.verifyAdminItindoCredentialForOtherAdminUser({credentialUserId, inputUserId: userId});
-    await this._service.updateStatusAdminUserById({credentialUserId, userId, status});
+    await this._service.editStatusAdminUserById({credentialUserId, userId, status});
 
     await this._logActivityService.postLogActivity({credentialUserId, activity: 'merubah status admin user', refersId: userId});
 

@@ -2,33 +2,49 @@ require('dotenv').config();
 
 const Hapi = require('@hapi/hapi');
 const ClientError = require('./exceptions/ClientError');
+const path = require('path');
 const Jwt = require('@hapi/jwt');
+const Inert = require('@hapi/inert');
 
 // Token Manager
 const TokenManager = require('./tokenize/TokenManager');
 // Log Activity Service
-const LogActivityService = require('./services/LogActivityService');
+const LogActivityService = require('./services/postgres/LogActivityService');
 
 // Authentication
 const authentication = require('./api/authentication');
-const AuthenticationService = require('./services/AuthenticationService');
+const AuthenticationService = require('./services/postgres/AuthenticationService');
 const AuthenticationValidator = require('./validator/authentication');
 
 // User
 const users = require('./api/users');
-const UsersService = require('./services/UsersService');
+const UsersService = require('./services/postgres/UsersService');
 const UsersValidator = require('./validator/users');
 
 // Package Services
 const packageServices = require('./api/packageServices');
-const PackageServiceService = require('./services/PackageServiceService');
+const PackageServiceService = require('./services/postgres/PackageServiceService');
 const PackageServiceValidator = require('./validator/packageService');
+
+// Products
+const products = require('./api/products');
+const ProductsService = require('./services/postgres/ProductsService');
+const ProductsValidator = require('./validator/products');
+
+// Upload
+const uploads = require('./api/uploads');
+const StorageService = require('./services/storage/StorageService');
+const UploadsValidator = require('./validator/uploads');
+
 
 const init = async () => {
   const usersService = new UsersService();
   const authenticationService = new AuthenticationService();
   const logActivityService = new LogActivityService();
   const packageServiceService = new PackageServiceService();
+  const productsService = new ProductsService();
+  const storageService = new StorageService(path.resolve(__dirname, 'public/images'));
+  const storageImage = path.resolve(__dirname, 'public/images');
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -44,6 +60,9 @@ const init = async () => {
   await server.register([
     {
       plugin: Jwt,
+    },
+    {
+      plugin: Inert,
     },
   ]);
 
@@ -109,6 +128,25 @@ const init = async () => {
         service: packageServiceService,
         logActivityService,
         validator: PackageServiceValidator,
+      },
+    },
+    {
+      plugin: products,
+      options: {
+        service: productsService,
+        logActivityService,
+        validator: ProductsValidator,
+      },
+    },
+    {
+      plugin: uploads,
+      options: {
+        service: storageService,
+        packageServiceService,
+        productsService,
+        logActivityService,
+        storageImage,
+        validator: UploadsValidator,
       },
     },
   ]);

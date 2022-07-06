@@ -1,10 +1,10 @@
 const {Pool} = require('pg');
 const bcrypt = require('bcrypt');
-const NotFoundError = require('../exceptions/NotFoundError');
-const AuthenticationError = require('../exceptions/AuthenticationError');
-const InvariantError = require('../exceptions/InvariantError');
+const NotFoundError = require('../../exceptions/NotFoundError');
+const AuthenticationError = require('../../exceptions/AuthenticationError');
+const InvariantError = require('../../exceptions/InvariantError');
 const {nanoid} = require('nanoid');
-const getDateTime = require('../utils/getDateTime');
+const getDateTime = require('../../utils/getDateTime');
 
 class UsersService {
   constructor() {
@@ -79,7 +79,7 @@ class UsersService {
   }
 
   // Ganti Password
-  async putPasswordAdminUser(credentialUserId, id, password) {
+  async editPasswordAdminUser(credentialUserId, id, password) {
     const hashedPassword = await bcrypt.hash(password, 10);
     const query = {
       text: `UPDATE user_admins SET password = $2, updated = $3, updatedby_user_id = $4 WHERE admin_id = $1`,
@@ -89,7 +89,7 @@ class UsersService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError('Gagal memperbarui password, admin_user id tidak ditemukan');
+      throw new NotFoundError('Gagal mengubah password, admin_user id tidak ditemukan');
     }
   }
 
@@ -106,9 +106,9 @@ class UsersService {
 
     const query = {
       text: `INSERT INTO user_admins VALUES($1, $2, $3, $4, $5
-            , $6, $7, $8, $9, $10) RETURNING admin_id`,
+            , $6, $7, $6, $7, $8) RETURNING admin_id`,
       values: [id, fullname, username, email, hashedPassword,
-        dateTime, createdby_user_id, dateTime, createdby_user_id, status],
+        dateTime, createdby_user_id, status],
     };
 
     const result = await this._pool.query(query);
@@ -139,8 +139,8 @@ class UsersService {
   }
   // End
 
-  // Update user
-  async updateAdminUserById({credentialUserId, userId, fullname, email}) {
+  // Edit user
+  async editAdminUserById({credentialUserId, userId, fullname, email}) {
     await this.verifyNewUsernameOrEmailAdminUser(email);
 
     const query = {
@@ -150,11 +150,11 @@ class UsersService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Gagal update admin user');
+    if (!result.rowCount) throw new InvariantError('Gagal edit admin user, user id tidak ditemukan');
   }
 
-  // Update Status User
-  async updateStatusAdminUserById({credentialUserId, userId, status}) {
+  // Edit Status User
+  async editStatusAdminUserById({credentialUserId, userId, status}) {
     const query = {
       text: 'UPDATE user_admins SET status = $1, updated = $2, updatedby_user_id = $3 WHERE admin_id = $4',
       values: [status, getDateTime(), credentialUserId, userId],
@@ -162,7 +162,7 @@ class UsersService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Gagal update status admin user');
+    if (!result.rowCount) throw new InvariantError('Gagal edit status admin user, user id tidak ditemukan');
   }
 }
 

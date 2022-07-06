@@ -1,6 +1,6 @@
 const {Pool} = require('pg');
-const InvariantError = require('../exceptions/InvariantError');
-const getDateTime = require('../utils/getDateTime');
+const InvariantError = require('../../exceptions/InvariantError');
+const getDateTime = require('../../utils/getDateTime');
 
 class LogActivityService {
   constructor() {
