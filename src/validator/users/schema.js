@@ -8,8 +8,8 @@ const PostAdminUserPayloadSchema = Joi.object({
 });
 
 const PutPasswordAdminUserPayloadSchema = Joi.object({
-  password: Joi.string().required(),
-  userId: Joi.string(),
+  passwordOld: Joi.string().required(),
+  passwordNew: Joi.string().required(),
 });
 
 const PutAdminUserByIdPayloadSchema = Joi.object({

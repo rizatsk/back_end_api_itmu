@@ -79,11 +79,18 @@ class UsersService {
   }
 
   // Ganti Password
-  async editPasswordAdminUser(credentialUserId, id, password) {
-    const hashedPassword = await bcrypt.hash(password, 10);
+  async editPasswordAdminUser({credentialUserId, passwordOld, passwordNew}) {
+    const hashedPasswordOld = await this.getPasswordAdminUserById(credentialUserId);
+
+    const match = await bcrypt.compare(passwordOld, hashedPasswordOld);
+    if (!match) {
+      throw new AuthenticationError('Password yang anda diberikan salah');
+    }
+
+    const hashedPassword = await bcrypt.hash(passwordNew, 10);
     const query = {
-      text: `UPDATE user_admins SET password = $2, updated = $3, updatedby_user_id = $4 WHERE admin_id = $1`,
-      values: [id, hashedPassword, getDateTime(), credentialUserId],
+      text: `UPDATE user_admins SET password = $2, updated = $3, updatedby_user_id = $1 WHERE admin_id = $1`,
+      values: [credentialUserId, hashedPassword, getDateTime()],
     };
 
     const result = await this._pool.query(query);
@@ -91,6 +98,20 @@ class UsersService {
     if (!result.rowCount) {
       throw new NotFoundError('Gagal mengubah password, admin_user id tidak ditemukan');
     }
+  }
+
+  async getPasswordAdminUserById(userId) {
+    const query = {
+      text: `SELECT password FROM user_admins WHERE admin_id = $1`,
+      values: [userId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new NotFoundError('Gagal mengubah password, admin_user id tidak ditemukan');
+    }
+
+    return result.rows[0].password;
   }
 
   // Admin User

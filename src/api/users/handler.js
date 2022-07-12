@@ -34,12 +34,12 @@ class UsersHandler {
     const {id: credentialUserId} = request.auth.credentials;
 
     await this._service.verifyAdminItindoCredential(credentialUserId);
-    const data = await this._service.getAdminUser();
+    const user_admins = await this._service.getAdminUser();
 
     return {
       status: 'success',
       data: {
-        data,
+        user_admins,
       },
     };
   }
@@ -49,11 +49,11 @@ class UsersHandler {
     const {id: credentialUserId} = request.auth.credentials;
 
     await this._service.verifyAdminItindoCredentialForOtherAdminUser({credentialUserId, inputUserId: id});
-    const adminUser = await this._service.getAdminUserById(id);
+    const user_admin = await this._service.getAdminUserById(id);
     return {
       status: 'success',
       data: {
-        adminUser,
+        user_admin,
       },
     };
   }
@@ -62,14 +62,12 @@ class UsersHandler {
     await this._validator.validatePutPasswordAdminUserPayload(request.payload);
 
     const {id: credentialUserId} = request.auth.credentials;
-    const {userId: inputUserId, password} = request.payload;
-    const userId = !inputUserId ? credentialUserId : inputUserId;
+    const {passwordOld, passwordNew} = request.payload;
 
-    await this._service.verifyAdminItindoCredentialForOtherAdminUser({credentialUserId, inputUserId});
-    await this._service.editPasswordAdminUser(credentialUserId, userId, password);
-    await this._serviceAuthentication.deleteRefreshTokenByUserId(userId);
+    await this._service.editPasswordAdminUser({credentialUserId, passwordOld, passwordNew});
+    await this._serviceAuthentication.deleteRefreshTokenByUserId(credentialUserId);
 
-    await this._logActivityService.postLogActivity({credentialUserId, activity: 'ganti password', refersId: userId});
+    await this._logActivityService.postLogActivity({credentialUserId, activity: 'ganti password', refersId: credentialUserId});
 
     return {
       status: 'success',
