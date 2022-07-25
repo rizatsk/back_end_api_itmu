@@ -5,6 +5,7 @@ const PostPackageServicePayloadSchema = Joi.object({
   products: Joi.array().items(Joi.string().required()),
   price: Joi.number().required(),
   typeService: Joi.string().required(),
+  description: Joi.string().required(),
 });
 
 const PutPackageServiceByIdPayloadSchema = Joi.object({
@@ -12,7 +13,7 @@ const PutPackageServiceByIdPayloadSchema = Joi.object({
   name: Joi.string().required(),
   products: Joi.array().items(Joi.string().required()),
   price: Joi.number().required(),
-  typeService: Joi.string().required(),
+  description: Joi.string().required(),
 });
 
 const PutStatusPackageServiceByIdPayloadSchema = Joi.object({

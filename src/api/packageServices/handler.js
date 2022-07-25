@@ -15,9 +15,9 @@ class PackageServiceHandler {
     await this._validator.validatePostPackageServicePayload(request.payload);
 
     const {id: credentialUserId} = request.auth.credentials;
-    const {name, products, price, typeService} = request.payload;
+    const {name, products, price, typeService, description} = request.payload;
 
-    const packageServiceId = await this._service.addPackageService({credentialUserId, name, products, price, typeService});
+    const packageServiceId = await this._service.addPackageService({credentialUserId, name, products, price, typeService, description});
 
     await this._logActivityService.postLogActivity({credentialUserId, activity: 'menambahkan package service', refersId: packageServiceId});
 
@@ -30,18 +30,7 @@ class PackageServiceHandler {
   async getPackageServiceByIdHandler(request, h) {
     const {id: packageServiceId} = request.params;
 
-    const dataPackageService = await this._service.getPackageServiceById(packageServiceId);
-
-    return {
-      status: 'success',
-      data: {
-        dataPackageService,
-      },
-    };
-  }
-
-  async getPackageServiceHandler() {
-    const packageService = await this._service.getPackageServices();
+    const packageService = await this._service.getPackageServiceById(packageServiceId);
 
     return {
       status: 'success',
@@ -51,13 +40,24 @@ class PackageServiceHandler {
     };
   }
 
+  async getPackageServiceHandler() {
+    const packageServices = await this._service.getPackageServices();
+
+    return {
+      status: 'success',
+      data: {
+        packageServices,
+      },
+    };
+  }
+
   async putPackgeServiceByIdHandler(request, h) {
     this._validator.validatePutPackageServiceByIdPayload(request.payload);
 
     const {id: credentialUserId} = request.auth.credentials;
-    const {packageServiceId, name, products, price, typeService} = request.payload;
+    const {packageServiceId, name, products, price, typeService, description} = request.payload;
 
-    await this._service.editPackageServicesById({credentialUserId, packageServiceId, name, products, price, typeService});
+    await this._service.editPackageServicesById({credentialUserId, packageServiceId, name, products, price, typeService, description});
 
     await this._logActivityService.postLogActivity({credentialUserId, activity: 'update data package service', refersId: packageServiceId});
 

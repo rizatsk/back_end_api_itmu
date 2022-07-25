@@ -30,7 +30,7 @@ exports.up = (pgm) => {
       type: 'VARCHAR(50)',
       notNull: true,
       references: 'user_admins',
-      onDelete: 'restrict',
+      // onDelete: 'SET NULL',
     },
     updated: {
       type: 'TIMESTAMP',
@@ -40,7 +40,7 @@ exports.up = (pgm) => {
       type: 'VARCHAR(50)',
       notNull: true,
       references: 'user_admins',
-      onDelete: 'restrict',
+      // onDelete: 'SET NULL',
     },
     status: {
       type: 'BOOLEAN',

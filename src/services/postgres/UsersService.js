@@ -24,7 +24,7 @@ class UsersService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError(`${type} yang anda diberikan salah`);
+      throw new NotFoundError(`${type} yang anda berikan salah`);
     }
 
     const {admin_id: adminId, password: hashedPassword, status} = result.rows[0];
@@ -34,7 +34,7 @@ class UsersService {
 
     const match = await bcrypt.compare(password, hashedPassword);
     if (!match) {
-      throw new AuthenticationError('Password yang anda diberikan salah');
+      throw new AuthenticationError('Password yang anda berikan salah');
     }
 
     return {adminId};
@@ -84,7 +84,7 @@ class UsersService {
 
     const match = await bcrypt.compare(passwordOld, hashedPasswordOld);
     if (!match) {
-      throw new AuthenticationError('Password yang anda diberikan salah');
+      throw new AuthenticationError('Password yang anda berikan salah');
     }
 
     const hashedPassword = await bcrypt.hash(passwordNew, 10);

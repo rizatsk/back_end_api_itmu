@@ -8,7 +8,7 @@ class PackageServiceService {
     this._pool = new Pool();
   }
 
-  async addPackageService({credentialUserId, name, products, price, typeService}) {
+  async addPackageService({credentialUserId, name, products, price, typeService, description}) {
     await this.verifyNewNamePackageService(name);
 
     const status = 'true';
@@ -16,10 +16,10 @@ class PackageServiceService {
 
     const query = {
       text: `INSERT INTO package_services(package_service_id, name, products,
-        price, type_service, created, createdby_user_id, updated, updatedby_user_id, status) 
-        VALUES($1, $2, $3::varchar[], $4, $5, $6, $7, $6, $7, $8) RETURNING package_service_id`,
+        price, type_service, created, createdby_user_id, updated, updatedby_user_id, status, description) 
+        VALUES($1, $2, $3::varchar[], $4, $5, $6, $7, $6, $7, $8, $9) RETURNING package_service_id`,
       values: [id, name, products, price, typeService, getDateTime(), credentialUserId,
-        status],
+        status, description],
     };
 
     const result = await this._pool.query(query);
@@ -42,7 +42,7 @@ class PackageServiceService {
   async getPackageServices() {
     const query = {
       text: `SELECT package_service_id, name, products, price, 
-      image, type_service, status FROM package_services`,
+      image, type_service, status, description FROM package_services`,
     };
 
     const result = await this._pool.query(query);
@@ -63,12 +63,12 @@ class PackageServiceService {
     return result.rows[0];
   }
 
-  async editPackageServicesById({credentialUserId, packageServiceId, name, products, price, typeService}) {
+  async editPackageServicesById({credentialUserId, packageServiceId, name, products, price, typeService, description}) {
     const query = {
       text: `UPDATE package_services SET name = $1, products = $2::varchar[], price = $3, 
-        type_service = $4, updated = $5, updatedby_user_id = $6
+        type_service = $4, updated = $5, updatedby_user_id = $6, description = $8
         WHERE package_service_id = $7`,
-      values: [name, products, price, typeService, getDateTime(), credentialUserId, packageServiceId],
+      values: [name, products, price, typeService, getDateTime(), credentialUserId, packageServiceId, description],
     };
 
     const result = await this._pool.query(query);

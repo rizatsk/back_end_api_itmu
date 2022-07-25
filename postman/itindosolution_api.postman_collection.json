@@ -230,7 +230,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"fullname\": \"rizat sakmir\",\n    \"username\": \"rizatsk\",\n    \"email\": \"rizatsakmir@gmail.com\",\n    \"password\": \"Amir00734\",\n    \"status\" : true\n} ",
+							"raw": "{\n    \"fullname\": \"rizat sakmir\",\n    \"username\": \"rizatsk\",\n    \"email\": \"rizatsakmir@gmail.com\",\n    \"password\": \"Amir00734\"\n} ",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -354,47 +354,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"password\": \"Gaeng123\"\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "http://localhost:5000/user/admin/password",
-							"protocol": "http",
-							"host": [
-								"localhost"
-							],
-							"port": "5000",
-							"path": [
-								"user",
-								"admin",
-								"password"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "putPasswordAdminUserWithUserId Copy",
-					"request": {
-						"auth": {
-							"type": "bearer",
-							"bearer": [
-								{
-									"key": "token",
-									"value": "{{accessToken}}",
-									"type": "string"
-								}
-							]
-						},
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\n    \"userId\" : \"user-0007\",\n    \"password\": \"amir00734\"\n}",
+							"raw": "{\n    \"passwordOld\": \"Gaeng123\",\n    \"passwordNew\": \"Amir00734\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -554,7 +514,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n    \"name\": \"web programmings\",\n    \"products\": [\n        \"company profile\",\n        \"bala bala\",\n        \"testing\"\n    ],\n    \"price\": 3000000,\n    \"typeService\": \"website\"\n}",
+							"raw": "{\n    \"name\": \"web programmings\",\n    \"products\": [\n        \"company profile\",\n        \"bala bala\",\n        \"testing\"\n    ],\n    \"price\": 3000000,\n    \"typeService\": \"cctv\",\n    \"description\": \"lala move oge oge\"\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -608,7 +568,7 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "http://localhost:5000/package/service/package-nqjIQ5_M",
+							"raw": "http://localhost:5000/package/service/package-cmjzB_5R",
 							"protocol": "http",
 							"host": [
 								"localhost"
@@ -617,7 +577,7 @@
 							"path": [
 								"package",
 								"service",
-								"package-nqjIQ5_M"
+								"package-cmjzB_5R"
 							]
 						}
 					},
