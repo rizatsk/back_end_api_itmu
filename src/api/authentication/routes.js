@@ -1,18 +1,26 @@
 const routes = (handler) => [
   {
-    method: 'POST',
-    path: '/authentications/admin',
+    method: "POST",
+    path: "/authentications/admin",
     handler: handler.postAuthenticationAdminHandler,
   },
   {
-    method: 'PUT',
-    path: '/authentications/admin',
+    method: "PUT",
+    path: "/authentications/admin",
     handler: handler.putAuthenticationAdminHandler,
   },
   {
-    method: 'DELETE',
-    path: '/authentications/admin',
+    method: "DELETE",
+    path: "/authentications/admin",
     handler: handler.deleteAuthenticationAdminHandler,
+  },
+  {
+    method: "GET",
+    path: "/authentications/user",
+    handler: handler.getDataUserUseTokenHandler,
+    options: {
+      auth: "itindosolution_jwt",
+    },
   },
 ];
 

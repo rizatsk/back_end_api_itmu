@@ -1,48 +1,78 @@
-const {Pool} = require('pg');
-const getDateTime = require('../../utils/getDateTime');
-const {nanoid} = require('nanoid');
-const InvariantError = require('../../exceptions/InvariantError');
+const { Pool } = require("pg");
+const getDateTime = require("../../utils/getDateTime");
+const { nanoid } = require("nanoid");
+const InvariantError = require("../../exceptions/InvariantError");
 
 class PackageServiceService {
   constructor() {
     this._pool = new Pool();
   }
 
-  async addPackageService({credentialUserId, name, products, price, typeService, description}) {
+  async addPackageService({
+    credentialUserId,
+    name,
+    products,
+    price,
+    typeService,
+    description,
+  }) {
     await this.verifyNewNamePackageService(name);
 
-    const status = 'true';
+    const status = "true";
     const id = `package-${nanoid(8)}`;
 
     const query = {
       text: `INSERT INTO package_services(package_service_id, name, products,
         price, type_service, created, createdby_user_id, updated, updatedby_user_id, status, description) 
         VALUES($1, $2, $3::varchar[], $4, $5, $6, $7, $6, $7, $8, $9) RETURNING package_service_id`,
-      values: [id, name, products, price, typeService, getDateTime(), credentialUserId,
-        status, description],
+      values: [
+        id,
+        name,
+        products,
+        price,
+        typeService,
+        getDateTime(),
+        credentialUserId,
+        status,
+        description,
+      ],
     };
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Gagal menambahkan paket pelayanan');
+    if (!result.rowCount)
+      throw new InvariantError("Gagal menambahkan paket pelayanan");
 
     return result.rows[0].package_service_id;
   }
 
   async verifyNewNamePackageService(name) {
     const query = {
-      text: 'SELECT name FROM package_services WHERE name = $1',
+      text: "SELECT name FROM package_services WHERE name = $1",
       values: [name],
     };
 
     const result = await this._pool.query(query);
-    if (result.rowCount > 0) throw new InvariantError('nama paket pelayanan sudah digunakan');
+    if (result.rowCount > 0)
+      throw new InvariantError("nama paket pelayanan sudah digunakan");
   }
 
-  async getPackageServices() {
+  async getCountPackageServices() {
+    const query = {
+      text: "SELECT count(*) AS count FROM package_services",
+    };
+
+    const result = await this._pool.query(query);
+
+    return result.rows[0].count;
+  }
+
+  async getPackageServices(limit, offset) {
     const query = {
       text: `SELECT package_service_id, name, products, price, 
-      image, type_service, status, description FROM package_services`,
+      image, type_service, status, description FROM package_services
+      LIMIT $1 OFFSET $2`,
+      values: [limit, offset],
     };
 
     const result = await this._pool.query(query);
@@ -52,31 +82,56 @@ class PackageServiceService {
 
   async getPackageServiceById(packageServiceId) {
     const query = {
-      text: 'SELECT * FROM package_services WHERE package_service_id = $1',
+      text: "SELECT * FROM package_services WHERE package_service_id = $1",
       values: [packageServiceId],
     };
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Package service tidak ditemukan');
+    if (!result.rowCount)
+      throw new InvariantError("Package service tidak ditemukan");
 
     return result.rows[0];
   }
 
-  async editPackageServicesById({credentialUserId, packageServiceId, name, products, price, typeService, description}) {
+  async editPackageServicesById({
+    credentialUserId,
+    packageServiceId,
+    name,
+    products,
+    price,
+    typeService,
+    description,
+  }) {
     const query = {
       text: `UPDATE package_services SET name = $1, products = $2::varchar[], price = $3, 
         type_service = $4, updated = $5, updatedby_user_id = $6, description = $8
         WHERE package_service_id = $7`,
-      values: [name, products, price, typeService, getDateTime(), credentialUserId, packageServiceId, description],
+      values: [
+        name,
+        products,
+        price,
+        typeService,
+        getDateTime(),
+        credentialUserId,
+        packageServiceId,
+        description,
+      ],
     };
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Gagal edit package service, package service id tidak ditemukan');
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal edit package service, package service id tidak ditemukan"
+      );
   }
 
-  async editStatusPackageServiceById({credentialUserId, packageServiceId, status}) {
+  async editStatusPackageServiceById({
+    credentialUserId,
+    packageServiceId,
+    status,
+  }) {
     const query = {
       text: `UPDATE package_services SET status = $1, updated = $2, updatedby_user_id = $3
         WHERE package_service_id = $4`,
@@ -85,10 +140,17 @@ class PackageServiceService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Gagal edit status package service, package service id tidak ditemukan');
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal edit status package service, package service id tidak ditemukan"
+      );
   }
 
-  async addImagePackageService({credentialUserId, packageServiceId, imageUrl}) {
+  async addImagePackageService({
+    credentialUserId,
+    packageServiceId,
+    imageUrl,
+  }) {
     const images = [];
     images.push(imageUrl);
 
@@ -100,7 +162,10 @@ class PackageServiceService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Gagal menambahkan foto package service, package service id tidak ditemukan');
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal menambahkan foto package service, package service id tidak ditemukan"
+      );
   }
 
   async deleteImagePackgeService(credentialUserId, packageServiceId) {
@@ -112,23 +177,29 @@ class PackageServiceService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Gagal menghapus gambar package service, package service id tidak ditemukan');
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal menghapus gambar package service, package service id tidak ditemukan"
+      );
   }
 
   async checkPackageServiceId(packageServiceId) {
     const query = {
-      text: 'SELECT package_service_id, image[1] FROM package_services WHERE package_service_id = $1',
+      text: "SELECT package_service_id, image[1] FROM package_services WHERE package_service_id = $1",
       values: [packageServiceId],
     };
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError('Gagal upload image package service, package service id tidak ditemukan');
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal upload image package service, package service id tidak ditemukan"
+      );
 
-    const {image} = result.rows[0];
+    const { image } = result.rows[0];
     if (image != null) {
-      const fileName = image.split('/');
-      const previousFilename = fileName[fileName.length -1];
+      const fileName = image.split("/");
+      const previousFilename = fileName[fileName.length - 1];
       return previousFilename;
     } else {
       return null;

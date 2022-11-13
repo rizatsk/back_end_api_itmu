@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "start": "node ./src/server",
     "start-dev": "nodemon ./src/server",
     "migrate": "node-pg-migrate"
   },
@@ -22,7 +23,6 @@
     "pg": "^8.7.3"
   },
   "devDependencies": {
-    "eslint": "^8.18.0",
     "eslint-config-google": "^0.14.0",
     "nodemon": "^2.0.18"
   }

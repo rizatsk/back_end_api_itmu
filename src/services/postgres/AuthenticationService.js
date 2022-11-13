@@ -1,21 +1,25 @@
-const {Pool} = require('pg');
-const {nanoid} = require('nanoid');
-const InvariantError = require('../../exceptions/InvariantError');
+const { Pool } = require("pg");
+const { nanoid } = require("nanoid");
+const InvariantError = require("../../exceptions/InvariantError");
 
 class AuthenticationService {
   constructor() {
     this._pool = new Pool();
   }
 
-  async addRefreshToken({userId, refreshToken, ip, device}) {
+  async addRefreshToken({ userId, refreshToken, ip, device }) {
     const id = nanoid(16);
     let query;
 
-    const resultCondition = await this.checkAddRefreshToken({userId, ip, device});
+    const resultCondition = await this.checkAddRefreshToken({
+      userId,
+      ip,
+      device,
+    });
 
-    if (resultCondition === 'insert') {
+    if (resultCondition === "insert") {
       query = {
-        text: 'INSERT INTO authentications VALUES($1, $2, $3, $4, $5)',
+        text: "INSERT INTO authentications VALUES($1, $2, $3, $4, $5)",
         values: [id, userId, refreshToken, ip, device],
       };
     } else {
@@ -38,7 +42,7 @@ class AuthenticationService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      return 'insert';
+      return "insert";
     }
 
     return result.rows[0].id;
@@ -46,14 +50,14 @@ class AuthenticationService {
 
   async verifyRefreshToken(token) {
     const query = {
-      text: 'SELECT user_id, token FROM authentications WHERE token = $1',
+      text: "SELECT user_id, token FROM authentications WHERE token = $1",
       values: [token],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new InvariantError('Refresh token tidak valid');
+      throw new InvariantError("Refresh token tidak valid");
     }
 
     return result.rows[0].user_id;
@@ -61,7 +65,7 @@ class AuthenticationService {
 
   async deleteRefreshToken(token) {
     const query = {
-      text: 'DELETE FROM authentications WHERE token = $1',
+      text: "DELETE FROM authentications WHERE token = $1",
       values: [token],
     };
 
@@ -70,7 +74,7 @@ class AuthenticationService {
 
   async deleteRefreshTokenByUserId(userId) {
     const query = {
-      text: 'DELETE FROM authentications WHERE user_id = $1',
+      text: "DELETE FROM authentications WHERE user_id = $1",
       values: [userId],
     };
 

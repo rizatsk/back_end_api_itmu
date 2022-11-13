@@ -1,19 +1,18 @@
-const PackageServiceHandler = require('./handler');
-const routes = require('./routes');
+const routerGroup = require("../../utils/routerGroup");
+const PackageServiceHandler = require("./handler");
+const routes = require("./routes");
 
 module.exports = {
-  name: 'packageServices',
-  version: '1.0.0',
-  register: async (server, {
-    service,
-    logActivityService,
-    validator,
-  }) => {
+  name: "packageServices",
+  version: "1.0.0",
+  register: async (server, { service, logActivityService, validator }) => {
     const packageServiceHandler = new PackageServiceHandler(
-        service,
-        logActivityService,
-        validator,
+      service,
+      logActivityService,
+      validator
     );
-    server.route(routes(packageServiceHandler));
+    server.route(
+      routerGroup(process.env.PREFIX, routes(packageServiceHandler))
+    );
   },
 };

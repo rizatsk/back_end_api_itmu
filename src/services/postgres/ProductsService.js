@@ -8,6 +8,19 @@ class ProductsService {
     this._pool = new Pool();
   }
 
+  async checkNameProduct(name) {
+    const query = {
+      text: `SELECT product_id FROM products WHERE name = $1`,
+      values: [name],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (result.rowCount) {
+      throw new InvariantError("Nama product sudah ada.");
+    }
+  }
+
   async addProduct({credentialUserId, name, price, typeProduct}) {
     const status = 'true';
     const id = `product-${nanoid(8)}`;
@@ -27,14 +40,25 @@ class ProductsService {
     return result.rows[0].product_id;
   }
 
-  async getProducts() {
+  async getProducts(limit, offset) {
     const query = {
-      text: 'SELECT product_id, name, price, image, created, status FROM products',
+      text: 'SELECT product_id, name, price, image, created, status FROM products LIMIT $1 OFFSET $2',
+      values: [limit, offset]
     };
 
     const result = await this._pool.query(query);
 
     return result.rows;
+  }
+
+  async getCountProducts() {
+    const query = {
+      text: 'SELECT count(*) AS count FROM products',
+    };
+
+    const result = await this._pool.query(query);
+
+    return result.rows[0].count;
   }
 
   async getProductsById(productId) {
