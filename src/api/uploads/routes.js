@@ -1,23 +1,23 @@
-const path = require('path');
+const path = require("path");
 
 const routes = (handler, storageImage) => [
   {
-    method: 'POST',
-    path: '/package/service/images/{id}',
+    method: "POST",
+    path: "/package/service/images/{id}",
     handler: handler.postUploadImagePackageServiceHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
       payload: {
-        allow: 'multipart/form-data',
+        allow: "multipart/form-data",
         multipart: true,
-        output: 'stream',
+        output: "stream",
         maxBytes: 512000,
       },
     },
   },
   {
-    method: 'GET',
-    path: '/images/{param*}',
+    method: "GET",
+    path: "/images/{param*}",
     handler: {
       directory: {
         path: path.resolve(storageImage),
@@ -25,33 +25,33 @@ const routes = (handler, storageImage) => [
     },
   },
   {
-    method: 'DELETE',
-    path: '/package/service/images/{id}',
+    method: "DELETE",
+    path: "/package/service/images/{id}",
     handler: handler.deleteImagePackageServiceHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'POST',
-    path: '/products/images/{id}',
+    method: "POST",
+    path: "/products/images/{id}",
     handler: handler.postUploadImageProductsHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
       payload: {
-        allow: 'multipart/form-data',
+        allow: "multipart/form-data",
         multipart: true,
-        output: 'stream',
+        output: "stream",
         maxBytes: 512000,
       },
     },
   },
   {
-    method: 'DELETE',
-    path: '/products/images/{id}',
+    method: "DELETE",
+    path: "/products/images/{id}",
     handler: handler.deleteImageProductsHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
 ];
