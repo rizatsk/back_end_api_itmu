@@ -11,8 +11,9 @@ class ProductsHandler {
     this.getProductsHandler = this.getProductsHandler.bind(this);
     this.getProductsByIdHandler = this.getProductsByIdHandler.bind(this);
     this.putProductsByIdHandler = this.putProductsByIdHandler.bind(this);
-    this.putStatusProductsByIdHandler =
-      this.putStatusProductsByIdHandler.bind(this);
+    this.putStatusProductsByIdHandler = this.putStatusProductsByIdHandler.bind(
+      this
+    );
     this.putImageProductsHandler = this.putImageProductsHandler.bind(this);
   }
 
@@ -75,8 +76,9 @@ class ProductsHandler {
   async getProductsHandler(request) {
     const { page, limit, search_query } = request.query;
 
+    const search = search_query ? search_query : "";
     const totalData = parseInt(
-      await this._service.getCountProductsSearch(search_query)
+      await this._service.getCountProductsSearch(search)
     );
     const limitPage = limit || 10;
     const pages = parseInt(page) || 1;
@@ -84,7 +86,7 @@ class ProductsHandler {
     const offset = (pages - 1) * limitPage;
     let products;
     products = await this._service.getProductsSearch({
-      search_query,
+      search,
       limit,
       offset,
     });
@@ -226,6 +228,7 @@ class ProductsHandler {
 
     return {
       status: "success",
+      message: "Berhasil update image product",
     };
   }
 }

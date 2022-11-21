@@ -1,7 +1,7 @@
 ## Getting Started
 
 1. Create database "itindosolution_api" in your database postgres
-   - psql -U postgre
+   - psql -U postgres
    - create database itindosolution_api;
    - create user myuser with encrypted password 'yourpass';
    - grant all privileges on database itindosolution_api to myuser;

@@ -47,11 +47,11 @@ class ProductsService {
     return result.rows[0].product_id;
   }
 
-  async getProductsSearch({ search_query, limit, offset }) {
+  async getProductsSearch({ search, limit, offset }) {
     const query = {
       text: `SELECT product_id, name, price, created, status
         FROM products 
-        WHERE name LIKE '%${search_query}%'
+        WHERE name LIKE '%${search}%'
         LIMIT $1 OFFSET $2`,
       values: [limit, offset],
     };

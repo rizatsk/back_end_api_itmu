@@ -23,7 +23,7 @@ class PackageServiceService {
 
     const query = {
       text: `INSERT INTO package_services(package_service_id, name, products,
-        price, type_service, created, createdby_user_id, updated, updatedby_user_id, status, description) 
+        price, type_service, created, createdby_user_id, updated, updatedby_user_id, status, deskripsi_package) 
         VALUES($1, $2, $3::varchar[], $4, $5, $6, $7, $6, $7, $8, $9) RETURNING package_service_id`,
       values: [
         id,
@@ -57,9 +57,9 @@ class PackageServiceService {
       throw new InvariantError("nama paket pelayanan sudah digunakan");
   }
 
-  async getCountPackageServices() {
+  async getCountPackageServices(search) {
     const query = {
-      text: "SELECT count(*) AS count FROM package_services",
+      text: `SELECT count(*) AS count FROM package_services WHERE name LIKE '%${search}%'`,
     };
 
     const result = await this._pool.query(query);
@@ -67,10 +67,11 @@ class PackageServiceService {
     return result.rows[0].count;
   }
 
-  async getPackageServices(limit, offset) {
+  async getPackageServices({ limit, offset, search }) {
     const query = {
       text: `SELECT package_service_id, name, products, price, 
-      image, type_service, status, description FROM package_services
+      type_service, status, deskripsi_package FROM package_services
+      WHERE name LIKE '%${search}%'
       LIMIT $1 OFFSET $2`,
       values: [limit, offset],
     };
@@ -105,7 +106,7 @@ class PackageServiceService {
   }) {
     const query = {
       text: `UPDATE package_services SET name = $1, products = $2::varchar[], price = $3, 
-        type_service = $4, updated = $5, updatedby_user_id = $6, description = $8
+        type_service = $4, updated = $5, updatedby_user_id = $6, deskripsi_package = $8
         WHERE package_service_id = $7`,
       values: [
         name,
@@ -146,64 +147,64 @@ class PackageServiceService {
       );
   }
 
-  async addImagePackageService({
-    credentialUserId,
-    packageServiceId,
-    imageUrl,
-  }) {
-    const images = [];
-    images.push(imageUrl);
-
+  async addImagePackageService(packageServiceId, imageUrl) {
+    const id = `image-package-${nanoid(16)}`;
     const query = {
-      text: `UPDATE package_services SET image = $1::text[], updated = $2, updatedby_user_id = $3
-        WHERE package_service_id = $4`,
-      values: [images, getDateTime(), credentialUserId, packageServiceId],
+      text: `INSERT INTO image_packages(image_package_id, package_id, link) VALUES($1, $2, $3) RETURNING image_package_id`,
+      values: [id, packageServiceId, imageUrl],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rowCount)
       throw new InvariantError(
-        "Gagal menambahkan foto package service, package service id tidak ditemukan"
+        "Gagal upload image package, package service id tidak ditemukan"
       );
+
+    return result.rows[0].id;
   }
 
-  async deleteImagePackgeService(credentialUserId, packageServiceId) {
+  async getImagePackages(packageId) {
     const query = {
-      text: `UPDATE package_services SET image = null, updated = $2, updatedby_user_id = $3 
-        WHERE package_service_id = $1`,
-      values: [packageServiceId, getDateTime(), credentialUserId],
+      text: `SELECT image_package_id AS imagePackageId, link FROM image_packages WHERE package_id = $1`,
+      values: [packageId],
     };
 
     const result = await this._pool.query(query);
-
-    if (!result.rowCount)
-      throw new InvariantError(
-        "Gagal menghapus gambar package service, package service id tidak ditemukan"
-      );
+    return result.rows;
   }
 
-  async checkPackageServiceId(packageServiceId) {
+  async getImagePackageName(imagePackageId) {
+    imagePackageId = imagePackageId.replace("[", "");
+    imagePackageId = imagePackageId.replace("]", "");
+    imagePackageId = imagePackageId.split(",");
+    imagePackageId = imagePackageId.join(",");
+
     const query = {
-      text: "SELECT package_service_id, image[1] FROM package_services WHERE package_service_id = $1",
-      values: [packageServiceId],
+      text: `SELECT link FROM image_packages WHERE image_package_id IN (${imagePackageId})`,
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows;
+  }
+
+  async deleteImagePacakge(imagePackageId, packageId) {
+    imagePackageId = imagePackageId.replace("[", "");
+    imagePackageId = imagePackageId.replace("]", "");
+    imagePackageId = imagePackageId.split(",");
+    imagePackageId = imagePackageId.join(",");
+
+    const query = {
+      text: `DELETE FROM image_packages WHERE image_package_id IN (${imagePackageId}) AND package_id = $1`,
+      values: [packageId],
     };
 
     const result = await this._pool.query(query);
 
     if (!result.rowCount)
       throw new InvariantError(
-        "Gagal upload image package service, package service id tidak ditemukan"
+        "Gagal menghapus gambar package, package service id tidak ditemukan"
       );
-
-    const { image } = result.rows[0];
-    if (image != null) {
-      const fileName = image.split("/");
-      const previousFilename = fileName[fileName.length - 1];
-      return previousFilename;
-    } else {
-      return null;
-    }
   }
 }
 
