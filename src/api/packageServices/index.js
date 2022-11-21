@@ -6,11 +6,11 @@ module.exports = {
   name: "packageServices",
   version: "1.0.0",
   register: async (server, { service, logActivityService, validator }) => {
-    const packageServiceHandler = new PackageServiceHandler(
+    const packageServiceHandler = new PackageServiceHandler({
       service,
       logActivityService,
-      validator
-    );
+      validator,
+    });
     server.route(
       routerGroup(process.env.PREFIX, routes(packageServiceHandler))
     );

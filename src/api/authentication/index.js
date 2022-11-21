@@ -15,13 +15,13 @@ module.exports = {
       validator,
     }
   ) => {
-    const authenticationHandler = new AuthenticationHandler(
+    const authenticationHandler = new AuthenticationHandler({
       authenticationService,
       usersService,
       logActivityService,
       tokenManager,
-      validator
-    );
+      validator,
+    });
     server.route(
       routerGroup(process.env.PREFIX, routes(authenticationHandler))
     );

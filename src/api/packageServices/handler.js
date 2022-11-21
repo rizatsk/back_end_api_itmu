@@ -1,5 +1,5 @@
 class PackageServiceHandler {
-  constructor(service, logActivityService, validator) {
+  constructor({ service, logActivityService, validator }) {
     this._service = service;
     this._logActivityService = logActivityService;
     this._validator = validator;

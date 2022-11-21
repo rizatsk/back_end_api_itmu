@@ -1,11 +1,11 @@
 class AuthenticationHandler {
-  constructor(
+  constructor({
     authenticationService,
     usersService,
     logActivityService,
     tokenManager,
-    validator
-  ) {
+    validator,
+  }) {
     this._authenticationService = authenticationService;
     this._usersService = usersService;
     this._logActivityService = logActivityService;

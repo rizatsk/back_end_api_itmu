@@ -1,41 +1,40 @@
-require('dotenv').config();
+require("dotenv").config();
 
-const Hapi = require('@hapi/hapi');
-const ClientError = require('./exceptions/ClientError');
-const path = require('path');
-const Jwt = require('@hapi/jwt');
-const Inert = require('@hapi/inert');
+const Hapi = require("@hapi/hapi");
+const ClientError = require("./exceptions/ClientError");
+const path = require("path");
+const Jwt = require("@hapi/jwt");
+const Inert = require("@hapi/inert");
 
 // Token Manager
-const TokenManager = require('./tokenize/TokenManager');
+const TokenManager = require("./tokenize/TokenManager");
 // Log Activity Service
-const LogActivityService = require('./services/postgres/LogActivityService');
+const LogActivityService = require("./services/postgres/LogActivityService");
 
 // Authentication
-const authentication = require('./api/authentication');
-const AuthenticationService = require('./services/postgres/AuthenticationService');
-const AuthenticationValidator = require('./validator/authentication');
+const authentication = require("./api/authentication");
+const AuthenticationService = require("./services/postgres/AuthenticationService");
+const AuthenticationValidator = require("./validator/authentication");
 
 // User
-const users = require('./api/users');
-const UsersService = require('./services/postgres/UsersService');
-const UsersValidator = require('./validator/users');
+const users = require("./api/users");
+const UsersService = require("./services/postgres/UsersService");
+const UsersValidator = require("./validator/users");
 
 // Package Services
-const packageServices = require('./api/packageServices');
-const PackageServiceService = require('./services/postgres/PackageServiceService');
-const PackageServiceValidator = require('./validator/packageService');
+const packageServices = require("./api/packageServices");
+const PackageServiceService = require("./services/postgres/PackageServiceService");
+const PackageServiceValidator = require("./validator/packageService");
 
 // Products
-const products = require('./api/products');
-const ProductsService = require('./services/postgres/ProductsService');
-const ProductsValidator = require('./validator/products');
+const products = require("./api/products");
+const ProductsService = require("./services/postgres/ProductsService");
+const ProductsValidator = require("./validator/products");
 
 // Upload
-const uploads = require('./api/uploads');
-const StorageService = require('./services/storage/StorageService');
-const UploadsValidator = require('./validator/uploads');
-
+const uploads = require("./api/uploads");
+const StorageService = require("./services/storage/StorageService");
+const UploadsValidator = require("./validator/uploads");
 
 const init = async () => {
   const usersService = new UsersService();
@@ -43,15 +42,17 @@ const init = async () => {
   const logActivityService = new LogActivityService();
   const packageServiceService = new PackageServiceService();
   const productsService = new ProductsService();
-  const storageService = new StorageService(path.resolve(__dirname, 'public/images'));
-  const storageImage = path.resolve(__dirname, 'public/images');
+  const storageService = new StorageService(
+    path.resolve(__dirname, "public/images")
+  );
+  const storageImage = path.resolve(__dirname, "public/images");
 
   const server = Hapi.server({
     port: process.env.PORT,
     host: process.env.HOST,
     routes: {
       cors: {
-        origin: ['*'],
+        origin: ["*"],
       },
     },
   });
@@ -67,7 +68,7 @@ const init = async () => {
   ]);
 
   // mendifiniskan strategy autentekasi jwt
-  server.auth.strategy('itindosolution_jwt', 'jwt', {
+  server.auth.strategy("itindosolution_jwt", "jwt", {
     keys: process.env.ACCESS_TOKEN_KEY,
     verify: {
       aud: false,
@@ -84,14 +85,14 @@ const init = async () => {
   });
 
   //  Penganganan Error Server Pada Handler
-  server.ext('onPreResponse', (request, h) => {
+  server.ext("onPreResponse", (request, h) => {
     // mendapatkan konteks response dari request
-    const {response} = request;
+    const { response } = request;
 
     if (response instanceof ClientError) {
       // membuat response baru dari response toolkit sesuai kebutuhan error handling
       const newResponse = h.response({
-        status: 'fail',
+        status: "fail",
         message: response.message,
       });
       newResponse.code(response.statusCode);
@@ -136,6 +137,7 @@ const init = async () => {
         service: productsService,
         logActivityService,
         validator: ProductsValidator,
+        storageService,
       },
     },
     {
