@@ -9,12 +9,12 @@ module.exports = {
     server,
     { service, authentication, logActivityService, validator }
   ) => {
-    const usersHandler = new UsersHandler(
+    const usersHandler = new UsersHandler({
       service,
       authentication,
       logActivityService,
-      validator
-    );
+      validator,
+    });
     server.route(routerGroup(process.env.PREFIX, routes(usersHandler)));
   },
 };

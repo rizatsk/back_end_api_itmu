@@ -1,5 +1,11 @@
-const {PostProductPayloadSchema, PutProductPayloadSchema, PutStatusProductPayloadSchema} = require('./schema');
-const InvariantError = require('../../exceptions/InvariantError');
+const {
+  PostProductPayloadSchema,
+  PutProductPayloadSchema,
+  PutStatusProductPayloadSchema,
+  PutImageProductPayloadSchema,
+  ImageHeaderSchema,
+} = require("./schema");
+const InvariantError = require("../../exceptions/InvariantError");
 
 const ProductsValidator = {
   validatePostProductPayload: (payload) => {
@@ -18,6 +24,20 @@ const ProductsValidator = {
   },
   validatePutStatusProductPayload: (payload) => {
     const validationResult = PutStatusProductPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validatePutIamgesProductPayload: (payload) => {
+    const validationResult = PutImageProductPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validateImageHeaderSchema: (headers) => {
+    const validationResult = ImageHeaderSchema.validate(headers);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

@@ -1,58 +1,53 @@
 exports.up = (pgm) => {
-  pgm.createTable('products', {
+  pgm.createTable("products", {
     product_id: {
-      type: 'VARCHAR(50)',
+      type: "VARCHAR(50)",
       primaryKey: true,
     },
     name: {
-      type: 'VARCHAR',
+      type: "VARCHAR",
       notNull: true,
       unique: true,
     },
     price: {
-      type: 'DOUBLE PRECISION',
+      type: "DOUBLE PRECISION",
       notNull: true,
     },
-    image: {
-      type: 'TEXT[]',
-      notNull: false,
-    },
     type_product: {
-      type: 'VARCHAR',
+      type: "VARCHAR",
       notNull: true,
     },
     deskripsi_product: {
-      type: 'TEXT',
+      type: "TEXT",
       notNull: false,
     },
     created: {
-      type: 'TIMESTAMP',
+      type: "TIMESTAMP",
       notNull: true,
     },
     createdby_user_id: {
-      type: 'VARCHAR(50)',
+      type: "VARCHAR(50)",
       notNull: true,
-      references: 'user_admins',
-      onDelete: 'restrict',
+      references: "user_admins",
+      onDelete: "restrict",
     },
     updated: {
-      type: 'TIMESTAMP',
+      type: "TIMESTAMP",
       notNull: true,
     },
     updatedby_user_id: {
-      type: 'VARCHAR(50)',
+      type: "VARCHAR(50)",
       notNull: true,
-      references: 'user_admins',
-      onDelete: 'restrict',
+      references: "user_admins",
+      onDelete: "restrict",
     },
     status: {
-      type: 'BOOLEAN',
+      type: "BOOLEAN",
       notNull: true,
     },
   });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('products');
+  pgm.dropTable("products");
 };
-

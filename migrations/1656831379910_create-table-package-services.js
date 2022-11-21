@@ -1,61 +1,57 @@
 exports.up = (pgm) => {
-  pgm.createTable('package_services', {
+  pgm.createTable("package_services", {
     package_service_id: {
-      type: 'VARCHAR(50)',
+      type: "VARCHAR(50)",
       primaryKey: true,
     },
     name: {
-      type: 'VARCHAR',
+      type: "VARCHAR",
       notNull: true,
       unique: true,
     },
     products: {
-      type: 'VARCHAR[]',
+      type: "VARCHAR[]",
       notNull: true,
     },
     price: {
-      type: 'DOUBLE PRECISION',
+      type: "DOUBLE PRECISION",
       notNull: true,
     },
-    image: {
-      type: 'TEXT[]',
-      notNull: false,
-    },
     type_service: {
-      type: 'VARCHAR',
+      type: "VARCHAR",
       notNull: true,
     },
     deskripsi_package: {
-      type: 'TEXT',
+      type: "TEXT",
       notNull: false,
     },
     created: {
-      type: 'TIMESTAMP',
+      type: "TIMESTAMP",
       notNull: true,
     },
     createdby_user_id: {
-      type: 'VARCHAR(50)',
+      type: "VARCHAR(50)",
       notNull: true,
-      references: 'user_admins',
-      onDelete: 'restrict',
+      references: "user_admins",
+      onDelete: "restrict",
     },
     updated: {
-      type: 'TIMESTAMP',
+      type: "TIMESTAMP",
       notNull: true,
     },
     updatedby_user_id: {
-      type: 'VARCHAR(50)',
+      type: "VARCHAR(50)",
       notNull: true,
-      references: 'user_admins',
-      onDelete: 'restrict',
+      references: "user_admins",
+      onDelete: "restrict",
     },
     status: {
-      type: 'BOOLEAN',
+      type: "BOOLEAN",
       notNull: true,
     },
   });
 };
 
 exports.down = (pgm) => {
-  pgm.dropTable('package_services');
+  pgm.dropTable("package_services");
 };
