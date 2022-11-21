@@ -1,33 +1,75 @@
 class PackageServiceHandler {
-  constructor({ service, logActivityService, validator }) {
+  constructor({ service, logActivityService, validator, storageService }) {
     this._service = service;
     this._logActivityService = logActivityService;
     this._validator = validator;
+    this._storageService = storageService;
 
     this.postPackageServiceHandler = this.postPackageServiceHandler.bind(this);
-    this.getPackageServiceByIdHandler =
-      this.getPackageServiceByIdHandler.bind(this);
+    this.getPackageServiceByIdHandler = this.getPackageServiceByIdHandler.bind(
+      this
+    );
     this.getPackageServiceHandler = this.getPackageServiceHandler.bind(this);
-    this.putPackgeServiceByIdHandler =
-      this.putPackgeServiceByIdHandler.bind(this);
-    this.putStatusPackageServiceByIdHandler =
-      this.putStatusPackageServiceByIdHandler.bind(this);
+    this.putPackgeServiceByIdHandler = this.putPackgeServiceByIdHandler.bind(
+      this
+    );
+    this.putStatusPackageServiceByIdHandler = this.putStatusPackageServiceByIdHandler.bind(
+      this
+    );
+    this.putImagePackagesHandler = this.putImagePackagesHandler.bind(this);
   }
 
   async postPackageServiceHandler(request, h) {
     await this._validator.validatePostPackageServicePayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { name, products, price, typeService, description } = request.payload;
-
-    const packageServiceId = await this._service.addPackageService({
-      credentialUserId,
+    const {
       name,
       products,
       price,
       typeService,
       description,
+      image,
+    } = request.payload;
+
+    // push image in array
+    let images = [];
+    // check image hanya 1 file
+    if (!image.length) {
+      images.push(image);
+    } else {
+      // image hanya lebih 1 dari file
+      images = image;
+    }
+
+    // validation file image
+    for (const img of images) {
+      this._validator.validateImageHeaderSchema(img.hapi.headers);
+    }
+
+    const packageServiceId = await this._service.addPackageService({
+      credentialUserId,
+      name,
+      products: JSON.parse(products),
+      price,
+      typeService,
+      description,
     });
+
+    const folder = "packages";
+    for (const img of images) {
+      if (img.hapi.filename) {
+        // save image in server
+        const filename = await this._storageService.writeFile(
+          img,
+          img.hapi,
+          folder
+        );
+        let linkImage = `/images/${folder}/${filename}`;
+        // save link image in db
+        await this._service.addImagePackageService(packageServiceId, linkImage);
+      }
+    }
 
     await this._logActivityService.postLogActivity({
       credentialUserId,
@@ -47,27 +89,33 @@ class PackageServiceHandler {
     const packageService = await this._service.getPackageServiceById(
       packageServiceId
     );
+    const imagePackage = await this._service.getImagePackages(packageServiceId);
 
     return {
       status: "success",
       data: {
         packageService,
+        imagePackage,
       },
     };
   }
 
   async getPackageServiceHandler(request) {
-    const { page, limit } = request.query;
+    const { page, limit, search_query } = request.query;
 
-    const totalData = parseInt(await this._service.getCountPackageServices());
+    const search = search_query ? search_query : "";
+    const totalData = parseInt(
+      await this._service.getCountPackageServices(search)
+    );
     const pages = parseInt(page) || 1;
     const limitPage = parseInt(limit) || 10;
     const totalPages = Math.ceil(totalData / pages);
     const offset = (pages - 1) * totalData;
-    const packageServices = await this._service.getPackageServices(
-      limitPage,
-      offset
-    );
+    const packageServices = await this._service.getPackageServices({
+      search,
+      limit: limitPage,
+      offset,
+    });
 
     return {
       status: "success",
@@ -85,14 +133,8 @@ class PackageServiceHandler {
     this._validator.validatePutPackageServiceByIdPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const {
-      packageServiceId,
-      name,
-      products,
-      price,
-      typeService,
-      description,
-    } = request.payload;
+    const { id: packageServiceId } = request.params;
+    const { name, products, price, typeService, description } = request.payload;
 
     await this._service.editPackageServicesById({
       credentialUserId,
@@ -120,7 +162,8 @@ class PackageServiceHandler {
     this._validator.validatePutStatusPackageServiceByIdPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { packageServiceId, status } = request.payload;
+    const { id: packageServiceId } = request.params;
+    const { status } = request.payload;
 
     await this._service.editStatusPackageServiceById({
       credentialUserId,
@@ -137,6 +180,68 @@ class PackageServiceHandler {
     return {
       status: "success",
       message: "Berhasil update status package service",
+    };
+  }
+
+  async putImagePackagesHandler(request) {
+    await this._validator.validatePutIamgesPackagePayload(request.payload);
+
+    const { id: credentialUserId } = request.auth.credentials;
+    const { id: packageId } = request.params;
+    const { deleteImages, postImages } = request.payload;
+
+    const folder = "packages";
+    if (deleteImages) {
+      const imagesName = await this._service.getImagePackageName(deleteImages);
+      imagesName.map(async (image) => {
+        let imageName = image.link;
+        imageName = imageName.split("/");
+        imageName = imageName[imageName.length - 1];
+        await this._storageService.deleteFile(imageName, folder);
+      });
+      await this._service.deleteImagePacakge(deleteImages, packageId);
+    }
+
+    if (postImages) {
+      // push image in array
+      let images = [];
+      // check image hanya 1 file
+      if (!postImages.length) {
+        images.push(postImages);
+      } else {
+        // image hanya lebih 1 dari file
+        images = postImages;
+      }
+
+      // validation file image
+      for (const img of images) {
+        this._validator.validateImageHeaderSchema(img.hapi.headers);
+      }
+
+      for (const img of images) {
+        if (img.hapi.filename) {
+          // save image in server
+          const filename = await this._storageService.writeFile(
+            img,
+            img.hapi,
+            folder
+          );
+          let linkImage = `/images/${folder}/${filename}`;
+          // save link image in db
+          await this._service.addImagePackageService(packageId, linkImage);
+        }
+      }
+    }
+
+    await this._logActivityService.postLogActivity({
+      credentialUserId,
+      activity: "edit image package service",
+      refersId: packageId,
+    });
+
+    return {
+      status: "success",
+      message: "Berhasil update image package",
     };
   }
 }

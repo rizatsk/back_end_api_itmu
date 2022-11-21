@@ -1,11 +1,11 @@
 exports.up = (pgm) => {
-  pgm.addColumn('package_services', {
+  pgm.addColumn("package_services", {
     description: {
-      type: 'TEXT',
+      type: "TEXT",
     },
-  } );
+  });
 };
 
 exports.down = (pgm) => {
-  pgm.dropColumn('package_services', 'description');
+  pgm.dropColumn("package_services", "description");
 };

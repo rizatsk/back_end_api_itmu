@@ -6,7 +6,7 @@ exports.up = (pgm) => {
       type: "VARCHAR(50)",
       primaryKey: true,
     },
-    product_id: {
+    package_id: {
       type: "VARCHAR(50)",
       references: "package_services",
       onDelete: "CASCADE",

@@ -129,6 +129,7 @@ const init = async () => {
         service: packageServiceService,
         logActivityService,
         validator: PackageServiceValidator,
+        storageService,
       },
     },
     {
