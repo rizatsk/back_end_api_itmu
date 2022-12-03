@@ -6,16 +6,13 @@ class PackageServiceHandler {
     this._storageService = storageService;
 
     this.postPackageServiceHandler = this.postPackageServiceHandler.bind(this);
-    this.getPackageServiceByIdHandler = this.getPackageServiceByIdHandler.bind(
-      this
-    );
+    this.getPackageServiceByIdHandler =
+      this.getPackageServiceByIdHandler.bind(this);
     this.getPackageServiceHandler = this.getPackageServiceHandler.bind(this);
-    this.putPackgeServiceByIdHandler = this.putPackgeServiceByIdHandler.bind(
-      this
-    );
-    this.putStatusPackageServiceByIdHandler = this.putStatusPackageServiceByIdHandler.bind(
-      this
-    );
+    this.putPackgeServiceByIdHandler =
+      this.putPackgeServiceByIdHandler.bind(this);
+    this.putStatusPackageServiceByIdHandler =
+      this.putStatusPackageServiceByIdHandler.bind(this);
     this.putImagePackagesHandler = this.putImagePackagesHandler.bind(this);
   }
 
@@ -23,14 +20,8 @@ class PackageServiceHandler {
     await this._validator.validatePostPackageServicePayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const {
-      name,
-      products,
-      price,
-      typeService,
-      description,
-      image,
-    } = request.payload;
+    const { name, products, price, typeService, description, image } =
+      request.payload;
 
     // push image in array
     let images = [];
@@ -83,23 +74,6 @@ class PackageServiceHandler {
     };
   }
 
-  async getPackageServiceByIdHandler(request, h) {
-    const { id: packageServiceId } = request.params;
-
-    const packageService = await this._service.getPackageServiceById(
-      packageServiceId
-    );
-    const imagePackage = await this._service.getImagePackages(packageServiceId);
-
-    return {
-      status: "success",
-      data: {
-        packageService,
-        imagePackage,
-      },
-    };
-  }
-
   async getPackageServiceHandler(request) {
     const { page, limit, search_query } = request.query;
 
@@ -126,6 +100,23 @@ class PackageServiceHandler {
       totalPages,
       nextPage: pages + 1,
       previousPage: pages - 1,
+    };
+  }
+
+  async getPackageServiceByIdHandler(request, h) {
+    const { id: packageServiceId } = request.params;
+
+    const packageService = await this._service.getPackageServiceById(
+      packageServiceId
+    );
+    const imagePackage = await this._service.getImagePackages(packageServiceId);
+
+    return {
+      status: "success",
+      data: {
+        packageService,
+        imagePackage,
+      },
     };
   }
 
@@ -192,14 +183,14 @@ class PackageServiceHandler {
 
     const folder = "packages";
     if (deleteImages) {
-      const imagesName = await this._service.getImagePackageName(deleteImages);
-      imagesName.map(async (image) => {
-        let imageName = image.link;
-        imageName = imageName.split("/");
-        imageName = imageName[imageName.length - 1];
-        await this._storageService.deleteFile(imageName, folder);
-      });
-      await this._service.deleteImagePacakge(deleteImages, packageId);
+      const deleteImagesArray = JSON.parse(deleteImages);
+      for (let deleteImage of deleteImagesArray) {
+        let imagesName = await this._service.getImagePackageName(deleteImage);
+        imagesName = imagesName.split("/");
+        imagesName = imagesName[imagesName.length - 1];
+        await this._storageService.deleteFile(imagesName, folder);
+        await this._service.deleteImagePacakge(deleteImage, packageId);
+      }
     }
 
     if (postImages) {

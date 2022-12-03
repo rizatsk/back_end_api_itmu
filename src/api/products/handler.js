@@ -20,7 +20,7 @@ class ProductsHandler {
     await this._validator.validatePostProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { name, price, typeProduct, image } = request.payload;
+    const { name, price, typeProduct, image, description } = request.payload;
 
     // push image in array
     let images = [];
@@ -43,6 +43,7 @@ class ProductsHandler {
       name,
       price,
       typeProduct,
+      description,
     });
 
     const folder = "products";
@@ -176,8 +177,6 @@ class ProductsHandler {
     const { id: credentialUserId } = request.auth.credentials;
     const { id: productId } = request.params;
     const { deleteImages, postImages } = request.payload;
-    console.log(deleteImages);
-    console.log(postImages);
 
     const folder = "products";
     if (deleteImages) {

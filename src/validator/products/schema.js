@@ -4,6 +4,7 @@ const PostProductPayloadSchema = Joi.object({
   name: Joi.string().required(),
   price: Joi.number().required(),
   typeProduct: Joi.string().required(),
+  description: Joi.string().required(),
   image: Joi.required(),
 });
 

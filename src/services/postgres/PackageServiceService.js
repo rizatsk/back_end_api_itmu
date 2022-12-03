@@ -175,28 +175,19 @@ class PackageServiceService {
   }
 
   async getImagePackageName(imagePackageId) {
-    imagePackageId = imagePackageId.replace("[", "");
-    imagePackageId = imagePackageId.replace("]", "");
-    imagePackageId = imagePackageId.split(",");
-    imagePackageId = imagePackageId.join(",");
-
     const query = {
-      text: `SELECT link FROM image_packages WHERE image_package_id IN (${imagePackageId})`,
+      text: `SELECT link FROM image_packages WHERE image_package_id = $1`,
+      values: [imagePackageId],
     };
 
     const result = await this._pool.query(query);
-    return result.rows;
+    return result.rows[0].link;
   }
 
   async deleteImagePacakge(imagePackageId, packageId) {
-    imagePackageId = imagePackageId.replace("[", "");
-    imagePackageId = imagePackageId.replace("]", "");
-    imagePackageId = imagePackageId.split(",");
-    imagePackageId = imagePackageId.join(",");
-
     const query = {
-      text: `DELETE FROM image_packages WHERE image_package_id IN (${imagePackageId}) AND package_id = $1`,
-      values: [packageId],
+      text: `DELETE FROM image_packages WHERE image_package_id = $2 AND package_id = $1`,
+      values: [packageId, imagePackageId],
     };
 
     const result = await this._pool.query(query);

@@ -21,14 +21,20 @@ class ProductsService {
     }
   }
 
-  async addProduct({ credentialUserId, name, price, typeProduct }) {
+  async addProduct({
+    credentialUserId,
+    name,
+    price,
+    typeProduct,
+    description,
+  }) {
     const status = "true";
     const id = `product-${nanoid(8)}`;
 
     const query = {
       text: `INSERT INTO products(product_id, name, price, type_product, 
-        created, createdby_user_id, updated, updatedby_user_id, status)
-        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7) RETURNING product_id`,
+        created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status)
+        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8) RETURNING product_id`,
       values: [
         id,
         name,
@@ -36,6 +42,7 @@ class ProductsService {
         typeProduct,
         getDateTime(),
         credentialUserId,
+        description,
         status,
       ],
     };
@@ -176,7 +183,6 @@ class ProductsService {
       values: [imageProductId, productId],
     };
 
-    console.log(query);
     const result = await this._pool.query(query);
 
     if (!result.rowCount)
