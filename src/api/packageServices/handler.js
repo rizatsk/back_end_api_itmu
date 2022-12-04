@@ -25,17 +25,19 @@ class PackageServiceHandler {
 
     // push image in array
     let images = [];
-    // check image hanya 1 file
-    if (!image.length) {
-      images.push(image);
-    } else {
-      // image hanya lebih 1 dari file
-      images = image;
-    }
+    if (image) {
+      // check image hanya 1 file
+      if (!image.length) {
+        images.push(image);
+      } else {
+        // image hanya lebih 1 dari file
+        images = image;
+      }
 
-    // validation file image
-    for (const img of images) {
-      this._validator.validateImageHeaderSchema(img.hapi.headers);
+      // validation file image
+      for (const img of images) {
+        this._validator.validateImageHeaderSchema(img.hapi.headers);
+      }
     }
 
     const packageServiceId = await this._service.addPackageService({
@@ -47,18 +49,23 @@ class PackageServiceHandler {
       description,
     });
 
-    const folder = "packages";
-    for (const img of images) {
-      if (img.hapi.filename) {
-        // save image in server
-        const filename = await this._storageService.writeFile(
-          img,
-          img.hapi,
-          folder
-        );
-        let linkImage = `/images/${folder}/${filename}`;
-        // save link image in db
-        await this._service.addImagePackageService(packageServiceId, linkImage);
+    if (image) {
+      const folder = "packages";
+      for (const img of images) {
+        if (img.hapi.filename) {
+          // save image in server
+          const filename = await this._storageService.writeFile(
+            img,
+            img.hapi,
+            folder
+          );
+          let linkImage = `/images/${folder}/${filename}`;
+          // save link image in db
+          await this._service.addImagePackageService(
+            packageServiceId,
+            linkImage
+          );
+        }
       }
     }
 

@@ -22,19 +22,21 @@ class ProductsHandler {
     const { id: credentialUserId } = request.auth.credentials;
     const { name, price, typeProduct, image, description } = request.payload;
 
-    // push image in array
     let images = [];
-    // check image hanya 1 file
-    if (!image.length) {
-      images.push(image);
-    } else {
-      // image hanya lebih 1 dari file
-      images = image;
-    }
+    if (image) {
+      // push image in array
+      // check image hanya 1 file
+      if (!image.length) {
+        images.push(image);
+      } else {
+        // image hanya lebih 1 dari file
+        images = image;
+      }
 
-    // validation file image
-    for (const img of images) {
-      this._validator.validateImageHeaderSchema(img.hapi.headers);
+      // validation file image
+      for (const img of images) {
+        this._validator.validateImageHeaderSchema(img.hapi.headers);
+      }
     }
 
     await this._service.checkNameProduct(name);
@@ -46,18 +48,20 @@ class ProductsHandler {
       description,
     });
 
-    const folder = "products";
-    for (const img of images) {
-      if (img.hapi.filename) {
-        // save image in server
-        const filename = await this._storageService.writeFile(
-          img,
-          img.hapi,
-          folder
-        );
-        let linkImage = `/images/${folder}/${filename}`;
-        // save link image in db
-        await this._service.addImageProduct(resultProductId, linkImage);
+    if (image) {
+      const folder = "products";
+      for (const img of images) {
+        if (img.hapi.filename) {
+          // save image in server
+          const filename = await this._storageService.writeFile(
+            img,
+            img.hapi,
+            folder
+          );
+          let linkImage = `/images/${folder}/${filename}`;
+          // save link image in db
+          await this._service.addImageProduct(resultProductId, linkImage);
+        }
       }
     }
 
