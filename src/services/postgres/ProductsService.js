@@ -21,14 +21,20 @@ class ProductsService {
     }
   }
 
-  async addProduct({ credentialUserId, name, price, typeProduct }) {
+  async addProduct({
+    credentialUserId,
+    name,
+    price,
+    typeProduct,
+    description,
+  }) {
     const status = "true";
     const id = `product-${nanoid(8)}`;
 
     const query = {
       text: `INSERT INTO products(product_id, name, price, type_product, 
-        created, createdby_user_id, updated, updatedby_user_id, status)
-        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7) RETURNING product_id`,
+        created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status)
+        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8) RETURNING product_id`,
       values: [
         id,
         name,
@@ -36,6 +42,7 @@ class ProductsService {
         typeProduct,
         getDateTime(),
         credentialUserId,
+        description,
         status,
       ],
     };
@@ -47,20 +54,6 @@ class ProductsService {
     return result.rows[0].product_id;
   }
 
-  async getProductsSearch({ search, limit, offset }) {
-    const query = {
-      text: `SELECT product_id, name, price, created, status
-        FROM products 
-        WHERE name LIKE '%${search}%'
-        LIMIT $1 OFFSET $2`,
-      values: [limit, offset],
-    };
-
-    const result = await this._pool.query(query);
-
-    return result.rows;
-  }
-
   async getCountProductsSearch(search_query) {
     const query = {
       text: `SELECT count(*) AS count FROM products WHERE name LIKE '%${search_query}%'`,
@@ -69,6 +62,21 @@ class ProductsService {
     const result = await this._pool.query(query);
 
     return result.rows[0].count;
+  }
+
+  async getProductsSearch({ search, limit, offset }) {
+    const query = {
+      text: `SELECT product_id, name, price, created, status
+        FROM products 
+        WHERE name LIKE '%${search}%'
+        ORDER BY created
+        LIMIT $1 OFFSET $2`,
+      values: [limit, offset],
+    };
+
+    const result = await this._pool.query(query);
+
+    return result.rows;
   }
 
   async getProductsById(productId) {
@@ -90,10 +98,11 @@ class ProductsService {
     name,
     price,
     typeProduct,
+    description,
   }) {
     const query = {
       text: `UPDATE products SET name = $1, price = $2, type_product = $3,
-        updated = $4, updatedby_user_id = $5 WHERE product_id = $6`,
+        updated = $4, updatedby_user_id = $5, deskripsi_product = $7 WHERE product_id = $6`,
       values: [
         name,
         price,
@@ -101,6 +110,7 @@ class ProductsService {
         getDateTime(),
         credentialUserId,
         productId,
+        description,
       ],
     };
 
@@ -158,28 +168,19 @@ class ProductsService {
   }
 
   async getImageProductsName(imageProductId) {
-    imageProductId = imageProductId.replace("[", "");
-    imageProductId = imageProductId.replace("]", "");
-    imageProductId = imageProductId.split(",");
-    imageProductId = imageProductId.join(",");
-
     const query = {
-      text: `SELECT link FROM image_products WHERE image_product_id IN (${imageProductId})`,
+      text: `SELECT link FROM image_products WHERE image_product_id = $1`,
+      values: [imageProductId],
     };
 
     const result = await this._pool.query(query);
-    return result.rows;
+    return result.rows[0].link;
   }
 
   async deleteImageProduct(imageProductId, productId) {
-    imageProductId = imageProductId.replace("[", "");
-    imageProductId = imageProductId.replace("]", "");
-    imageProductId = imageProductId.split(",");
-    imageProductId = imageProductId.join(",");
-
     const query = {
-      text: `DELETE FROM image_products WHERE image_product_id IN (${imageProductId}) AND product_id = $1`,
-      values: [productId],
+      text: `DELETE FROM image_products WHERE image_product_id = $1 AND product_id = $2`,
+      values: [imageProductId, productId],
     };
 
     const result = await this._pool.query(query);

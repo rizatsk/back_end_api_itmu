@@ -11,9 +11,8 @@ class ProductsHandler {
     this.getProductsHandler = this.getProductsHandler.bind(this);
     this.getProductsByIdHandler = this.getProductsByIdHandler.bind(this);
     this.putProductsByIdHandler = this.putProductsByIdHandler.bind(this);
-    this.putStatusProductsByIdHandler = this.putStatusProductsByIdHandler.bind(
-      this
-    );
+    this.putStatusProductsByIdHandler =
+      this.putStatusProductsByIdHandler.bind(this);
     this.putImageProductsHandler = this.putImageProductsHandler.bind(this);
   }
 
@@ -21,7 +20,7 @@ class ProductsHandler {
     await this._validator.validatePostProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { name, price, typeProduct, image } = request.payload;
+    const { name, price, typeProduct, image, description } = request.payload;
 
     // push image in array
     let images = [];
@@ -44,6 +43,7 @@ class ProductsHandler {
       name,
       price,
       typeProduct,
+      description,
     });
 
     const folder = "products";
@@ -123,7 +123,7 @@ class ProductsHandler {
 
     const { id: credentialUserId } = request.auth.credentials;
     const { id: productId } = request.params;
-    const { name, price, typeProduct } = request.payload;
+    const { name, price, typeProduct, description } = request.payload;
 
     await this._service.editProductsById({
       credentialUserId,
@@ -131,6 +131,7 @@ class ProductsHandler {
       name,
       price,
       typeProduct,
+      description,
     });
 
     await this._logActivityService.postLogActivity({
@@ -179,14 +180,14 @@ class ProductsHandler {
 
     const folder = "products";
     if (deleteImages) {
-      const imagesName = await this._service.getImageProductsName(deleteImages);
-      imagesName.map(async (image) => {
-        let imageName = image.link;
-        imageName = imageName.split("/");
-        imageName = imageName[imageName.length - 1];
-        await this._storageService.deleteFile(imageName, folder);
-      });
-      await this._service.deleteImageProduct(deleteImages, productId);
+      const deleImagesArray = JSON.parse(deleteImages);
+      for (let deleteImage of deleImagesArray) {
+        let imagesName = await this._service.getImageProductsName(deleteImage);
+        imagesName = imagesName.split("/");
+        imagesName = imagesName[imagesName.length - 1];
+        await this._storageService.deleteFile(imagesName, folder);
+        await this._service.deleteImageProduct(deleteImage, productId);
+      }
     }
 
     if (postImages) {
