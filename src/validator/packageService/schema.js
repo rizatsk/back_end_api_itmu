@@ -5,7 +5,7 @@ const PostPackageServicePayloadSchema = Joi.object({
   // products: Joi.array().items(Joi.string().required()),
   products: Joi.string().required(),
   price: Joi.number().required(),
-  image: Joi.required(),
+  image: Joi.allow(),
   typeService: Joi.string().required(),
   description: Joi.string().required(),
 });
