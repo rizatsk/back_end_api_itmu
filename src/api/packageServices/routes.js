@@ -10,6 +10,8 @@ const routes = (handler) => [
         multipart: true,
         output: "stream",
         maxBytes: 512000, //500kb
+        timeout: false,
+        timeout: false, //for no timeout upload
       },
     },
   },
@@ -50,6 +52,7 @@ const routes = (handler) => [
         multipart: true,
         output: "stream",
         maxBytes: 512000, //500kb
+        timeout: false, //for no timeout upload
       },
     },
   },
