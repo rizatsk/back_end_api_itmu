@@ -16,7 +16,7 @@ const routes = (handler) => [
   },
   {
     method: "GET",
-    path: "/authentications/user",
+    path: "/authentications/admin",
     handler: handler.getDataUserUseTokenHandler,
     options: {
       auth: "itindosolution_jwt",

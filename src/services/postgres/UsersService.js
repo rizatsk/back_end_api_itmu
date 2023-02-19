@@ -4,7 +4,6 @@ const NotFoundError = require("../../exceptions/NotFoundError");
 const AuthenticationError = require("../../exceptions/AuthenticationError");
 const InvariantError = require("../../exceptions/InvariantError");
 const { nanoid } = require("nanoid");
-const getDateTime = require("../../utils/getDateTime");
 
 class UsersService {
   constructor() {
@@ -53,7 +52,8 @@ class UsersService {
   // Get user admin
   async getAdminUser() {
     const query = {
-      text: "SELECT admin_id, fullname, username, fullname, email FROM user_admins",
+      text:
+        "SELECT admin_id, fullname, username, fullname, email FROM user_admins",
     };
 
     const result = await this._pool.query(query);
@@ -89,9 +89,10 @@ class UsersService {
     }
 
     const hashedPassword = await bcrypt.hash(passwordNew, 10);
+    const date = new Date();
     const query = {
       text: `UPDATE user_admins SET password = $2, updated = $3, updatedby_user_id = $1 WHERE admin_id = $1`,
-      values: [credentialUserId, hashedPassword, getDateTime()],
+      values: [credentialUserId, hashedPassword, date],
     };
 
     const result = await this._pool.query(query);
@@ -132,7 +133,7 @@ class UsersService {
 
     const id = `admin-${nanoid(8)}`;
     const hashedPassword = await bcrypt.hash(password, 10);
-    const dateTime = getDateTime();
+    const date = new Date();
     const status = true;
 
     const query = {
@@ -144,7 +145,7 @@ class UsersService {
         username,
         email,
         hashedPassword,
-        dateTime,
+        date,
         createdby_user_id,
         status,
       ],
@@ -184,9 +185,11 @@ class UsersService {
   async editAdminUserById({ credentialUserId, userId, fullname, email }) {
     await this.verifyNewUsernameOrEmailAdminUser(email);
 
+    const date = new Date();
     const query = {
-      text: "UPDATE user_admins SET fullname = $2, email = $3, updated = $4, updatedby_user_id = $5 WHERE admin_id = $1",
-      values: [userId, fullname, email, getDateTime(), credentialUserId],
+      text:
+        "UPDATE user_admins SET fullname = $2, email = $3, updated = $4, updatedby_user_id = $5 WHERE admin_id = $1",
+      values: [userId, fullname, email, date, credentialUserId],
     };
 
     const result = await this._pool.query(query);
@@ -199,9 +202,11 @@ class UsersService {
 
   // Edit Status User
   async editStatusAdminUserById({ credentialUserId, userId, status }) {
+    const date = new Date();
     const query = {
-      text: "UPDATE user_admins SET status = $1, updated = $2, updatedby_user_id = $3 WHERE admin_id = $4",
-      values: [status, getDateTime(), credentialUserId, userId],
+      text:
+        "UPDATE user_admins SET status = $1, updated = $2, updatedby_user_id = $3 WHERE admin_id = $4",
+      values: [status, date, credentialUserId, userId],
     };
 
     const result = await this._pool.query(query);
@@ -210,6 +215,13 @@ class UsersService {
       throw new InvariantError(
         "Gagal edit status admin user, user id tidak ditemukan"
       );
+  }
+
+  // Get Role Access User
+  async getRoleAccessUser(userId) {
+    const query = {
+      text: `SELECT access_token FROM auth_role WHERE `,
+    };
   }
 }
 

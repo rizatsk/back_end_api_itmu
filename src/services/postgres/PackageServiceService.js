@@ -1,5 +1,4 @@
 const { Pool } = require("pg");
-const getDateTime = require("../../utils/getDateTime");
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 
@@ -20,6 +19,7 @@ class PackageServiceService {
 
     const status = "true";
     const id = `package-${nanoid(8)}`;
+    const date = new Date();
 
     const query = {
       text: `INSERT INTO package_services(package_service_id, name, products,
@@ -31,7 +31,7 @@ class PackageServiceService {
         products,
         price,
         typeService,
-        getDateTime(),
+        date,
         credentialUserId,
         status,
         description,
@@ -104,6 +104,8 @@ class PackageServiceService {
     typeService,
     description,
   }) {
+    const date = new Date();
+
     const query = {
       text: `UPDATE package_services SET name = $1, products = $2::varchar[], price = $3, 
         type_service = $4, updated = $5, updatedby_user_id = $6, deskripsi_package = $8
@@ -113,7 +115,7 @@ class PackageServiceService {
         products,
         price,
         typeService,
-        getDateTime(),
+        date,
         credentialUserId,
         packageServiceId,
         description,
@@ -133,10 +135,11 @@ class PackageServiceService {
     packageServiceId,
     status,
   }) {
+    const date = new Date();
     const query = {
       text: `UPDATE package_services SET status = $1, updated = $2, updatedby_user_id = $3
         WHERE package_service_id = $4`,
-      values: [status, getDateTime(), credentialUserId, packageServiceId],
+      values: [status, date, credentialUserId, packageServiceId],
     };
 
     const result = await this._pool.query(query);

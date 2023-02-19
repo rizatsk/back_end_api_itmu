@@ -1,18 +1,24 @@
-const InvariantError = require("../../exceptions/InvariantError");
-
 class ProductsHandler {
-  constructor({ service, logActivityService, validator, storageService }) {
+  constructor({
+    service,
+    logActivityService,
+    validator,
+    storageService,
+    authorizationService,
+  }) {
     this._service = service;
     this._logActivityService = logActivityService;
     this._validator = validator;
     this._storageService = storageService;
+    this._authorizationService = authorizationService;
 
     this.postProductHandler = this.postProductHandler.bind(this);
     this.getProductsHandler = this.getProductsHandler.bind(this);
     this.getProductsByIdHandler = this.getProductsByIdHandler.bind(this);
     this.putProductsByIdHandler = this.putProductsByIdHandler.bind(this);
-    this.putStatusProductsByIdHandler =
-      this.putStatusProductsByIdHandler.bind(this);
+    this.putStatusProductsByIdHandler = this.putStatusProductsByIdHandler.bind(
+      this
+    );
     this.putImageProductsHandler = this.putImageProductsHandler.bind(this);
   }
 

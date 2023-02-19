@@ -36,6 +36,9 @@ const uploads = require("./api/uploads");
 const StorageService = require("./services/storage/StorageService");
 const UploadsValidator = require("./validator/uploads");
 
+// Authorization service
+const AuthorizationService = require("./services/postgres/AuthorizationService");
+
 const init = async () => {
   const usersService = new UsersService();
   const authenticationService = new AuthenticationService();
@@ -46,6 +49,7 @@ const init = async () => {
     path.resolve(__dirname, "public/images")
   );
   const storageImage = path.resolve(__dirname, "public/images");
+  const authorizationService = new AuthorizationService();
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -64,6 +68,9 @@ const init = async () => {
     },
     {
       plugin: Inert,
+    },
+    {
+      plugin: require("hapi-remote-address"),
     },
   ]);
 
@@ -139,6 +146,7 @@ const init = async () => {
         logActivityService,
         validator: ProductsValidator,
         storageService,
+        authorizationService,
       },
     },
     {

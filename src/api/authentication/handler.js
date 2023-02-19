@@ -12,20 +12,27 @@ class AuthenticationHandler {
     this._tokenManager = tokenManager;
     this._validator = validator;
 
-    this.postAuthenticationAdminHandler =
-      this.postAuthenticationAdminHandler.bind(this);
-    this.putAuthenticationAdminHandler =
-      this.putAuthenticationAdminHandler.bind(this);
-    this.deleteAuthenticationAdminHandler =
-      this.deleteAuthenticationAdminHandler.bind(this);
-    this.getDataUserUseTokenHandler =
-      this.getDataUserUseTokenHandler.bind(this);
+    this.postAuthenticationAdminHandler = this.postAuthenticationAdminHandler.bind(
+      this
+    );
+    this.putAuthenticationAdminHandler = this.putAuthenticationAdminHandler.bind(
+      this
+    );
+    this.deleteAuthenticationAdminHandler = this.deleteAuthenticationAdminHandler.bind(
+      this
+    );
+    this.getDataUserUseTokenHandler = this.getDataUserUseTokenHandler.bind(
+      this
+    );
   }
 
   async postAuthenticationAdminHandler(request, h) {
     this._validator.validatePostAuthenticationPayload(request.payload);
 
-    const { parameter, password, ip, device } = request.payload;
+    const ip = request.info._request.remoteAddress;
+    const device = request.info._request.headers["user-agent"];
+
+    const { parameter, password } = request.payload;
     const { adminId: id } = await this._usersService.verifyAdminUserCredential({
       parameter,
       password,
@@ -33,7 +40,6 @@ class AuthenticationHandler {
 
     const accessToken = this._tokenManager.generateAccessToken({ id });
     const refreshToken = this._tokenManager.generateRefreshToken({ id });
-
     await this._authenticationService.addRefreshToken({
       userId: id,
       refreshToken,

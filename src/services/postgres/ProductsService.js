@@ -1,6 +1,5 @@
 const { Pool } = require("pg");
 const { nanoid } = require("nanoid");
-const getDateTime = require("../../utils/getDateTime");
 const InvariantError = require("../../exceptions/InvariantError");
 
 class ProductsService {
@@ -30,6 +29,7 @@ class ProductsService {
   }) {
     const status = "true";
     const id = `product-${nanoid(8)}`;
+    const date = new Date();
 
     const query = {
       text: `INSERT INTO products(product_id, name, price, type_product, 
@@ -40,7 +40,7 @@ class ProductsService {
         name,
         price,
         typeProduct,
-        getDateTime(),
+        date,
         credentialUserId,
         description,
         status,
@@ -100,6 +100,7 @@ class ProductsService {
     typeProduct,
     description,
   }) {
+    const date = new Date();
     const query = {
       text: `UPDATE products SET name = $1, price = $2, type_product = $3,
         updated = $4, updatedby_user_id = $5, deskripsi_product = $7 WHERE product_id = $6`,
@@ -107,7 +108,7 @@ class ProductsService {
         name,
         price,
         typeProduct,
-        getDateTime(),
+        date,
         credentialUserId,
         productId,
         description,
@@ -115,7 +116,6 @@ class ProductsService {
     };
 
     const result = await this._pool.query(query);
-
     if (!result.rowCount)
       throw new InvariantError(
         "Gagal edit product, product id tidak ditemukan"
@@ -123,9 +123,10 @@ class ProductsService {
   }
 
   async editStatusProductsById({ productId, status, credentialUserId }) {
+    const date = new Date();
     const query = {
       text: `UPDATE products SET status = $1, updated = $3, updatedby_user_id = $4 WHERE product_id = $2`,
-      values: [status, productId, getDateTime(), credentialUserId],
+      values: [status, productId, date, credentialUserId],
     };
 
     const result = await this._pool.query(query);
