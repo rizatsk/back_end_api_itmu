@@ -1,4 +1,5 @@
 const { Pool } = require("pg");
+const InvariantError = require("../../exceptions/InvariantError");
 
 class AuthorizationService {
   constructor() {
@@ -7,21 +8,23 @@ class AuthorizationService {
 
   async getAccessRoleUser(userId) {
     const query = {
-      text: `SELECT access_role FROM users
+      text: `SELECT access_role FROM user_admins
             JOIN auth_role ON
-            users.role_id = auth_role.role_id
+            user_admins.role_id = auth_role.role_id
             WHERE admin_id = $1`,
       values: [userId],
     };
 
     const result = await this._pool.query(query);
 
-    // return result.rows[0];
-    console.log(result.rows[0]);
+    return result.rows[0];
   }
 
-  async checkRoleUser(roleUser, accessToken) {
-    console.log(roleUser, accessToken);
+  async checkRoleUser(userId, access) {
+    const { access_role } = await this.getAccessRoleUser(userId);
+    if (!access_role.includes(access) && access_role[0] !== "super_admin") {
+      throw new InvariantError("you don't have access");
+    }
   }
 }
 

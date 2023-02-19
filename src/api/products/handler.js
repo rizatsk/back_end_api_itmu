@@ -1,3 +1,5 @@
+const Authorization = require("../../utils/authorization");
+
 class ProductsHandler {
   constructor({
     service,
@@ -26,6 +28,11 @@ class ProductsHandler {
     await this._validator.validatePostProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
+    await this._authorizationService.checkRoleUser(
+      credentialUserId,
+      Authorization.insertProduct
+    );
+
     const { name, price, typeProduct, image, description } = request.payload;
 
     let images = [];
@@ -132,6 +139,11 @@ class ProductsHandler {
     await this._validator.validatePutProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
+    await this._authorizationService.checkRoleUser(
+      credentialUserId,
+      Authorization.updateProduct
+    );
+
     const { id: productId } = request.params;
     const { name, price, typeProduct, description } = request.payload;
 
@@ -160,6 +172,11 @@ class ProductsHandler {
     await this._validator.validatePutStatusProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
+    await this._authorizationService.checkRoleUser(
+      credentialUserId,
+      Authorization.updateStatusProduct
+    );
+
     const { id: productId } = request.params;
     const { status } = request.payload;
 
@@ -185,6 +202,11 @@ class ProductsHandler {
     await this._validator.validatePutIamgesProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
+    await this._authorizationService.checkRoleUser(
+      credentialUserId,
+      Authorization.updateProduct
+    );
+
     const { id: productId } = request.params;
     const { deleteImages, postImages } = request.payload;
 
