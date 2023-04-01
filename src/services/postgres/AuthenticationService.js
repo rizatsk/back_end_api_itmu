@@ -1,10 +1,9 @@
-const { Pool } = require("pg");
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 
 class AuthenticationService {
-  constructor() {
-    this._pool = new Pool();
+  constructor({ pool }) {
+    this._pool = pool;
   }
 
   async addRefreshToken({ userId, refreshToken, ip, device }) {

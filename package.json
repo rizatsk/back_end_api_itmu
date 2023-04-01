@@ -5,8 +5,10 @@
   "main": "index.js",
   "scripts": {
     "start": "node ./src/server",
-    "start-dev": "nodemon ./src/server",
-    "migrate": "node-pg-migrate"
+    "start:dev": "nodemon ./src/server",
+    "migrate": "node-pg-migrate",
+    "migrate:test": "node-pg-migrate -f config/test.json",
+    "test": "jest --verbose --runInBand --detectOpenHandles --forceExit"
   },
   "keywords": [],
   "author": "",
@@ -15,6 +17,7 @@
     "@hapi/hapi": "^20.2.2",
     "@hapi/inert": "^6.0.5",
     "@hapi/jwt": "^2.1.1",
+    "async-lock": "^1.4.0",
     "bcrypt": "^5.0.1",
     "dotenv": "^16.0.1",
     "hapi-remote-address": "^1.0.0",
@@ -25,6 +28,9 @@
   },
   "devDependencies": {
     "eslint-config-google": "^0.14.0",
+    "form-data": "^4.0.0",
+    "fs-extra": "^11.1.1",
+    "jest": "^29.5.0",
     "nodemon": "^2.0.18"
   }
 }

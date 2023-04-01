@@ -1,10 +1,10 @@
-const { Pool } = require("pg");
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
+const NotFoundError = require("../../exceptions/NotFoundError");
 
 class ProductsService {
-  constructor() {
-    this._pool = new Pool();
+  constructor({ pool }) {
+    this._pool = pool;
   }
 
   async checkNameProduct(name) {
@@ -16,7 +16,7 @@ class ProductsService {
     const result = await this._pool.query(query);
 
     if (result.rowCount) {
-      throw new InvariantError("Nama product sudah ada.");
+      throw new InvariantError("Nama product sudah ada");
     }
   }
 
@@ -87,9 +87,22 @@ class ProductsService {
 
     const result = await this._pool.query(query);
 
-    if (!result.rowCount) throw new InvariantError("Product tidak ditemukan");
+    if (!result.rowCount) throw new NotFoundError("Product tidak ditemukan");
 
     return result.rows[0];
+  }
+
+  async checkNameProductForUpdate(name, productId) {
+    const query = {
+      text:
+        "SELECT product_id FROM products WHERE name = $1 AND product_id != $2",
+      values: [name, productId],
+    };
+
+    const result = await this._pool.query(query);
+    if (result.rowCount) {
+      throw new InvariantError("Nama product tersedia");
+    }
   }
 
   async editProductsById({
@@ -100,6 +113,8 @@ class ProductsService {
     typeProduct,
     description,
   }) {
+    await this.checkNameProductForUpdate(name, productId);
+
     const date = new Date();
     const query = {
       text: `UPDATE products SET name = $1, price = $2, type_product = $3,
@@ -117,9 +132,7 @@ class ProductsService {
 
     const result = await this._pool.query(query);
     if (!result.rowCount)
-      throw new InvariantError(
-        "Gagal edit product, product id tidak ditemukan"
-      );
+      throw new NotFoundError("Gagal edit product, product id tidak ditemukan");
   }
 
   async editStatusProductsById({ productId, status, credentialUserId }) {
@@ -158,6 +171,22 @@ class ProductsService {
     }
   }
 
+  async getImageProductIdById(productId) {
+    const query = {
+      text: `SELECT image_product_id AS imageProductId FROM image_products WHERE product_id = $1`,
+      values: [productId],
+    };
+
+    if (!result.rows) return [];
+    const { rows: response } = await this._pool.query(query);
+    const result = response.map(({ productId }) => {
+      const result = [];
+      result.push(productId);
+      return result;
+    });
+    return result;
+  }
+
   async getImageProducts(productId) {
     const query = {
       text: `SELECT image_product_id AS imageProductId, link FROM image_products WHERE product_id = $1`,
@@ -190,6 +219,15 @@ class ProductsService {
       throw new InvariantError(
         "Gagal menghapus gambar product, product id tidak ditemukan"
       );
+  }
+
+  async deleteProductById(productId) {
+    const query = {
+      text: "DELETE FROM products WHERE product_id = $1",
+      values: [productId],
+    };
+    const result = await this._pool.query(query);
+    if (!result.rowCount) throw new NotFoundError("Product id tidak ditemukan");
   }
 }
 

@@ -1,9 +1,8 @@
-const { Pool } = require("pg");
 const InvariantError = require("../../exceptions/InvariantError");
 
 class AuthorizationService {
-  constructor() {
-    this._pool = new Pool();
+  constructor({ pool }) {
+    this._pool = pool;
   }
 
   async getAccessRoleUser(userId) {

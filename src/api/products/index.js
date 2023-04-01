@@ -8,6 +8,7 @@ module.exports = {
   register: async (
     server,
     {
+      lock,
       service,
       logActivityService,
       validator,
@@ -16,6 +17,7 @@ module.exports = {
     }
   ) => {
     const productsHandler = new ProductsHandler({
+      lock,
       service,
       logActivityService,
       validator,

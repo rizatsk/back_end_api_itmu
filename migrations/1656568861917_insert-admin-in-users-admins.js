@@ -5,6 +5,5 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  // pgm.sql("DROP table user_admins");
   pgm.sql(`DELETE FROM user_admins WHERE admin_id = 'admin-00000001'`);
 };

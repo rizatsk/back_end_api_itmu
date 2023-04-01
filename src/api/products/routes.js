@@ -55,6 +55,14 @@ const routes = (handler) => [
       },
     },
   },
+  {
+    method: "DELETE",
+    path: "/products/{productId}",
+    handler: handler.deleteProductByIdHandler,
+    options: {
+      auth: "itindosolution_jwt",
+    },
+  },
 ];
 
 module.exports = routes;

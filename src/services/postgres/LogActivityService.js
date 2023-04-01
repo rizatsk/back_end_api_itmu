@@ -1,10 +1,9 @@
-const { Pool } = require("pg");
 const InvariantError = require("../../exceptions/InvariantError");
 const getDateTime = require("../../utils/getDateTime");
 
 class LogActivityService {
-  constructor() {
-    this._pool = new Pool();
+  constructor({ pool }) {
+    this._pool = pool;
   }
 
   async postLogActivity({ credentialUserId, activity, refersId }) {

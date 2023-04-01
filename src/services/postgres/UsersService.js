@@ -1,4 +1,3 @@
-const { Pool } = require("pg");
 const bcrypt = require("bcrypt");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const AuthenticationError = require("../../exceptions/AuthenticationError");
@@ -6,8 +5,8 @@ const InvariantError = require("../../exceptions/InvariantError");
 const { nanoid } = require("nanoid");
 
 class UsersService {
-  constructor() {
-    this._pool = new Pool();
+  constructor({ pool }) {
+    this._pool = pool;
   }
 
   // Check data user saat login

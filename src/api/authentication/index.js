@@ -8,6 +8,7 @@ module.exports = {
   register: async (
     server,
     {
+      lock,
       authenticationService,
       usersService,
       logActivityService,
@@ -16,6 +17,7 @@ module.exports = {
     }
   ) => {
     const authenticationHandler = new AuthenticationHandler({
+      lock,
       authenticationService,
       usersService,
       logActivityService,
