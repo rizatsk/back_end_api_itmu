@@ -40,6 +40,11 @@ const UploadsValidator = require("./validator/uploads");
 // Authorization service
 const AuthorizationService = require("./services/postgres/AuthorizationService");
 
+// User Itindo
+const userItindo = require("./api/uerItindo");
+const UserItindoService = require("./services/postgres/UserItindoService");
+const UserItindoValidator = require("./validator/userItindo");
+
 const app = async (pool) => {
   const lock = new Lock();
   const usersService = new UsersService({ pool });
@@ -52,6 +57,7 @@ const app = async (pool) => {
   );
   const storageImage = path.resolve(__dirname, "public/images");
   const authorizationService = new AuthorizationService({ pool });
+  const userItindoService = new UserItindoService({ pool });
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -79,6 +85,22 @@ const app = async (pool) => {
   // mendifiniskan strategy autentekasi jwt
   server.auth.strategy("itindosolution_jwt", "jwt", {
     keys: process.env.ACCESS_TOKEN_KEY,
+    verify: {
+      aud: false,
+      iss: false,
+      sub: false,
+      maxAgeSec: process.env.ACCESS_TOKEN_AGE,
+    },
+    validate: (artifacts) => ({
+      isValid: true,
+      credentials: {
+        id: artifacts.decoded.payload.id,
+      },
+    }),
+  });
+
+  server.auth.strategy("itindosolution_user_jwt", "jwt", {
+    keys: process.env.ACCESS_TOKEN_KEY_USER,
     verify: {
       aud: false,
       iss: false,
@@ -165,6 +187,16 @@ const app = async (pool) => {
         logActivityService,
         storageImage,
         validator: UploadsValidator,
+      },
+    },
+    {
+      plugin: userItindo,
+      options: {
+        service: userItindoService,
+        validator: UserItindoValidator,
+        tokenManager: TokenManager,
+        authenticationService,
+        logActivityService,
       },
     },
   ]);

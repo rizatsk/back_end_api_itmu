@@ -214,6 +214,7 @@ class ProductsHandler {
     const { id: credentialUserId } = request.auth.credentials;
     const { id: productId } = request.params;
     const { deleteImages, postImages } = request.payload;
+    const folder = "products";
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
@@ -222,12 +223,14 @@ class ProductsHandler {
       );
 
       let imageProductsId = await this._service.getImageProducts(productId);
+
       if (deleteImages) {
         const deleImagesArray = JSON.parse(deleteImages);
         imageProductsId = imageProductsId.filter((item) => {
           return !deleImagesArray.includes(item);
         });
       }
+
       const countPostImage = postImages ? postImages.length || 1 : 0;
       if (countPostImage + imageProductsId.length > 3)
         throw new InvariantError(
@@ -267,7 +270,6 @@ class ProductsHandler {
         }
       }
 
-      const folder = "products";
       if (deleteImages) {
         const deleImagesArray = JSON.parse(deleteImages);
         for (let deleteImage of deleImagesArray) {
@@ -300,24 +302,26 @@ class ProductsHandler {
   async deleteProductByIdHandler(request) {
     const { id: credentialUserId } = request.auth.credentials;
     const { productId } = request.params;
-
     const folder = "products";
-    const images = await this._service.getImageProducts(productId);
-    await this._service.deleteProductById(productId);
 
-    await this._logActivityService.postLogActivity({
-      credentialUserId,
-      activity: "delete product",
-      refersId: productId,
-    });
+    await this._lock.acquire("data", async () => {
+      const images = await this._service.getImageProducts(productId);
+      await this._service.deleteProductById(productId);
 
-    images.map(async (image) => {
-      if (image.link) {
-        image = image.link;
-        let imageName = image.split("/");
-        imageName = imageName[imageName.length - 1];
-        await this._storageService.deleteFile(imageName, folder);
-      }
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "delete product",
+        refersId: productId,
+      });
+
+      images.map(async (image) => {
+        if (image.link) {
+          image = image.link;
+          let imageName = image.split("/");
+          imageName = imageName[imageName.length - 1];
+          await this._storageService.deleteFile(imageName, folder);
+        }
+      });
     });
 
     return {
