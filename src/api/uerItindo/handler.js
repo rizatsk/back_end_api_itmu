@@ -50,7 +50,6 @@ class UserItindoHandler {
 
   async getUserByTokenHandler(request) {
     const { id: credentialUserId } = request.auth.credentials;
-    console.log(request.auth);
     return {
       status: "success",
     };

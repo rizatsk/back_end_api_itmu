@@ -60,5 +60,21 @@ describe("/users ITindo endpoint", () => {
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual("success");
     });
+
+    it("should response 401 unauthorized", async () => {
+      const server = await app(pool_test);
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/user/data",
+        headers: {
+          Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6InVzZXItRW1tS1RtcHQiLCJpYXQiOjE2ODA0MjI5NzV9.FKL94TLnGj5uYGam-50Czu_udJlN54KS3ZFXKXN8x8s`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.error).toEqual("Unauthorized");
+    });
   });
 });
