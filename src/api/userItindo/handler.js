@@ -50,8 +50,14 @@ class UserItindoHandler {
 
   async getUserByTokenHandler(request) {
     const { id: credentialUserId } = request.auth.credentials;
+
+    const user = await this._service.getUserById(credentialUserId)
+
     return {
       status: "success",
+      data: {
+        user
+      }
     };
   }
 }

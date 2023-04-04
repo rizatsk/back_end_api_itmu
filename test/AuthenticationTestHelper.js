@@ -52,6 +52,10 @@ class AuthenticationTestHelper {
 
     await this._pool.query(query);
   }
+
+  getAccessTokenUser(id) {
+    return JwtIO.token.generate({ id }, process.env.ACCESS_TOKEN_KEY_USER)
+  }
 }
 
 module.exports = AuthenticationTestHelper;
