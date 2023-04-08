@@ -41,7 +41,7 @@ const UploadsValidator = require("./validator/uploads");
 const AuthorizationService = require("./services/postgres/AuthorizationService");
 
 // User Itindo
-const userItindo = require("./api/uerItindo");
+const userItindo = require("./api/userItindo");
 const UserItindoService = require("./services/postgres/UserItindoService");
 const UserItindoValidator = require("./validator/userItindo");
 
