@@ -34,7 +34,7 @@ const routes = (handler, storageImage) => [
   },
   {
     method: "POST",
-    path: "/products/images/{id}",
+    path: "/product/images/{id}",
     handler: handler.postUploadImageProductsHandler,
     options: {
       auth: "itindosolution_jwt",
@@ -48,7 +48,7 @@ const routes = (handler, storageImage) => [
   },
   {
     method: "DELETE",
-    path: "/products/images/{id}",
+    path: "/product/images/{id}",
     handler: handler.deleteImageProductsHandler,
     options: {
       auth: "itindosolution_jwt",

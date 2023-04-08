@@ -22,8 +22,8 @@ class AuthenticationTestHelper {
     await this._pool.query(query);
   }
 
-  async addToken() {
-    const id = "admin-00000001";
+  async addToken(data = {}) {
+    const id = data.id || "admin-00000001";
     const refreshToken = JwtIO.token.generate(
       id,
       process.env.REFRESH_TOKEN_KEY
@@ -54,7 +54,25 @@ class AuthenticationTestHelper {
   }
 
   getAccessTokenUser(id) {
-    return JwtIO.token.generate({ id }, process.env.ACCESS_TOKEN_KEY_USER)
+    return JwtIO.token.generate({ id }, process.env.ACCESS_TOKEN_KEY_USER);
+  }
+
+  async addTokenUser(data) {
+    const id = data.id;
+    const refreshToken = JwtIO.token.generate(
+      id,
+      process.env.REFRESH_TOKEN_KEY_USER
+    );
+
+    const payload = {
+      userId: id,
+      refreshToken,
+      ip: "127.0.0.1",
+      device: "Windows WHOAMI",
+    };
+
+    await this.addRefreshToken(payload);
+    return refreshToken;
   }
 }
 

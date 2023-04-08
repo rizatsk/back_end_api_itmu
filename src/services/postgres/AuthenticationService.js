@@ -1,5 +1,5 @@
 const { nanoid } = require("nanoid");
-const InvariantError = require("../../exceptions/InvariantError");
+const AuthenticationError = require("../../exceptions/AuthenticationError");
 
 class AuthenticationService {
   constructor({ pool }) {
@@ -56,7 +56,7 @@ class AuthenticationService {
     const result = await this._pool.query(query);
 
     if (!result.rows.length) {
-      throw new InvariantError("Refresh token tidak valid");
+      throw new AuthenticationError("Refresh token tidak valid");
     }
 
     return result.rows[0].user_id;

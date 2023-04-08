@@ -1,5 +1,3 @@
-const InvariantError = require("../../exceptions/InvariantError");
-
 class AuthenticationItindoHandler {
   constructor({
     lock,
@@ -24,22 +22,24 @@ class AuthenticationItindoHandler {
   }
 
   async postAuthenticationHandler(request, h) {
-    this._validator.validatePostAuthenticationPayload(request.payload);
+    this._validator.validatePostAuthenticationUserPayload(request.payload);
 
     const ip = request.info._request.remoteAddress;
     const device = request.info._request.headers["user-agent"];
 
     const { email, password } = request.payload;
     const result = await this._lock.acquire("data", async () => {
-      const {
-        adminId: id,
-      } = await this._userItindoService.verifyUserCredential({
-        email,
-        password,
-      });
+      const { userId: id } = await this._userItindoService.verifyUserCredential(
+        {
+          email,
+          password,
+        }
+      );
 
-      const accessToken = this._tokenManager.generateAccessToken({ id });
-      const refreshToken = this._tokenManager.generateRefreshToken({ id });
+      const accessToken = this._tokenManager.generateAccessUserToken({ id });
+      const refreshToken = this._tokenManager.generateRefreshUserToken({
+        id,
+      });
       await this._authenticationService.addRefreshToken({
         userId: id,
         refreshToken,
@@ -47,18 +47,11 @@ class AuthenticationItindoHandler {
         device,
       });
 
-      await this._logActivityService.postLogActivity({
-        credentialUserId: id,
-        activity: "login",
-        refersId: id,
-      });
-
       return {
         accessToken,
         refreshToken,
       };
     });
-
     const response = h.response({
       status: "success",
       message: "Authentication berhasil ditambahkan",
@@ -74,9 +67,9 @@ class AuthenticationItindoHandler {
     const { refreshToken } = request.payload;
     const result = await this._lock.acquire("data", async () => {
       await this._authenticationService.verifyRefreshToken(refreshToken);
-      const { id } = this._tokenManager.verifyRefreshToken(refreshToken);
+      const { id } = this._tokenManager.verifyRefreshUserToken(refreshToken);
 
-      const accessToken = this._tokenManager.generateAccessToken({ id });
+      const accessToken = this._tokenManager.generateAccessUserToken({ id });
       return {
         accessToken,
       };
@@ -96,16 +89,8 @@ class AuthenticationItindoHandler {
 
     const { refreshToken } = request.payload;
     await this._lock.acquire("data", async () => {
-      const userId = await this._authenticationService.verifyRefreshToken(
-        refreshToken
-      );
+      await this._authenticationService.verifyRefreshToken(refreshToken);
       await this._authenticationService.deleteRefreshToken(refreshToken);
-
-      await this._logActivityService.postLogActivity({
-        credentialUserId: userId,
-        activity: "logout",
-        refersId: userId,
-      });
     });
 
     return {

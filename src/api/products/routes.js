@@ -1,7 +1,7 @@
 const routes = (handler) => [
   {
     method: "POST",
-    path: "/products",
+    path: "/product",
     handler: handler.postProductHandler,
     options: {
       auth: "itindosolution_jwt",
@@ -16,17 +16,17 @@ const routes = (handler) => [
   },
   {
     method: "GET",
-    path: "/products",
+    path: "/product",
     handler: handler.getProductsHandler,
   },
   {
     method: "GET",
-    path: "/products/{id}",
+    path: "/product/{id}",
     handler: handler.getProductsByIdHandler,
   },
   {
     method: "PUT",
-    path: "/products/{id}",
+    path: "/product/{id}",
     handler: handler.putProductsByIdHandler,
     options: {
       auth: "itindosolution_jwt",
@@ -34,7 +34,7 @@ const routes = (handler) => [
   },
   {
     method: "PUT",
-    path: "/products/status/{id}",
+    path: "/product/status/{id}",
     handler: handler.putStatusProductsByIdHandler,
     options: {
       auth: "itindosolution_jwt",
@@ -42,7 +42,7 @@ const routes = (handler) => [
   },
   {
     method: "PUT",
-    path: "/products/images/{id}",
+    path: "/product/images/{id}",
     handler: handler.putImageProductsHandler,
     options: {
       auth: "itindosolution_jwt",
@@ -57,7 +57,7 @@ const routes = (handler) => [
   },
   {
     method: "DELETE",
-    path: "/products/{productId}",
+    path: "/product/{productId}",
     handler: handler.deleteProductByIdHandler,
     options: {
       auth: "itindosolution_jwt",

@@ -1,5 +1,5 @@
 const JwtIO = require("@hapi/jwt");
-const InvariantError = require("../exceptions/InvariantError");
+const AuthenticationError = require("../exceptions/AuthenticationError");
 
 const TokenManager = {
   generateAccessToken: (payload) =>
@@ -13,7 +13,7 @@ const TokenManager = {
       const { payload } = artifacts.decoded;
       return payload;
     } catch (error) {
-      throw new InvariantError("Refresh token tidak valid");
+      throw new AuthenticationError("Refresh token tidak valid");
     }
   },
   // User ITindo token
@@ -31,7 +31,7 @@ const TokenManager = {
       const { payload } = artifacts.decoded;
       return payload;
     } catch (error) {
-      throw new InvariantError("Refresh token tidak valid");
+      throw new AuthenticationError("Refresh token tidak valid");
     }
   },
 };

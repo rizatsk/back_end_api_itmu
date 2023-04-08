@@ -44,7 +44,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "POST",
-        url: "/api/products",
+        url: "/api/product",
         payload: payload.getBuffer(),
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -73,7 +73,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "POST",
-        url: "/api/products",
+        url: "/api/product",
         payload: payload.getBuffer(),
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -103,7 +103,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "POST",
-        url: "/api/products",
+        url: "/api/product",
         payload: payload.getBuffer(),
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -130,7 +130,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "POST",
-        url: "/api/products",
+        url: "/api/product",
         payload: payload.getBuffer(),
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -154,7 +154,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "GET",
-        url: "/api/products?page=1&limit=10",
+        url: "/api/product?page=1&limit=10",
       });
 
       const responseJson = JSON.parse(response.payload);
@@ -175,7 +175,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "GET",
-        url: `/api/products/${productId}`,
+        url: `/api/product/${productId}`,
       });
 
       const responseJson = JSON.parse(response.payload);
@@ -196,7 +196,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "GET",
-        url: `/api/products/asalolejos`,
+        url: `/api/product/asalolejos`,
       });
 
       const responseJson = JSON.parse(response.payload);
@@ -220,7 +220,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: `/api/products/${productId}`,
+        url: `/api/product/${productId}`,
         payload: payload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -246,7 +246,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: `/api/products/asalolejos`,
+        url: `/api/product/asalolejos`,
         payload: payload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -271,7 +271,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: `/api/products/${productId}`,
+        url: `/api/product/${productId}`,
         payload: payload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -295,7 +295,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: `/api/products/status/${productId}`,
+        url: `/api/product/status/${productId}`,
         payload: payload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -316,7 +316,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: `/api/products/status/${productId}`,
+        url: `/api/product/status/${productId}`,
         payload: payload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -339,7 +339,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: `/api/products/images/${productId}`,
+        url: `/api/product/images/${productId}`,
         payload: payload.getBuffer(),
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -365,7 +365,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: `/api/products/images/${productId}`,
+        url: `/api/product/images/${productId}`,
         payload: payload.getBuffer(),
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -387,7 +387,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "DELETE",
-        url: `/api/products/${productId}`,
+        url: `/api/product/${productId}`,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -405,7 +405,7 @@ describe("/products endpoint", () => {
 
       const response = await server.inject({
         method: "DELETE",
-        url: `/api/products/asalole jos`,
+        url: `/api/product/asalole jos`,
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },

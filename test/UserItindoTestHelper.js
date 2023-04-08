@@ -1,17 +1,20 @@
 const { nanoid } = require("nanoid");
-const bcrypt = require('bcrypt');
+const bcrypt = require("bcrypt");
 
 class UserItindoTestHelper {
   constructor(pool_test) {
     this._pool = pool_test;
   }
 
-  async addUserItindo() {
+  async addUserItindo(data = {}) {
     const id = `user-${nanoid(8)}`;
-    const fullname = "Nabila JKT48";
-    const email = 'jamaludin@gmail.com';
-    const noHandphone = '081231412';
-    const hashedPassword = await bcrypt.hash("NabilaHoreHore", 10);
+    const fullname = "Jokowi JKT48";
+    const email = data.email || "jamaludin@gmail.com";
+    const noHandphone = "081231412";
+    const hashedPassword = await bcrypt.hash(
+      data.password || "Jokowihorehore",
+      10
+    );
     const status = true;
 
     const query = {

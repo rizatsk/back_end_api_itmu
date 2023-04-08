@@ -25,7 +25,7 @@ describe("/authentications endpoint", () => {
 
       const response = await server.inject({
         method: "POST",
-        url: "/api/authentications/admin",
+        url: "/api/authentication/admin",
         payload: requestPayload,
       });
 
@@ -45,7 +45,7 @@ describe("/authentications endpoint", () => {
 
       const response = await server.inject({
         method: "GET",
-        url: "/api/authentications/admin",
+        url: "/api/authentication/admin",
         headers: {
           Authorization: `Bearer ${accessToken}`,
         },
@@ -70,7 +70,7 @@ describe("/authentications endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: "/api/authentications/admin",
+        url: "/api/authentication/admin",
         payload: requestPayload,
       });
       const responseJson = JSON.parse(response.payload);
@@ -90,7 +90,7 @@ describe("/authentications endpoint", () => {
       };
       const response = await server.inject({
         method: "DELETE",
-        url: "/api/authentications/admin",
+        url: "/api/authentication/admin",
         payload: requestPayload,
       });
       const responseJson = JSON.parse(response.payload);

@@ -41,6 +41,52 @@ describe("/users ITindo endpoint", () => {
       accessToken = responseJson.data.accessToken;
     });
 
+    it("should response 400 email is available", async () => {
+      const server = await app(pool_test);
+
+      const data = {
+        fullname: "Bambang Sutejo",
+        noHandphone: "0877829870678",
+        email: "bambang@gmail.com",
+        password: "Bambangasalole123.-",
+      };
+
+      const response = await server.inject({
+        method: "POST",
+        url: "/api/user",
+        payload: data,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("Email sudah terdaftar");
+    });
+
+    it("should response 400 no handphone is available", async () => {
+      const server = await app(pool_test);
+
+      const data = {
+        fullname: "Bambang Sutejo",
+        noHandphone: "087782987067",
+        email: "bambang123@gmail.com",
+        password: "Bambangasalole123.-",
+      };
+
+      const response = await server.inject({
+        method: "POST",
+        url: "/api/user",
+        payload: data,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("No handphone sudah terdaftar");
+    });
+
     it("should response 400 No Handphone is not valid", async () => {
       const server = await app(pool_test);
 
@@ -63,7 +109,6 @@ describe("/users ITindo endpoint", () => {
       expect(responseJson.message).toEqual("No handphone tidak valid");
     });
 
-
     it("should response 400 Password is not valid", async () => {
       const server = await app(pool_test);
 
@@ -83,7 +128,9 @@ describe("/users ITindo endpoint", () => {
       // Assert
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
-      expect(responseJson.message).toEqual("Password tidak valid minimal 8 character, 1 huruf besar, 1 angka, dan 1 character khusus");
+      expect(responseJson.message).toEqual(
+        "Password tidak valid minimal 8 character, 1 huruf besar, 1 angka, dan 1 character khusus"
+      );
     });
 
     it("should response 400 payload is not valid", async () => {
@@ -129,7 +176,9 @@ describe("/users ITindo endpoint", () => {
     it("should response 404 unauthorized", async () => {
       const server = await app(pool_test);
 
-      const accessToken = authenticationTestHelper.getAccessTokenUser('user-jokotingkir');
+      const accessToken = authenticationTestHelper.getAccessTokenUser(
+        "user-jokotingkir"
+      );
       const response = await server.inject({
         method: "GET",
         url: "/api/user/data",
