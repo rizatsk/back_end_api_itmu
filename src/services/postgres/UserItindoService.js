@@ -58,6 +58,35 @@ class UserItindoService {
     const result = await this._pool.query(query);
     if (result.rowCount > 0) throw new InvariantError("Email sudah terdaftar");
   }
+
+  async verifyUserCredential({ email, password }) {
+    const query = {
+      text: `SELECT user_id, password, status FROM user_admins WHERE email = $1`,
+      values: [email],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError(`Email atau password anda salah`);
+    }
+
+    const {
+      user_id: userId,
+      password: hashedPassword,
+      status,
+    } = result.rows[0];
+    if (status === false) {
+      throw new AuthenticationError("User tidak aktif");
+    }
+
+    const match = await bcrypt.compare(password, hashedPassword);
+    if (!match) {
+      throw new AuthenticationError("Email atau password anda salah");
+    }
+
+    return { userId };
+  }
 }
 
 module.exports = UserItindoService;

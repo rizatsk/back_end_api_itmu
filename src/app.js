@@ -45,6 +45,9 @@ const userItindo = require("./api/uerItindo");
 const UserItindoService = require("./services/postgres/UserItindoService");
 const UserItindoValidator = require("./validator/userItindo");
 
+// Authentication itindo
+const authenticationItindo = require("./api/authenticationItindo");
+
 const app = async (pool) => {
   const lock = new Lock();
   const usersService = new UsersService({ pool });
@@ -197,6 +200,17 @@ const app = async (pool) => {
         tokenManager: TokenManager,
         authenticationService,
         logActivityService,
+      },
+    },
+    {
+      plugin: authenticationItindo,
+      options: {
+        lock,
+        authenticationService,
+        userItindoService,
+        logActivityService,
+        tokenManager: TokenManager,
+        validator: AuthenticationValidator,
       },
     },
   ]);
