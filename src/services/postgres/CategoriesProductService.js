@@ -7,7 +7,7 @@ class CategoriesProductService {
   }
 
   async addCategoriesProduct({ parentId, name }) {
-    const id = `categorie_product-${nanoid(10)}`;
+    const id = `category_product-${nanoid(10)}`;
     parentId = parentId || "";
     const query = {
       text:
