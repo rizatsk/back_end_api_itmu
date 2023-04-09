@@ -1,0 +1,7 @@
+{
+    "user": "whoami",
+    "password": "Amir00734",
+    "host": "localhost",
+    "port": "5432",
+    "database": "itindo_cms_admin_test"
+}

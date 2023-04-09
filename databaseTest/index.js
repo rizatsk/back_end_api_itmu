@@ -1,12 +1,7 @@
 require("dotenv").config();
 const { Pool } = require("pg");
+const config = require("../config/test.json");
 
-const pool_test = new Pool({
-    user: process.env.PGUSER_TEST,
-    password: process.env.PGPASSWORD_TEST,
-    host: process.env.PGHOST_TEST,
-    port: process.env.PGPORT_TEST,
-    database: process.env.PGDATABASE_TEST
-});
+const pool_test = new Pool(config);
 
 module.exports = pool_test;

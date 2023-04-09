@@ -1,3 +1,5 @@
+const ConfigAuthorization = require("../../ConfigAuthorization");
+
 class UsersHandler {
   constructor({ service, authentication, logActivityService, validator }) {
     this._service = service;
@@ -5,15 +7,18 @@ class UsersHandler {
     this._serviceAuthentication = authentication;
     this._validator = validator;
 
-    this.postRegisterAdminUserHandler =
-      this.postRegisterAdminUserHandler.bind(this);
+    this.postRegisterAdminUserHandler = this.postRegisterAdminUserHandler.bind(
+      this
+    );
     this.getAdminUserHandler = this.getAdminUserHandler.bind(this);
     this.getAdminUserByIdHandler = this.getAdminUserByIdHandler.bind(this);
-    this.putPasswordAdminUserHandler =
-      this.putPasswordAdminUserHandler.bind(this);
+    this.putPasswordAdminUserHandler = this.putPasswordAdminUserHandler.bind(
+      this
+    );
     this.putAdminUserByIdHandler = this.putAdminUserByIdHandler.bind(this);
-    this.putStatusAdminUserByIdHandler =
-      this.putStatusAdminUserByIdHandler.bind(this);
+    this.putStatusAdminUserByIdHandler = this.putStatusAdminUserByIdHandler.bind(
+      this
+    );
   }
 
   async postRegisterAdminUserHandler(request, h) {
@@ -23,7 +28,11 @@ class UsersHandler {
     const { fullname, username, email, password } = request.payload;
 
     // Check only admin itindo can access this API
-    await this._service.verifyAdminItindoCredential(credentialUserId);
+    await this._service.checkRoleAccessUser(
+      credentialUserId,
+      ConfigAuthorization.user_admin.insert
+    );
+
     const resultUserId = await this._service.addAdminUser({
       fullname,
       username,

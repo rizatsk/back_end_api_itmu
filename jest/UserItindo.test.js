@@ -1,5 +1,7 @@
 const pool_test = require("../databaseTest");
+const ConfigAuthorization = require("../src/ConfigAuthorization");
 const app = require("../src/app");
+const UsersService = require("../src/services/postgres/UsersService");
 const AuthenticationTestHelper = require("../test/AuthenticationTestHelper");
 const UserItindoTestHelper = require("../test/UserItindoTestHelper");
 
@@ -206,6 +208,16 @@ describe("/users ITindo endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(401);
       expect(responseJson.error).toEqual("Unauthorized");
+    });
+  });
+
+  describe("when POST /user", () => {
+    it("get data access role user", async () => {
+      const userService = new UsersService({ pool: pool_test });
+      await userService.checkRoleAccessUser(
+        "admin-00000001",
+        ConfigAuthorization.user_admin.insert
+      );
     });
   });
 });

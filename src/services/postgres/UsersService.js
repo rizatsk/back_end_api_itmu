@@ -42,12 +42,6 @@ class UsersService {
     return { adminId };
   }
 
-  // CheckCredentialAdminItindo
-  async verifyAdminItindoCredential(credentialUserId) {
-    if (credentialUserId !== "admin-00000001")
-      throw new AuthenticationError("Anda tidak berhak akses");
-  }
-
   // Get user admin
   async getAdminUser() {
     const query = {
@@ -217,10 +211,30 @@ class UsersService {
   }
 
   // Get Role Access User
-  async getRoleAccessUser(userId) {
+  async checkRoleAccessUser(userId, authorization) {
     const query = {
-      text: `SELECT access_token FROM auth_role WHERE `,
+      text: `SELECT user_admins.role_id, access_role FROM user_admins 
+        JOIN auth_role ON
+        user_admins.role_id = auth_role.role_id
+        WHERE admin_id = $1`,
+      values: [userId],
     };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) throw new NotFoundError("User tidak ditemukan");
+
+    authorization = authorization.split();
+    authorization.push("super_admin");
+    const accessRoleUser = result.rows[0].access_role;
+
+    const response = accessRoleUser.every((item) =>
+      authorization.includes(item)
+    );
+
+    console.log(authorization);
+    console.log(accessRoleUser);
+    console.log(response);
+    // if (!response) throw new InvariantError("Authorization error");
   }
 }
 
