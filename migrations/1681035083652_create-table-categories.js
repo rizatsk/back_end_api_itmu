@@ -7,7 +7,6 @@ exports.up = (pgm) => {
     parent_id: {
       type: "VARCHAR(50)",
       notNull: false,
-      references: "categories_product",
     },
     name: {
       type: "VARCHAR",

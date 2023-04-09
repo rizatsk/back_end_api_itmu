@@ -48,6 +48,11 @@ const UserItindoValidator = require("./validator/userItindo");
 // Authentication itindo
 const authenticationItindo = require("./api/authenticationItindo");
 
+// Category Product
+const categoryProduct = require("./api/categoryProduct");
+const CategoryProductService = require("./services/postgres/CategoryProductService");
+const CategoryProductValidator = require("./validator/categoryProduct");
+
 const app = async (pool) => {
   const lock = new Lock();
   const usersService = new UsersService({ pool });
@@ -61,6 +66,7 @@ const app = async (pool) => {
   const storageImage = path.resolve(__dirname, "public/images");
   const authorizationService = new AuthorizationService({ pool });
   const userItindoService = new UserItindoService({ pool });
+  const categoryProductService = new CategoryProductService({ pool });
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -211,6 +217,13 @@ const app = async (pool) => {
         logActivityService,
         tokenManager: TokenManager,
         validator: AuthenticationValidator,
+      },
+    },
+    {
+      plugin: categoryProduct,
+      options: {
+        service: categoryProductService,
+        validator: CategoryProductValidator,
       },
     },
   ]);
