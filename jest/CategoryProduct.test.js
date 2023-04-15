@@ -8,7 +8,7 @@ describe("/authentications endpoint", () => {
   const categoryProductTestHelper = new CategoryProductTestHelper(pool_test);
 
   afterAll(async () => {
-    await categoryProductTestHelper.deleteCategoriesProduct();
+    // await categoryProductTestHelper.deleteCategoriesProduct();
   });
 
   afterEach(async () => {
@@ -20,7 +20,7 @@ describe("/authentications endpoint", () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();
       const data = {
-        name: "Laptop",
+        name: "komputer",
       };
 
       const response = await server.inject({
@@ -42,7 +42,7 @@ describe("/authentications endpoint", () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();
       const data = {
-        name: "Laptop",
+        name: "komputer",
       };
 
       const response = await server.inject({
@@ -54,12 +54,30 @@ describe("/authentications endpoint", () => {
         },
       });
 
+      await categoryProductTestHelper.deleteCategoriesProduct();
+
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual(
-        "Name category prodcut is available"
+        "Name category with parent id prodcut is available"
       );
+    });
+  });
+
+  describe("when POST /category_product", () => {
+    it("should response 200", async () => {
+      let parentId = await categoryProductTestHelper.addCategoryProduct({
+        name: "laptop",
+      });
+      parentId = await categoryProductTestHelper.addCategoryProduct({
+        parentId,
+        name: "asus",
+      });
+      await categoryProductTestHelper.addCategoryProduct({
+        parentId,
+        name: "ram",
+      });
     });
   });
 });

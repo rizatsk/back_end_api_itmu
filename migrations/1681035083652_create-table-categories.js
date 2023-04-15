@@ -10,16 +10,17 @@ exports.up = (pgm) => {
     },
     name: {
       type: "VARCHAR",
-      unique: true,
       noNull: true,
     },
   });
 
   // Menambahkan indeks pada kolom 'name'
-  pgm.addIndex("categories_product", "name");
+  pgm.addIndex("categories_product", "parent_id");
+  pgm.addIndex("categories_product", ["parent_id", "name"], { unique: true });
 };
 
 exports.down = (pgm) => {
-  pgm.dropIndex("categories_product", "name");
+  pgm.dropIndex("categories_product", ["parent_id", "name"]);
+  pgm.dropIndex("categories_product", "parent_id");
   pgm.dropTable("categories_product");
 };

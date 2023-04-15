@@ -7,10 +7,10 @@ class CategoryProductService {
   }
 
   async addCategoryProduct({ parentId, name }) {
-    await this.checkAddCategoryProductName(name);
+    parentId = parentId || "";
+    await this.checkAddCategoryProductName(name, parentId);
 
     const id = `category_product-${nanoid(10)}`;
-    parentId = parentId || "";
     const query = {
       text:
         "INSERT INTO categories_product VALUES($1, $2, $3) RETURNING category_product_id",
@@ -24,15 +24,18 @@ class CategoryProductService {
     return result.rows[0].category_product_id;
   }
 
-  async checkAddCategoryProductName(name) {
+  async checkAddCategoryProductName(name, parentId) {
     const query = {
-      text: "SELECT * FROM categories_product WHERE name = $1",
-      values: [name],
+      text:
+        "SELECT * FROM categories_product WHERE name = $1 AND parent_id = $2",
+      values: [name, parentId],
     };
 
     const result = await this._pool.query(query);
     if (result.rowCount)
-      throw new InvariantError("Name category prodcut is available");
+      throw new InvariantError(
+        "Name category with parent id prodcut is available"
+      );
   }
 
   async getCategories() {
