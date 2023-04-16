@@ -12,6 +12,33 @@ exports.up = (pgm) => {
       type: "VARCHAR",
       noNull: true,
     },
+    created: {
+      type: "TIMESTAMP",
+      notNull: true,
+      default: pgm.func("current_timestamp"),
+    },
+    createdby_user_id: {
+      type: "VARCHAR(50)",
+      notNull: true,
+      references: "user_admins",
+      onDelete: "restrict",
+    },
+    updated: {
+      type: "TIMESTAMP",
+      notNull: true,
+      default: pgm.func("current_timestamp"),
+    },
+    updatedby_user_id: {
+      type: "VARCHAR(50)",
+      notNull: true,
+      references: "user_admins",
+      onDelete: "restrict",
+    },
+    status: {
+      type: "BOOLEAN",
+      notNull: true,
+      default: true,
+    },
   });
 
   // Menambahkan indeks pada kolom 'name'
@@ -20,7 +47,5 @@ exports.up = (pgm) => {
 };
 
 exports.down = (pgm) => {
-  pgm.dropIndex("categories_product", ["parent_id", "name"]);
-  pgm.dropIndex("categories_product", "parent_id");
   pgm.dropTable("categories_product");
 };

@@ -1,20 +1,21 @@
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
+const { MappingCategoriesProduct } = require("../../utils/MappingResultDB");
 
 class CategoryProductService {
   constructor({ pool }) {
     this._pool = pool;
   }
 
-  async addCategoryProduct({ parentId, name }) {
+  async addCategoryProduct({ parentId, name, credentialUserId }) {
     parentId = parentId || "";
     await this.checkAddCategoryProductName(name, parentId);
 
     const id = `category_product-${nanoid(10)}`;
     const query = {
-      text:
-        "INSERT INTO categories_product VALUES($1, $2, $3) RETURNING category_product_id",
-      values: [id, parentId, name],
+      text: `INSERT INTO categories_product(category_product_id, parent_id, name, createdby_user_id, updatedby_user_id) 
+        VALUES($1, $2, $3, $4, $4) RETURNING category_product_id`,
+      values: [id, parentId, name, credentialUserId],
     };
 
     const result = await this._pool.query(query);
@@ -38,32 +39,66 @@ class CategoryProductService {
       );
   }
 
-  async getCategories() {
+  async getCountCategories() {
     const query = {
-      text: "SELECT * FROM categories_product",
+      text: "SELECT count(*) AS count FROM categories_product",
     };
 
     const result = await this._pool.query(query);
-    return result;
+    return result.rows[0].count;
   }
 
-  async getCategoriesParent() {
+  async getCategories({ limit, offset }) {
     const query = {
-      text: "SELECT * FROM categories_product WHERE parent_id = null",
+      text: `SELECT * FROM categories_product ORDER BY created LIMIT $1 OFFSET $2`,
+      values: [limit, offset],
     };
 
     const result = await this._pool.query(query);
-    return result;
+    return result.rows;
   }
 
-  async getCategoriesChildById(id) {
+  async getCategoryByParentId(id) {
     const query = {
-      text: "SELECT * FROM categories_product WHERE parent_id = $1",
+      text:
+        "SELECT parent_id, name FROM categories_product WHERE category_product_id = $1",
       values: [id],
     };
 
     const result = await this._pool.query(query);
-    return result;
+    if (!result.rowCount) return 0;
+
+    return result.rows[0];
+  }
+
+  async getCategoriesParentHandler(parentId, name) {
+    // let { parentId, name } = request.query;
+    if (parentId == "") return name;
+
+    let parent = await this.getCategoryByParentId(parentId);
+    name = `${parent.name} > ${name}`;
+    if (parent.parent_id == "") return name;
+
+    return await this.getCategoriesParentHandler(parent.parent_id, name);
+  }
+
+  async getCategoriesIdAndName() {
+    const query = {
+      text:
+        "SELECT category_product_id, parent_id, name FROM categories_product",
+    };
+
+    const result = await this._pool.query(query);
+    const categories = result.rows;
+    for (let i = 0; i < categories.length; i++) {
+      categories[i].name = await this.getCategoriesParentHandler(
+        categories[i].parent_id,
+        categories[i].name
+      ); // Menambahkan 3 ke nilai kolom 'age'
+    }
+
+    const data = categories.map(MappingCategoriesProduct);
+    return data;
   }
 }
 

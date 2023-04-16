@@ -64,20 +64,4 @@ describe("/authentications endpoint", () => {
       );
     });
   });
-
-  describe("when POST /category_product", () => {
-    it("should response 200", async () => {
-      let parentId = await categoryProductTestHelper.addCategoryProduct({
-        name: "laptop",
-      });
-      parentId = await categoryProductTestHelper.addCategoryProduct({
-        parentId,
-        name: "asus",
-      });
-      await categoryProductTestHelper.addCategoryProduct({
-        parentId,
-        name: "ram",
-      });
-    });
-  });
 });

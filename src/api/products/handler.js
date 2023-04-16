@@ -107,8 +107,7 @@ class ProductsHandler {
     const pages = parseInt(page) || 1;
     const totalPage = Math.ceil(totalData / limitPage);
     const offset = (pages - 1) * limitPage;
-    let products;
-    products = await this._service.getProductsSearch({
+    const products = await this._service.getProductsSearch({
       search,
       limit,
       offset,
