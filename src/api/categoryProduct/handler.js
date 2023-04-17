@@ -12,6 +12,7 @@ class CategoryProductHandler {
     this.getCategoriesIdAndNameHandler = this.getCategoriesIdAndNameHandler.bind(
       this
     );
+    this.getCategoriesTreeHandler = this.getCategoriesTreeHandler.bind(this)
   }
 
   async postCategoryProductHandler(request) {
@@ -65,6 +66,17 @@ class CategoryProductHandler {
 
   async getCategoriesIdAndNameHandler() {
     const categories = await this._service.getCategoriesIdAndName();
+
+    return {
+      status: "success",
+      data: {
+        categories,
+      },
+    };
+  }
+
+  async getCategoriesTreeHandler() {
+    const categories = await this._service.getCategoriesTree();
 
     return {
       status: "success",

@@ -1,6 +1,6 @@
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
-const { MappingCategoriesProduct } = require("../../utils/MappingResultDB");
+const { MappingCategoriesProduct, mappedDataCategories } = require("../../utils/MappingResultDB");
 
 class CategoryProductService {
   constructor({ pool }) {
@@ -8,7 +8,7 @@ class CategoryProductService {
   }
 
   async addCategoryProduct({ parentId, name, credentialUserId }) {
-    parentId = parentId || "";
+    parentId = parentId || null;
     await this.checkAddCategoryProductName(name, parentId);
 
     const id = `category_product-${nanoid(10)}`;
@@ -58,6 +58,39 @@ class CategoryProductService {
     return result.rows;
   }
 
+  async getCategoriesIdAndName() {
+    const query = {
+      text:
+        "SELECT category_product_id, parent_id, name FROM categories_product",
+    };
+
+    const result = await this._pool.query(query);
+    const categories = result.rows;
+    for (let i = 0; i < categories.length; i++) {
+      categories[i].parentName = await this.getCategoriesParentHandler(
+        categories[i].parent_id,
+        categories[i].name
+      ); // Menambahkan 3 ke nilai kolom 'age'
+    }
+
+    let data = categories.map(MappingCategoriesProduct);
+    data.sort(function (a, b) {
+      return a.parentName.localeCompare(b.parentName);
+    });
+    return data;
+  }
+
+  async getCategoriesParentHandler(parentId, name) {
+    // let { parentId, name } = request.query;
+    if (parentId == null) return name;
+
+    let parent = await this.getCategoryByParentId(parentId);
+    name = `${parent.name} > ${name}`;
+    if (parent.parent_id == null) return name;
+
+    return await this.getCategoriesParentHandler(parent.parent_id, name);
+  }
+
   async getCategoryByParentId(id) {
     const query = {
       text:
@@ -71,34 +104,17 @@ class CategoryProductService {
     return result.rows[0];
   }
 
-  async getCategoriesParentHandler(parentId, name) {
-    // let { parentId, name } = request.query;
-    if (parentId == "") return name;
-
-    let parent = await this.getCategoryByParentId(parentId);
-    name = `${parent.name} > ${name}`;
-    if (parent.parent_id == "") return name;
-
-    return await this.getCategoriesParentHandler(parent.parent_id, name);
-  }
-
-  async getCategoriesIdAndName() {
+  async getCategoriesTree() {
     const query = {
       text:
         "SELECT category_product_id, parent_id, name FROM categories_product",
     };
 
     const result = await this._pool.query(query);
-    const categories = result.rows;
-    for (let i = 0; i < categories.length; i++) {
-      categories[i].name = await this.getCategoriesParentHandler(
-        categories[i].parent_id,
-        categories[i].name
-      ); // Menambahkan 3 ke nilai kolom 'age'
-    }
+    const data = result.rows;
+    const categories = mappedDataCategories(data, null)
 
-    const data = categories.map(MappingCategoriesProduct);
-    return data;
+    return categories;
   }
 }
 

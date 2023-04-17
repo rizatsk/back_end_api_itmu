@@ -17,6 +17,11 @@ const routes = (handler) => [
     method: "GET",
     handler: handler.getCategoriesIdAndNameHandler,
   },
+  {
+    path: "/category_product/tree",
+    method: "GET",
+    handler: handler.getCategoriesTreeHandler,
+  },
 ];
 
 module.exports = routes;

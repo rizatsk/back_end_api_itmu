@@ -1,5 +1,5 @@
 {
-    "user": "whoami",
+    "user": "postgres",
     "password": "Amir00734",
     "host": "localhost",
     "port": "5432",
