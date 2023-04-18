@@ -13,6 +13,10 @@ class CategoryProductHandler {
       this
     );
     this.getCategoriesTreeHandler = this.getCategoriesTreeHandler.bind(this)
+    this.deleteCategoriesAndChildHandler = this.deleteCategoriesAndChildHandler.bind(this);
+    this.updateStatusCategoriesByIdHandler = this.updateStatusCategoriesByIdHandler.bind(this);
+    this.getCategoryByIdHandler = this.getCategoryByIdHandler.bind(this);
+    this.updateCategoriesByIdHandler = this.updateCategoriesByIdHandler.bind(this);
   }
 
   async postCategoryProductHandler(request) {
@@ -85,6 +89,55 @@ class CategoryProductHandler {
       },
     };
   }
+
+  async getCategoryByIdHandler(request) {
+    const { id } = request.params;
+    const category = await this._service.getCategoryById(id);
+
+    return {
+      status: 'success',
+      data: { category }
+    }
+  }
+
+  async updateStatusCategoriesByIdHandler(request) {
+    this._validator.validatePutStatusCategoryProductPayload(request.payload);
+
+    const { id } = request.params;
+    const { status } = request.payload;
+
+    await this._service.updateStatusCategoryById(id, status);
+
+    return {
+      status: 'success',
+      message: 'Berhasil merubah status category'
+    }
+  }
+
+  async updateCategoriesByIdHandler(request) {
+    this._validator.validatePostCategoryProductPayload(request.payload)
+
+    request.payload.categoryId = request.params.id;
+
+    await this._service.updateCategoryById(request.payload);
+
+    return {
+      status: 'success',
+      message: 'Berhasil merubah data category'
+    }
+  }
+
+  async deleteCategoriesAndChildHandler(request) {
+    const { id } = request.params;
+
+    await this._service.deleteCategoryAndChild(id);
+
+    return {
+      status: 'success',
+      message: 'Berhasil menghapus category'
+    }
+  }
+
 }
 
 module.exports = CategoryProductHandler;

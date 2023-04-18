@@ -1,6 +1,7 @@
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 const { MappingCategoriesProduct, mappedDataCategories } = require("../../utils/MappingResultDB");
+const NotFoundError = require("../../exceptions/NotFoundError");
 
 class CategoryProductService {
   constructor({ pool }) {
@@ -35,7 +36,7 @@ class CategoryProductService {
     const result = await this._pool.query(query);
     if (result.rowCount)
       throw new InvariantError(
-        "Name category with parent id prodcut is available"
+        "Name category, parent id is available"
       );
   }
 
@@ -61,16 +62,18 @@ class CategoryProductService {
   async getCategoriesIdAndName() {
     const query = {
       text:
-        "SELECT category_product_id, parent_id, name FROM categories_product",
+        "SELECT category_product_id, parent_id, name FROM categories_product WHERE status = true",
     };
 
     const result = await this._pool.query(query);
-    const categories = result.rows;
+    const categoriesAll = result.rows;
+    const categories = this.getTwoLevelCategories(categoriesAll);
+
     for (let i = 0; i < categories.length; i++) {
       categories[i].parentName = await this.getCategoriesParentHandler(
         categories[i].parent_id,
         categories[i].name
-      ); // Menambahkan 3 ke nilai kolom 'age'
+      );
     }
 
     let data = categories.map(MappingCategoriesProduct);
@@ -80,8 +83,52 @@ class CategoryProductService {
     return data;
   }
 
+  getTwoLevelCategories(categories) {
+    const result = [];
+
+    categories.forEach(function (category) {
+      if (category.parent_id === null) {
+        // Jika kategori tidak memiliki parent, tambahkan ke hasil
+        result.push(category);
+      } else {
+        const parent = categories.find(function (parent) {
+          return parent.category_product_id === category.parent_id;
+        });
+
+        if (parent && parent.parent_id === null) {
+          // Jika kategori memiliki parent yang hanya memiliki parent
+          // (2 level), tambahkan ke hasil
+          result.push(category);
+        }
+      }
+    });
+
+    return result;
+  }
+
+  // async getCategoriesIdAndName() {
+  //   const query = {
+  //     text:
+  //       "SELECT category_product_id, parent_id, name FROM categories_product WHERE parent_id IS NULL",
+  //   };
+
+  //   const result = await this._pool.query(query);
+  //   const categoriesParent = result.rows;
+  //   for (let i = 0; i < categories.length; i++) {
+  //     categories[i].parentName = await this.getCategoriesParentHandler(
+  //       categories[i].parent_id,
+  //       categories[i].name
+  //     );
+  //   }
+
+  //   let data = categories.map(MappingCategoriesProduct);
+  //   data.sort(function (a, b) {
+  //     return a.parentName.localeCompare(b.parentName);
+  //   });
+  //   return data;
+  // }
+
   async getCategoriesParentHandler(parentId, name) {
-    // let { parentId, name } = request.query;
     if (parentId == null) return name;
 
     let parent = await this.getCategoryByParentId(parentId);
@@ -94,7 +141,7 @@ class CategoryProductService {
   async getCategoryByParentId(id) {
     const query = {
       text:
-        "SELECT parent_id, name FROM categories_product WHERE category_product_id = $1",
+        "SELECT category_product_id, parent_id, name FROM categories_product WHERE category_product_id = $1",
       values: [id],
     };
 
@@ -115,6 +162,73 @@ class CategoryProductService {
     const categories = mappedDataCategories(data, null)
 
     return categories;
+  }
+
+  async updateStatusCategoryById(id, status) {
+    const query = {
+      text: `
+          UPDATE categories_product SET status = $2 WHERE category_product_id = $1`,
+      values: [id, status],
+    };
+
+    await this._pool.query(query);
+  }
+
+  async getCategoryById(id) {
+    const query = {
+      text:
+        "SELECT category_product_id, parent_id, name FROM categories_product WHERE category_product_id = $1",
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) throw new NotFoundError('Category tidak ditemukan');
+
+    const category = result.rows[0]
+    category.parentName = await this.getCategoriesParentHandler(
+      category.parent_id,
+      category.name
+    );
+
+    return category;
+  }
+
+  async deleteCategoryAndChild(id) {
+    const query = {
+      text: `
+          DELETE FROM categories_product WHERE category_product_id = $1`,
+      values: [id],
+    };
+
+    await this._pool.query(query);
+  }
+
+  async updateCategoryById({ categoryId, parentId, name }) {
+    parentId = parentId || null;
+    await this.checkEditCategoryProductName({ categoryId, parentId, name });
+
+    const query = {
+      text: `UPDATE categories_product SET parent_id = $2, name = $3
+        WHERE category_product_id = $1`,
+      values: [categoryId, parentId, name]
+    };
+
+    await this._pool.query(query)
+  }
+
+  async checkEditCategoryProductName({ categoryId, parentId, name }) {
+    const query = {
+      text:
+        `SELECT * FROM categories_product WHERE name = $3 AND parent_id = $2
+          AND category_product_id != $1`,
+      values: [categoryId, parentId, name],
+    };
+
+    const result = await this._pool.query(query);
+    if (result.rowCount)
+      throw new InvariantError(
+        "Name category, parent id is available"
+      );
   }
 }
 

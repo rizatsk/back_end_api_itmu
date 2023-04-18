@@ -5,6 +5,11 @@ const PostCategoryProductPayloadSchema = Joi.object({
   name: Joi.string().max(100).required(),
 });
 
+const PutStatusCategoryProductPayloadSchema = Joi.object({
+  status: Joi.boolean().required(),
+});
+
 module.exports = {
   PostCategoryProductPayloadSchema,
+  PutStatusCategoryProductPayloadSchema,
 };
