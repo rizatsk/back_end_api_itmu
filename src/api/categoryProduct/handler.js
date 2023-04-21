@@ -1,5 +1,3 @@
-const InvariantError = require("../../exceptions/InvariantError");
-
 class CategoryProductHandler {
   constructor({ service, validator, productService }) {
     this._service = service;
