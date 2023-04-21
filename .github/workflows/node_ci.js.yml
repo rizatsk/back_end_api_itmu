@@ -1,0 +1,38 @@
+name: Node.js CI
+
+on:
+  pull_request:
+    branches: ["main"]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    services:
+      db:
+        image: postgres:14.7
+        env:
+          POSTGRES_PASSWORD: Gaeng123
+          POSTGRES_DB: db_itindo_test
+        ports:
+          - 5432:5432
+
+    strategy:
+      matrix:
+        node-version: [16.x]
+
+    steps:
+      - uses: actions/checkout@v3
+      - name: Use Node.js 16
+        uses: actions/setup-node@v3
+        with:
+          node-version: 16.x
+      - run: npm install
+      - name: Run database migration
+        run: npm run migrate:test up
+      - name: Run testing
+        env:
+          HOST: localhost
+          PORT: 5000
+          PREFIX: /api
+        run: npm test
