@@ -1,7 +1,10 @@
+const InvariantError = require("../../exceptions/InvariantError");
+
 class CategoryProductHandler {
-  constructor({ service, validator }) {
+  constructor({ service, validator, productService }) {
     this._service = service;
     this._validator = validator;
+    this._productService = productService
 
     this.postCategoryProductHandler = this.postCategoryProductHandler.bind(
       this
@@ -9,7 +12,7 @@ class CategoryProductHandler {
     this.getCategoriesProductHandler = this.getCategoriesProductHandler.bind(
       this
     );
-    this.getCategoriesIdAndNameHandler = this.getCategoriesIdAndNameHandler.bind(
+    this.getCategoriesParentIdAndNameHandler = this.getCategoriesParentIdAndNameHandler.bind(
       this
     );
     this.getCategoriesTreeHandler = this.getCategoriesTreeHandler.bind(this)
@@ -37,10 +40,9 @@ class CategoryProductHandler {
   }
 
   async getCategoriesProductHandler(request) {
-    const { page, limit, search_query } = request.query;
+    const { page, limit, search } = request.query;
 
-    const search = search_query ? search_query : "";
-    const totalData = parseInt(await this._service.getCountCategories());
+    const totalData = parseInt(await this._service.getCountCategories(search));
     const limitPage = limit || 10;
     const pages = parseInt(page) || 1;
     const totalPage = Math.ceil(totalData / limitPage);
@@ -48,13 +50,8 @@ class CategoryProductHandler {
     const categories = await this._service.getCategories({
       limit,
       offset,
+      search
     });
-    for (let i = 0; i < categories.length; i++) {
-      categories[i].parent = await this._service.getCategoriesParentHandler(
-        categories[i].parent_id,
-        categories[i].name
-      ); // Menambahkan 3 ke nilai kolom 'age'
-    }
 
     return {
       status: "success",
@@ -68,8 +65,8 @@ class CategoryProductHandler {
     };
   }
 
-  async getCategoriesIdAndNameHandler() {
-    const categories = await this._service.getCategoriesIdAndName();
+  async getCategoriesParentIdAndNameHandler() {
+    const categories = await this._service.getCategoriesParentIdAndName();
 
     return {
       status: "success",
@@ -130,6 +127,7 @@ class CategoryProductHandler {
   async deleteCategoriesAndChildHandler(request) {
     const { id } = request.params;
 
+    await this._productService.checkProductByCategoryId(id);
     await this._service.deleteCategoryAndChild(id);
 
     return {

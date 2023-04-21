@@ -6,11 +6,13 @@ const FormData = require("form-data");
 const AuthenticationTestHelper = require("../test/AuthenticationTestHelper");
 const ProductTestHelper = require("../test/ProductTestHelper");
 const LogActivityTestHelper = require("../test/LogActivityTestHelper");
+const CategoryProductTestHelper = require("../test/CategoryProductTestHelper");
 
 describe("/products endpoint", () => {
   const authenticationTestHelper = new AuthenticationTestHelper(pool_test);
   const productTestHelper = new ProductTestHelper(pool_test);
   const logActivityTestHelper = new LogActivityTestHelper(pool_test);
+  const categoryProductTestHelper = new CategoryProductTestHelper(pool_test);
 
   const storagePublic = path.resolve(__dirname, "images");
   const image1 = fs.readFileSync(`${storagePublic}/pp putih polos.jpg`);
@@ -18,24 +20,29 @@ describe("/products endpoint", () => {
   const imageLarge = fs.readFileSync(`${storagePublic}/3800_8_04.jpg`);
   let productId = "";
   let images = [];
+  let thiscategoryId = "";
 
   afterAll(async () => {
     await logActivityTestHelper.deleteLogActivity();
     await productTestHelper.deleteProduct();
     productTestHelper.deleteImageProduct();
+    await categoryProductTestHelper.deleteCategoriesProduct();
   });
 
   afterEach(async () => {
     await authenticationTestHelper.deleteAuthentication();
   });
 
-  describe("when POST /products", () => {
+  describe("when POST /product", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();
+      const categoryId = await categoryProductTestHelper.addCategoryChild();
+      thiscategoryId = categoryId;
 
       const payload = new FormData();
       payload.append("name", "Logo ITINDO");
+      payload.append("categoryId", categoryId)
       payload.append("price", 500000);
       payload.append("typeProduct", "logo");
       payload.append("description", "Logo itindo terdapat logo 404 dan ITINDO");
@@ -95,6 +102,7 @@ describe("/products endpoint", () => {
 
       const payload = new FormData();
       payload.append("name", "Logo ITINDO");
+      payload.append("categoryId", thiscategoryId)
       payload.append("price", 500000);
       payload.append("typeProduct", "logo");
       payload.append("description", "Logo itindo terdapat logo 404 dan ITINDO");
@@ -123,6 +131,7 @@ describe("/products endpoint", () => {
 
       const payload = new FormData();
       payload.append("name", "Logo ITINDO");
+      payload.append("categoryId", thiscategoryId)
       payload.append("price", 500000);
       payload.append("typeProduct", "logo");
       payload.append("description", "Logo itindo terdapat logo 404 dan ITINDO");
@@ -206,7 +215,7 @@ describe("/products endpoint", () => {
     });
   });
 
-  describe("when PUT /products/{id}", () => {
+  describe("when PUT /product/{id}", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();
@@ -214,6 +223,7 @@ describe("/products endpoint", () => {
       const payload = {
         name: "monitor lg",
         price: 610000,
+        categoryId: thiscategoryId,
         typeProduct: "monitor",
         description: "oke",
       };
@@ -239,6 +249,7 @@ describe("/products endpoint", () => {
 
       const payload = {
         name: "monitor lg",
+        categoryId: thiscategoryId,
         price: 610000,
         typeProduct: "monitor",
         description: "oke",
@@ -284,7 +295,7 @@ describe("/products endpoint", () => {
     });
   });
 
-  describe("when PUT /products/status/{id}", () => {
+  describe("when PUT /product/status/{id}", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();
@@ -329,7 +340,7 @@ describe("/products endpoint", () => {
     });
   });
 
-  describe("when PUT /products/images/{id}", () => {
+  describe("when PUT /product/images/{id}", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();
@@ -380,7 +391,7 @@ describe("/products endpoint", () => {
     });
   });
 
-  describe("when DELETE /products/{id}", () => {
+  describe("when DELETE /product/{id}", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();

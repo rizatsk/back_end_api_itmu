@@ -15,7 +15,7 @@ const routes = (handler) => [
   {
     path: "/category_product/parent",
     method: "GET",
-    handler: handler.getCategoriesIdAndNameHandler,
+    handler: handler.getCategoriesParentIdAndNameHandler,
   },
   {
     path: "/category_product/tree",

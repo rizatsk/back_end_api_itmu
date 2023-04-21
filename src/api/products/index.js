@@ -14,6 +14,7 @@ module.exports = {
       validator,
       storageService,
       authorizationService,
+      categoryService
     }
   ) => {
     const productsHandler = new ProductsHandler({
@@ -23,6 +24,7 @@ module.exports = {
       validator,
       storageService,
       authorizationService,
+      categoryService
     });
     server.route(routerGroup(process.env.PREFIX, routes(productsHandler)));
   },

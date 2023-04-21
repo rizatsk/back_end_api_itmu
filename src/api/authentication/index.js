@@ -14,6 +14,7 @@ module.exports = {
       logActivityService,
       tokenManager,
       validator,
+      userItindoService
     }
   ) => {
     const authenticationHandler = new AuthenticationHandler({
@@ -23,6 +24,7 @@ module.exports = {
       logActivityService,
       tokenManager,
       validator,
+      userItindoService
     });
     server.route(
       routerGroup(process.env.PREFIX, routes(authenticationHandler))

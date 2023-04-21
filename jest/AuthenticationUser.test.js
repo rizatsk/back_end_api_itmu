@@ -7,8 +7,9 @@ describe("/authentications endpoint", () => {
   const authenticationTestHelper = new AuthenticationTestHelper(pool_test);
   const userItindoTestHelper = new UserItindoTestHelper(pool_test);
 
-  // afterAll(async () => {
-  // });
+  afterAll(async () => {
+
+  });
 
   afterEach(async () => {
     await userItindoTestHelper.deleteUserItindo();
@@ -67,7 +68,7 @@ describe("/authentications endpoint", () => {
 
       const response = await server.inject({
         method: "POST",
-        url: "/api/authentication",
+        url: "/api/authentication/user",
         payload: data,
       });
 
@@ -91,7 +92,7 @@ describe("/authentications endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: "/api/authentication",
+        url: "/api/authentication/user",
         payload: {
           refreshToken,
         },
@@ -108,7 +109,7 @@ describe("/authentications endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: "/api/authentication",
+        url: "/api/authentication/user",
         payload: {
           refreshToken: "acscaqsfd234124wdasd134123123sdsa",
         },
@@ -124,7 +125,7 @@ describe("/authentications endpoint", () => {
 
       const response = await server.inject({
         method: "PUT",
-        url: "/api/authentication",
+        url: "/api/authentication/user",
         payload: {
           refreshToken: "",
         },
@@ -136,7 +137,7 @@ describe("/authentications endpoint", () => {
     });
   });
 
-  describe("WHEN DELETE /authentication", () => {
+  describe("WHEN DELETE /authentication/user", () => {
     it("should response 200 delete authentication", async () => {
       const server = await app(pool_test);
       // create user
@@ -153,7 +154,7 @@ describe("/authentications endpoint", () => {
       };
       const response = await server.inject({
         method: "DELETE",
-        url: "/api/authentication",
+        url: "/api/authentication/user",
         payload: requestPayload,
       });
       const responseJson = JSON.parse(response.payload);
@@ -170,7 +171,7 @@ describe("/authentications endpoint", () => {
       };
       const response = await server.inject({
         method: "DELETE",
-        url: "/api/authentication",
+        url: "/api/authentication/user",
         payload: requestPayload,
       });
       const responseJson = JSON.parse(response.payload);
@@ -188,7 +189,7 @@ describe("/authentications endpoint", () => {
 
       const response = await server.inject({
         method: "DELETE",
-        url: "/api/authentication",
+        url: "/api/authentication/user",
         payload: requestPayload,
       });
       const responseJson = JSON.parse(response.payload);

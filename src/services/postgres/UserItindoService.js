@@ -19,9 +19,9 @@ class UserItindoService {
     const status = true;
 
     const query = {
-      text: `INSERT INTO users(user_id, fullname, email, no_handphone, password, status) VALUES($1, $2, $3, $4, $5
-            , $6) RETURNING user_id`,
-      values: [id, fullname, email, noHandphone, hashedPassword, status],
+      text: `INSERT INTO users(user_id, address, fullname, email, no_handphone, password, status) VALUES($1, $2, $3, $4, $5
+            , $6, $7) RETURNING user_id`,
+      values: [id, {}, fullname, email, noHandphone, hashedPassword, status],
     };
 
     const result = await this._pool.query(query);
@@ -88,7 +88,7 @@ class UserItindoService {
   async getUserById(userId) {
     const query = {
       text:
-        "SELECT user_id, fullname, email, no_handphone FROM users WHERE user_id = $1",
+        "SELECT user_id, fullname, address, email, no_handphone FROM users WHERE user_id = $1",
       values: [userId],
     };
 

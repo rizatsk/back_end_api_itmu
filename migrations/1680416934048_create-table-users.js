@@ -18,6 +18,10 @@ exports.up = (pgm) => {
       unique: true,
       notNull: true,
     },
+    address: {
+      type: "JSON",
+      notNull: false,
+    },
     password: {
       type: "VARCHAR",
       noNull: true,

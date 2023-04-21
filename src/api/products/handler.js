@@ -9,6 +9,7 @@ class ProductsHandler {
     validator,
     storageService,
     authorizationService,
+    categoryService
   }) {
     this._lock = lock;
     this._service = service;
@@ -16,6 +17,7 @@ class ProductsHandler {
     this._validator = validator;
     this._storageService = storageService;
     this._authorizationService = authorizationService;
+    this._categoryService = categoryService;
 
     this.postProductHandler = this.postProductHandler.bind(this);
     this.getProductsHandler = this.getProductsHandler.bind(this);
@@ -32,7 +34,7 @@ class ProductsHandler {
     await this._validator.validatePostProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { name, price, typeProduct, image, description } = request.payload;
+    const { name, price, typeProduct, image, description, categoryId } = request.payload;
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
@@ -64,6 +66,7 @@ class ProductsHandler {
         price,
         typeProduct,
         description,
+        categoryId
       });
 
       if (image) {
@@ -129,6 +132,8 @@ class ProductsHandler {
     const { id: productId } = request.params;
 
     const product = await this._service.getProductsById(productId);
+    const { parentName } = await this._categoryService.getCategoryByIdForProduct(product.category_id)
+    product.categoryParentName = parentName;
     const imageProduct = await this._service.getImageProducts(productId);
 
     return {
@@ -145,7 +150,7 @@ class ProductsHandler {
 
     const { id: credentialUserId } = request.auth.credentials;
     const { id: productId } = request.params;
-    const { name, price, typeProduct, description } = request.payload;
+    const { name, price, typeProduct, description, categoryId } = request.payload;
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
@@ -160,6 +165,7 @@ class ProductsHandler {
         price,
         typeProduct,
         description,
+        categoryId
       });
 
       await this._logActivityService.postLogActivity({

@@ -26,6 +26,7 @@ class ProductsService {
     price,
     typeProduct,
     description,
+    categoryId,
   }) {
     const status = "true";
     const id = `product-${nanoid(8)}`;
@@ -33,8 +34,8 @@ class ProductsService {
 
     const query = {
       text: `INSERT INTO products(product_id, name, price, type_product, 
-        created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status)
-        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8) RETURNING product_id`,
+        created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status, category_id)
+        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8, $9) RETURNING product_id`,
       values: [
         id,
         name,
@@ -44,6 +45,7 @@ class ProductsService {
         credentialUserId,
         description,
         status,
+        categoryId
       ],
     };
 
@@ -55,8 +57,10 @@ class ProductsService {
   }
 
   async getCountProductsSearch(search_query) {
+    search_query = search_query ? `%${search_query.toLowerCase()}%` : '%%';
     const query = {
-      text: `SELECT count(*) AS count FROM products WHERE name LIKE '%${search_query}%'`,
+      text: `SELECT count(*) AS count FROM products WHERE LOWER(name) LIKE $1`,
+      values: [search_query]
     };
 
     const result = await this._pool.query(query);
@@ -65,13 +69,14 @@ class ProductsService {
   }
 
   async getProductsSearch({ search, limit, offset }) {
+    search = search ? `%${search.toLowerCase()}%` : '%%';
     const query = {
       text: `SELECT product_id, name, price, created, status
         FROM products 
-        WHERE name LIKE '%${search}%'
+        WHERE LOWER(name) LIKE $3
         ORDER BY created
         LIMIT $1 OFFSET $2`,
-      values: [limit, offset],
+      values: [limit, offset, search],
     };
 
     const result = await this._pool.query(query);
@@ -112,13 +117,14 @@ class ProductsService {
     price,
     typeProduct,
     description,
+    categoryId
   }) {
     await this.checkNameProductForUpdate(name, productId);
 
     const date = new Date();
     const query = {
       text: `UPDATE products SET name = $1, price = $2, type_product = $3,
-        updated = $4, updatedby_user_id = $5, deskripsi_product = $7 WHERE product_id = $6`,
+        updated = $4, updatedby_user_id = $5, deskripsi_product = $7, category_id = $8 WHERE product_id = $6`,
       values: [
         name,
         price,
@@ -127,6 +133,7 @@ class ProductsService {
         credentialUserId,
         productId,
         description,
+        categoryId
       ],
     };
 
@@ -228,6 +235,18 @@ class ProductsService {
     };
     const result = await this._pool.query(query);
     if (!result.rowCount) throw new NotFoundError("Product id tidak ditemukan");
+  }
+
+  async checkProductByCategoryId(id) {
+    const query = {
+      text: "SELECT product_id, name FROM products WHERE category_id = $1",
+      values: [id],
+    };
+
+    const result = await this._pool.query(query);
+    if (result.rowCount) {
+      throw new InvariantError(`Gagal menghapus, product ${result.rows[0].name} menggunakan category ini`);
+    }
   }
 }
 

@@ -153,6 +153,7 @@ const app = async (pool) => {
         logActivityService,
         tokenManager: TokenManager,
         validator: AuthenticationValidator,
+        userItindoService,
       },
     },
     {
@@ -184,6 +185,7 @@ const app = async (pool) => {
         validator: ProductsValidator,
         storageService,
         authorizationService,
+        categoryService: categoryProductService
       },
     },
     {
@@ -224,6 +226,7 @@ const app = async (pool) => {
       options: {
         service: categoryProductService,
         validator: CategoryProductValidator,
+        productService: productsService
       },
     },
   ]);

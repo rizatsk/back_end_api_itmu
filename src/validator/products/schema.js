@@ -2,6 +2,7 @@ const Joi = require("joi");
 
 const PostProductPayloadSchema = Joi.object({
   name: Joi.string().required(),
+  categoryId: Joi.string().max(50).required(),
   price: Joi.number().required(),
   typeProduct: Joi.string().required(),
   description: Joi.string().required(),
@@ -10,6 +11,7 @@ const PostProductPayloadSchema = Joi.object({
 
 const PutProductPayloadSchema = Joi.object({
   name: Joi.string().required(),
+  categoryId: Joi.string().max(50).required(),
   price: Joi.number().required(),
   typeProduct: Joi.string().required(),
   description: Joi.string().required(),

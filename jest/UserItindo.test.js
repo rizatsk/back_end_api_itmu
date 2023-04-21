@@ -40,7 +40,6 @@ describe("/users ITindo endpoint", () => {
       expect(responseJson.status).toEqual("success");
       expect(responseJson.data.accessToken).toBeDefined();
       expect(responseJson.data.refreshToken).toBeDefined();
-      accessToken = responseJson.data.accessToken;
     });
 
     it("should response 400 email is available", async () => {
@@ -175,7 +174,7 @@ describe("/users ITindo endpoint", () => {
       expect(responseJson.status).toEqual("success");
     });
 
-    it("should response 404 unauthorized", async () => {
+    it("should response 404 not found", async () => {
       const server = await app(pool_test);
 
       const accessToken = authenticationTestHelper.getAccessTokenUser(
@@ -211,13 +210,4 @@ describe("/users ITindo endpoint", () => {
     });
   });
 
-  describe("when POST /user", () => {
-    it("get data access role user", async () => {
-      const userService = new UsersService({ pool: pool_test });
-      await userService.checkRoleAccessUser(
-        "admin-00000001",
-        ConfigAuthorization.user_admin.insert
-      );
-    });
-  });
 });

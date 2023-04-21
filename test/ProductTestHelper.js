@@ -7,19 +7,20 @@ class ProductTestHelper {
     this._pool = pool_test;
   }
 
-  async addProduct({ name, price, typeProduct, description }) {
+  async addProduct({ name, categoryId, price, typeProduct, description }) {
     const status = "true";
     const id = `product-${nanoid(8)}`;
     const date = new Date();
     const credentialUserId = "admin-00000001";
 
     const query = {
-      text: `INSERT INTO products(product_id, name, price, type_product, 
+      text: `INSERT INTO products(product_id, name, category_id, price, type_product, 
         created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status)
-        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8) RETURNING product_id`,
+        VALUES($1, $2, $3, $4, $5, $6, $7, $6, $7, $8, $9) RETURNING product_id`,
       values: [
         id,
         name,
+        categoryId,
         price,
         typeProduct,
         date,

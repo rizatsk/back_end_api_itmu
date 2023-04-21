@@ -22,6 +22,21 @@ const routes = (handler) => [
       auth: "itindosolution_jwt",
     },
   },
+  {
+    method: "POST",
+    path: "/authentication/user",
+    handler: handler.postAuthenticationUserHandler,
+  },
+  {
+    method: "PUT",
+    path: "/authentication/user",
+    handler: handler.putAuthenticationUserHandler,
+  },
+  {
+    method: "DELETE",
+    path: "/authentication/user",
+    handler: handler.deleteAuthenticationUserHandler,
+  },
 ];
 
 module.exports = routes;

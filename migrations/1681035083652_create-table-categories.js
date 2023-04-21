@@ -12,7 +12,7 @@ exports.up = (pgm) => {
     },
     name: {
       type: "VARCHAR",
-      noNull: true,
+      notNull: true,
     },
     created: {
       type: "TIMESTAMP",

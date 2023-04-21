@@ -13,7 +13,6 @@ class AuthenticationService {
     const resultCondition = await this.checkAddRefreshToken({
       userId,
       ip,
-      device,
     });
 
     if (resultCondition === "insert") {
@@ -23,8 +22,8 @@ class AuthenticationService {
       };
     } else {
       query = {
-        text: `UPDATE authentications SET token = $1 WHERE id = $2`,
-        values: [refreshToken, resultCondition],
+        text: `UPDATE authentications SET token = $1, device = $3 WHERE id = $2`,
+        values: [refreshToken, resultCondition, device],
       };
     }
 
@@ -34,8 +33,8 @@ class AuthenticationService {
   async checkAddRefreshToken(data) {
     const query = {
       text: `SELECT id FROM authentications WHERE user_id = $1
-            AND ip = $2 AND device = $3`,
-      values: [data.userId, data.ip, data.device],
+            AND ip = $2`,
+      values: [data.userId, data.ip],
     };
 
     const result = await this._pool.query(query);

@@ -11,6 +11,7 @@ function mappedDataCategories(categories, parentId = null) {
       const category = {
         category_product_id: categories[i].category_product_id,
         parent_id: categories[i].parent_id,
+        parentName: categories[i].parentName,
         name: categories[i].name,
         children: mappedDataCategories(categories, categories[i].category_product_id) // Rekursi untuk memetakan children
       };
