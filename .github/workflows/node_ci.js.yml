@@ -19,14 +19,14 @@ jobs:
 
     strategy:
       matrix:
-        node-version: [16.x]
+        node-version: [16.17.0]
 
     steps:
       - uses: actions/checkout@v3
       - name: Use Node.js 16
         uses: actions/setup-node@v3
         with:
-          node-version: 16.x
+          node-version: 16.17.0
       - run: npm install
       - name: Run database migration
         run: npm run migrate:test up

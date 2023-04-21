@@ -1,5 +1,6 @@
 const InvariantError = require("../../exceptions/InvariantError");
-const Authorization = require("../../utils/authorization");
+const AuthorizationUser = require("../../utils/authorization");
+
 
 class ProductsHandler {
   constructor({
@@ -39,7 +40,7 @@ class ProductsHandler {
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        Authorization.insertProduct
+        AuthorizationUser.insertProduct
       );
 
       let images = [];
@@ -155,7 +156,7 @@ class ProductsHandler {
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        Authorization.updateProduct
+        AuthorizationUser.updateProduct
       );
 
       await this._service.editProductsById({
@@ -191,7 +192,7 @@ class ProductsHandler {
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        Authorization.updateStatusProduct
+        AuthorizationUser.updateStatusProduct
       );
 
       await this._service.editStatusProductsById({
@@ -224,7 +225,7 @@ class ProductsHandler {
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        Authorization.updateProduct
+        AuthorizationUser.updateProduct
       );
 
       let imageProductsId = await this._service.getImageProducts(productId);
