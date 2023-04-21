@@ -1,5 +1,5 @@
 const InvariantError = require("../../exceptions/InvariantError");
-const AuthorizationUser = require("../../utils/authorization");
+const AuthorizationUser = require('../../../config/authorization.json');
 
 
 class ProductsHandler {
