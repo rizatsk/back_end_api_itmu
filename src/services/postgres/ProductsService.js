@@ -1,6 +1,7 @@
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
+const { MappingPricePromotionProductById, MappingProducts } = require("../../utils/MappingResultDB");
 
 class ProductsService {
   constructor({ pool }) {
@@ -71,7 +72,8 @@ class ProductsService {
   async getProductsSearch({ search, limit, offset }) {
     search = search ? `%${search.toLowerCase()}%` : '%%';
     const query = {
-      text: `SELECT product_id, name, price, created, status
+      text: `SELECT product_id, name, price, created, status,
+        price_promotion
         FROM products 
         WHERE LOWER(name) LIKE $3
         ORDER BY created
@@ -80,8 +82,9 @@ class ProductsService {
     };
 
     const result = await this._pool.query(query);
+    const data = result.rows.map(MappingProducts);
 
-    return result.rows;
+    return data;
   }
 
   async getProductsById(productId) {
@@ -247,6 +250,17 @@ class ProductsService {
     if (result.rowCount) {
       throw new InvariantError(`Gagal menghapus, product ${result.rows[0].name} menggunakan category ini`);
     }
+  }
+
+  async updatePricePromotionProductById({ productId, price, pricePromotion }) {
+    pricePromotion = pricePromotion || null;
+    const query = {
+      text: "UPDATE products SET price = $2, price_promotion = $3 WHERE product_id = $1",
+      values: [productId, price, pricePromotion],
+    };
+
+    console.log(query)
+    await this._pool.query(query);
   }
 }
 

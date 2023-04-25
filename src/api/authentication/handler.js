@@ -1,4 +1,5 @@
 const InvariantError = require("../../exceptions/InvariantError");
+const createProfileImage = require("../../utils/createProfileImage");
 
 class AuthenticationHandler {
   constructor({
@@ -131,6 +132,7 @@ class AuthenticationHandler {
     const { id: userId } = request.auth.credentials;
 
     const user = await this._usersService.getAdminUserById(userId);
+    user.profileImage = createProfileImage(user.fullname)
 
     return {
       status: "success",

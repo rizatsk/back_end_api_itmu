@@ -22,7 +22,29 @@ function mappedDataCategories(categories, parentId = null) {
   return result;
 }
 
+const MappingPricePromotionProductById = ({ product_id, price, price_promotion }) => ({
+  productId: product_id,
+  price,
+  pricePromotion: price_promotion,
+})
+
+const MappingProducts = ({
+  product_id,
+  name, price, created, status,
+  price_promotion
+}) => ({
+  product_id,
+  name,
+  price,
+  price_promotion,
+  percent_promotion: price_promotion ? Math.ceil(((price - price_promotion) / price) * 100) : null,
+  created,
+  status,
+});
+
 module.exports = {
   MappingCategoriesProduct,
-  mappedDataCategories
+  mappedDataCategories,
+  MappingPricePromotionProductById,
+  MappingProducts
 };

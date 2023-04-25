@@ -1,5 +1,22 @@
 {
-  "insertProduct": "insert_product",
-  "updateProduct": "update_product",
-  "updateStatusProduct": "update-status_product"
+  "product": {
+    "insert product": "insert_product",
+    "update product": "update_product",
+    "update status product": "update-status_product"
+  },
+  "category product": {
+    "insert catgory product": "insert_category_product",
+    "update category product": "update_category_product",
+    "update status category product": "update-status_category_product"
+  },
+  "user admin": {
+    "insert user admin": "insert_user_admin",
+    "update user admin": "update_user_admin",
+    "update status user admin": "update-status_user_admin"
+  },
+  "role user": {
+    "insert role user": "insert_role_user",
+    "update role user": "update_role_user",
+    "delete role user": "delete_role_user"
+  }
 }

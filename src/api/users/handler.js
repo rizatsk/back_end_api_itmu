@@ -22,7 +22,7 @@ class UsersHandler {
   }
 
   async postRegisterAdminUserHandler(request, h) {
-    await this._validator.validatePostAdminUserPayload(request.payload);
+    this._validator.validatePostAdminUserPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
     const { fullname, username, email, password } = request.payload;

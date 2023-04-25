@@ -32,13 +32,9 @@ const products = require("./api/products");
 const ProductsService = require("./services/postgres/ProductsService");
 const ProductsValidator = require("./validator/products");
 
-// Upload
-const uploads = require("./api/uploads");
+// Storage
+const storages = require("./api/storages");
 const StorageService = require("./services/storage/StorageService");
-const UploadsValidator = require("./validator/uploads");
-
-// Authorization service
-const AuthorizationService = require("./services/postgres/AuthorizationService");
 
 // User Itindo
 const userItindo = require("./api/userItindo");
@@ -52,6 +48,11 @@ const authenticationItindo = require("./api/authenticationItindo");
 const categoryProduct = require("./api/categoryProduct");
 const CategoryProductService = require("./services/postgres/CategoryProductService");
 const CategoryProductValidator = require("./validator/categoryProduct");
+
+// Authorization
+const authorization = require('./api/authorization');
+const AuthorizationService = require("./services/postgres/AuthorizationService");
+const AuthorizationValidator = require('./validator/authorization');
 
 const app = async (pool) => {
   const lock = new Lock();
@@ -189,20 +190,15 @@ const app = async (pool) => {
       },
     },
     {
-      plugin: uploads,
+      plugin: storages,
       options: {
-        lock,
-        service: storageService,
-        packageServiceService,
-        productsService,
-        logActivityService,
         storageImage,
-        validator: UploadsValidator,
       },
     },
     {
       plugin: userItindo,
       options: {
+        lock,
         service: userItindoService,
         validator: UserItindoValidator,
         tokenManager: TokenManager,
@@ -224,9 +220,18 @@ const app = async (pool) => {
     {
       plugin: categoryProduct,
       options: {
+        lock,
         service: categoryProductService,
         validator: CategoryProductValidator,
         productService: productsService
+      },
+    },
+    {
+      plugin: authorization,
+      options: {
+        lock,
+        service: authorizationService,
+        validator: AuthorizationValidator,
       },
     },
   ]);

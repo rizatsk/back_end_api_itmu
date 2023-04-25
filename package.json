@@ -19,6 +19,7 @@
     "@hapi/jwt": "^2.1.1",
     "async-lock": "^1.4.0",
     "bcrypt": "^5.0.1",
+    "canvas": "^2.11.2",
     "dotenv": "^16.0.1",
     "hapi-remote-address": "^1.0.0",
     "joi": "^17.6.0",

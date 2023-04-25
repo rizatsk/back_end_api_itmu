@@ -1,7 +1,7 @@
 const Joi = require("joi");
 
 const PostUserPayloadSchema = Joi.object({
-  fullname: Joi.string().required(),
+  fullname: Joi.string().min(3).max(100).required(),
   noHandphone: Joi.string()
     .regex(/^08\d{8,11}$/)
     .required()
@@ -17,6 +17,33 @@ const PostUserPayloadSchema = Joi.object({
     }),
 });
 
+const PutFullnameUserPayloadSchema = Joi.object({
+  fullname: Joi.string().min(3).max(100).required(),
+});
+
+const PutNoPhoneUserPayloadSchema = Joi.object({
+  noHandphone: Joi.string()
+    .regex(/^08\d{8,11}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "No handphone tidak valid",
+    }),
+});
+
+const PutAddressUserPayloadSchema = Joi.object({
+  address: Joi.object({
+    label: Joi.string().min(3).max(50).required(),
+    provinsi: Joi.string().min(3).max(100).required(),
+    kota: Joi.string().min(3).max(100).required(),
+    kecamatan: Joi.string().min(3).max(100).required(),
+    kelurahan: Joi.string().min(3).max(100).required(),
+    alamat: Joi.string().min(3).required(),
+  }),
+});
+
 module.exports = {
   PostUserPayloadSchema,
+  PutFullnameUserPayloadSchema,
+  PutNoPhoneUserPayloadSchema,
+  PutAddressUserPayloadSchema
 };

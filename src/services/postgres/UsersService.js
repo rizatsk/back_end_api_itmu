@@ -9,7 +9,7 @@ class UsersService {
     this._pool = pool;
   }
 
-  // Check data user saat login
+  // Check data user admin saat login
   async verifyAdminUserCredential({ parameter, password }) {
     const regexEmail = new RegExp("[a-z0-9]+@[a-z]+.[a-z]{2,3}");
     const type = regexEmail.test(parameter) === true ? "email" : "username";
@@ -236,6 +236,7 @@ class UsersService {
     console.log(response);
     // if (!response) throw new InvariantError("Authorization error");
   }
+
 }
 
 module.exports = UsersService;

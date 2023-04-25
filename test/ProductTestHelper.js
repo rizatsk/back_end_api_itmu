@@ -55,6 +55,16 @@ class ProductTestHelper {
     const pathLink = path.resolve("./src/public/images/products");
     fs.remove(pathLink);
   }
+
+  async getPriceProductById(id) {
+    const query = {
+      text: "SELECT price, price_promotion AS pricePromotion FROM products WHERE product_id = $1",
+      values: [id]
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows[0]
+  }
 }
 
 module.exports = ProductTestHelper;

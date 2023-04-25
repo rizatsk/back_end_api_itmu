@@ -12,6 +12,14 @@ const routes = (handler) => [
       auth: "itindosolution_user_jwt",
     },
   },
+  {
+    method: "PUT",
+    path: "/user/{parameter}/{userId}",
+    handler: handler.updateDataUserByIdHandler,
+    options: {
+      auth: "itindosolution_user_jwt",
+    },
+  },
 ];
 
 module.exports = routes;

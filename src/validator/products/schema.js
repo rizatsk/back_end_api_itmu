@@ -38,10 +38,16 @@ const ImageHeaderSchema = Joi.object({
   ), // refrensi mime type
 }).unknown();
 
+const PutPricePromotionProductPayloadSchema = Joi.object({
+  price: Joi.number().required(),
+  pricePromotion: Joi.number()
+})
+
 module.exports = {
   PostProductPayloadSchema,
   PutProductPayloadSchema,
   PutStatusProductPayloadSchema,
   PutImageProductPayloadSchema,
   ImageHeaderSchema,
+  PutPricePromotionProductPayloadSchema
 };

@@ -428,4 +428,51 @@ describe("/products endpoint", () => {
       expect(responseJson.message).toEqual("Product id tidak ditemukan");
     });
   });
+
+  describe("when PUT /product/price-promotion/{id}", () => {
+    it("should response 200", async () => {
+      const server = await app(pool_test);
+      const accessToken = authenticationTestHelper.getAccessToken();
+      const data = {
+        price: 679000,
+        pricePromotion: 467000
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/product/price-promotion/${productId}`,
+        payload: data,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+      expect(responseJson.message).toEqual("Berhasil update price promotion product");
+    });
+
+    it("should response 400 payload is required", async () => {
+      const server = await app(pool_test);
+      const accessToken = authenticationTestHelper.getAccessToken();
+      const data = {
+        pricePromotion: 467000
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/product/price-promotion/${productId}`,
+        payload: data,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+    });
+  });
+
 });

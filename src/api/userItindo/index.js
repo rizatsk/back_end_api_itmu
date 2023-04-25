@@ -7,6 +7,7 @@ module.exports = {
   register: async (
     server,
     {
+      lock,
       service,
       tokenManager,
       validator,
@@ -15,6 +16,7 @@ module.exports = {
     }
   ) => {
     const userItindoHandler = new UserItindoHandler({
+      lock,
       service,
       tokenManager,
       validator,

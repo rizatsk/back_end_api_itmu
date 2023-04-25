@@ -4,8 +4,9 @@ const routes = require("./routes");
 
 module.exports = {
   name: "categoryProduct",
-  register: async (server, { service, validator, productService }) => {
+  register: async (server, { lock, service, validator, productService }) => {
     const categoryProductHandler = new CategoryProductHandler({
+      lock,
       service,
       validator,
       productService

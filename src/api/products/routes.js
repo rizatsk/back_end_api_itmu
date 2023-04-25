@@ -63,6 +63,14 @@ const routes = (handler) => [
       auth: "itindosolution_jwt",
     },
   },
+  {
+    method: "PUT",
+    path: "/product/price-promotion/{productId}",
+    handler: handler.putPricePromotionProductByIdHandler,
+    options: {
+      auth: "itindosolution_jwt",
+    },
+  },
 ];
 
 module.exports = routes;

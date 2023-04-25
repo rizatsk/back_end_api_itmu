@@ -4,6 +4,7 @@ const {
   PutStatusProductPayloadSchema,
   PutImageProductPayloadSchema,
   ImageHeaderSchema,
+  PutPricePromotionProductPayloadSchema
 } = require("./schema");
 const InvariantError = require("../../exceptions/InvariantError");
 
@@ -24,6 +25,13 @@ const ProductsValidator = {
   },
   validatePutStatusProductPayload: (payload) => {
     const validationResult = PutStatusProductPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validatePutPricePromotionProductPayload: (payload) => {
+    const validationResult = PutPricePromotionProductPayloadSchema.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

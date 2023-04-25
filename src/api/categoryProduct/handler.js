@@ -1,5 +1,6 @@
 class CategoryProductHandler {
-  constructor({ service, validator, productService }) {
+  constructor({ lock, service, validator, productService }) {
+    this._lock = lock;
     this._service = service;
     this._validator = validator;
     this._productService = productService
@@ -25,9 +26,12 @@ class CategoryProductHandler {
 
     const { id: credentialUserId } = request.auth.credentials;
     request.payload.credentialUserId = credentialUserId;
-    const categoryProductId = await this._service.addCategoryProduct(
-      request.payload
-    );
+
+    const categoryProductId = await this._lock.acquire("data", async () => {
+      return await this._service.addCategoryProduct(
+        request.payload
+      );
+    });
 
     return {
       status: "success",
@@ -101,7 +105,9 @@ class CategoryProductHandler {
     const { id } = request.params;
     const { status } = request.payload;
 
-    await this._service.updateStatusCategoryById(id, status);
+    await this._lock.acquire("data", async () => {
+      await this._service.updateStatusCategoryById(id, status);
+    });
 
     return {
       status: 'success',
@@ -114,7 +120,9 @@ class CategoryProductHandler {
 
     request.payload.categoryId = request.params.id;
 
-    await this._service.updateCategoryById(request.payload);
+    await this._lock.acquire("data", async () => {
+      await this._service.updateCategoryById(request.payload);
+    });
 
     return {
       status: 'success',
@@ -125,8 +133,10 @@ class CategoryProductHandler {
   async deleteCategoriesAndChildHandler(request) {
     const { id } = request.params;
 
-    await this._productService.checkProductByCategoryId(id);
-    await this._service.deleteCategoryAndChild(id);
+    await this._lock.acquire("data", async () => {
+      await this._productService.checkProductByCategoryId(id);
+      await this._service.deleteCategoryAndChild(id);
+    });
 
     return {
       status: 'success',

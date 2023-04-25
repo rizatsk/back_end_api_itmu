@@ -157,7 +157,12 @@ class CategoryProductService {
       values: [id, status],
     };
 
-    await this._pool.query(query);
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal update status category product, category id tidak ditemukan"
+      );
   }
 
   async getCategoryById(id) {
@@ -216,7 +221,11 @@ class CategoryProductService {
       values: [id],
     };
 
-    await this._pool.query(query);
+    const result = await this._pool.query(query);
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal hapus status category product, category id tidak ditemukan"
+      );
   }
 
   async updateCategoryById({ categoryId, parentId, name }) {
@@ -229,7 +238,11 @@ class CategoryProductService {
       values: [categoryId, parentId, name.toLowerCase()]
     };
 
-    await this._pool.query(query)
+    const result = await this._pool.query(query)
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal update category product, category id tidak ditemukan"
+      );
   }
 
   async checkEditCategoryProductName({ categoryId, parentId, name }) {

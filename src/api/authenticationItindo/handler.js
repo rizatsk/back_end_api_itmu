@@ -52,6 +52,7 @@ class AuthenticationItindoHandler {
         refreshToken,
       };
     });
+
     const response = h.response({
       status: "success",
       message: "Authentication berhasil ditambahkan",

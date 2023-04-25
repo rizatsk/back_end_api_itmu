@@ -97,6 +97,22 @@ class UserItindoService {
 
     return result.rows[0];
   }
+
+  async changeDataUserById({ user_id, fullname, no_handphone, address }) {
+    try {
+      const query = {
+        text:
+          "UPDATE users SET fullname = $2, no_handphone = $3, address = $4 WHERE user_id = $1 RETURNING user_id",
+        values: [user_id, fullname, no_handphone, address],
+      };
+
+      const result = await this._pool.query(query);
+      if (!result.rowCount) throw new NotFoundError("User tidak ditemukan");
+    } catch (error) {
+      console.log(error)
+      throw new InvariantError('Server error')
+    }
+  }
 }
 
 module.exports = UserItindoService;

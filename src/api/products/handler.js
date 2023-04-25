@@ -19,6 +19,7 @@ class ProductsHandler {
     this._storageService = storageService;
     this._authorizationService = authorizationService;
     this._categoryService = categoryService;
+    this._authorizationUser = AuthorizationUser.product;
 
     this.postProductHandler = this.postProductHandler.bind(this);
     this.getProductsHandler = this.getProductsHandler.bind(this);
@@ -29,10 +30,11 @@ class ProductsHandler {
     );
     this.putImageProductsHandler = this.putImageProductsHandler.bind(this);
     this.deleteProductByIdHandler = this.deleteProductByIdHandler.bind(this);
+    this.putPricePromotionProductByIdHandler = this.putPricePromotionProductByIdHandler.bind(this);
   }
 
   async postProductHandler(request, h) {
-    await this._validator.validatePostProductPayload(request.payload);
+    this._validator.validatePostProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
     const { name, price, typeProduct, image, description, categoryId } = request.payload;
@@ -40,7 +42,7 @@ class ProductsHandler {
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        AuthorizationUser.insertProduct
+        this._authorizationUser['insert product']
       );
 
       let images = [];
@@ -135,6 +137,8 @@ class ProductsHandler {
     const product = await this._service.getProductsById(productId);
     const { parentName } = await this._categoryService.getCategoryByIdForProduct(product.category_id)
     product.categoryParentName = parentName;
+    product.no_wa = '+62 877 8298 7067';
+
     const imageProduct = await this._service.getImageProducts(productId);
 
     return {
@@ -156,7 +160,7 @@ class ProductsHandler {
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        AuthorizationUser.updateProduct
+        this._authorizationUser["update product"]
       );
 
       await this._service.editProductsById({
@@ -183,7 +187,7 @@ class ProductsHandler {
   }
 
   async putStatusProductsByIdHandler(request) {
-    await this._validator.validatePutStatusProductPayload(request.payload);
+    this._validator.validatePutStatusProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
     const { id: productId } = request.params;
@@ -192,7 +196,7 @@ class ProductsHandler {
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        AuthorizationUser.updateStatusProduct
+        this._authorizationUser["update status product"]
       );
 
       await this._service.editStatusProductsById({
@@ -215,7 +219,7 @@ class ProductsHandler {
   }
 
   async putImageProductsHandler(request) {
-    await this._validator.validatePutIamgesProductPayload(request.payload);
+    this._validator.validatePutIamgesProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
     const { id: productId } = request.params;
@@ -225,7 +229,7 @@ class ProductsHandler {
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        AuthorizationUser.updateProduct
+        this._authorizationUser['update product']
       );
 
       let imageProductsId = await this._service.getImageProducts(productId);
@@ -333,6 +337,28 @@ class ProductsHandler {
     return {
       status: "success",
       message: "Berhasil menghapus data product",
+    };
+  }
+
+  async putPricePromotionProductByIdHandler(request) {
+    this._validator.validatePutPricePromotionProductPayload(request.payload);
+    const { id: credentialUserId } = request.auth.credentials;
+    const { productId } = request.params;
+    request.payload.productId = productId;
+
+    await this._lock.acquire("data", async () => {
+      await this._service.updatePricePromotionProductById(request.payload);
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "update price promotion product",
+        refersId: productId,
+      });
+    });
+
+    return {
+      status: "success",
+      message: "Berhasil update price promotion product",
     };
   }
 }
