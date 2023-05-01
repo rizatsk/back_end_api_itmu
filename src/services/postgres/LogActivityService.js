@@ -1,5 +1,5 @@
 const InvariantError = require("../../exceptions/InvariantError");
-const getDateTime = require("../../utils/getDateTime");
+
 
 class LogActivityService {
   constructor({ pool }) {

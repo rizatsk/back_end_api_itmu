@@ -1,3 +1,4 @@
+const AuthorizationError = require("../../exceptions/AuthorizationError");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 
@@ -23,14 +24,14 @@ class AuthorizationService {
   async checkRoleUser(userId, access) {
     const { access_role } = await this.getAccessRoleUser(userId);
     if (!access_role.includes(access) && access_role[0] !== "super_admin") {
-      throw new InvariantError("you don't have access");
+      throw new AuthorizationError("You don't have access");
     }
   }
 
   async getCountRoleUsers(search) {
     search = search ? `%${search.toLowerCase()}%` : '%%';
     const query = {
-      text: "SELECT count(*) AS count FROM auth_role WHERE LOWER(role_name) LIKE $1",
+      text: "SELECT count(*) AS count FROM auth_role WHERE LOWER(role_name) LIKE $1 AND role_id != 9999",
       values: [search]
     };
 
@@ -41,7 +42,9 @@ class AuthorizationService {
   async getRoleUsers({ limit, offset, search }) {
     search = search ? `%${search.toLowerCase()}%` : '%%';
     const query = {
-      text: `SELECT role_id, role_name, created FROM auth_role WHERE LOWER(role_name) LIKE $3 ORDER BY created DESC LIMIT $1 OFFSET $2`,
+      text: `SELECT role_id, role_name, created FROM auth_role WHERE LOWER(role_name) LIKE $3 
+        AND role_id != 9999
+        ORDER BY created DESC LIMIT $1 OFFSET $2`,
       values: [limit, offset, search],
     };
 
@@ -86,7 +89,7 @@ class AuthorizationService {
   }
 
   async updateRoleUser({ roleId, name, accessRole, userId }) {
-    // try {
+    if (roleId === 9999) throw new InvariantError('Super admin tidak dirubah');
     await this.checkNameRoleUserForUpdate(roleId, name);
 
     const query = {
@@ -96,10 +99,6 @@ class AuthorizationService {
 
     const result = await this._pool.query(query);
     if (!result.rowCount) throw new NotFoundError('Gagal update access role');
-    // } catch (error) {
-    //   console.log(error)
-    //   throw new InvariantError('Server Error')
-    // }
   }
 
   async checkNameRoleUserForUpdate(roleId, roleName) {
@@ -113,6 +112,8 @@ class AuthorizationService {
   }
 
   async deleteRoleUserById(roleId) {
+    if (roleId === 9999) throw new InvariantError('Super admin tidak dirubah');
+
     await this.checkDeleteRoleUser(roleId);
     const query = {
       text: "DELETE FROM auth_role WHERE role_id = $1",

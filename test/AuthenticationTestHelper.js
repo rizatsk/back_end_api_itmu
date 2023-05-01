@@ -45,6 +45,10 @@ class AuthenticationTestHelper {
     return JwtIO.token.generate({ id }, process.env.ACCESS_TOKEN_KEY);
   }
 
+  getAccessTokenAdminUser(id) {
+    return JwtIO.token.generate({ id }, process.env.ACCESS_TOKEN_KEY);
+  }
+
   async deleteAuthentication() {
     const query = {
       text: `DELETE FROM authentications`,

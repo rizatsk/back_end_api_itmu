@@ -56,7 +56,7 @@ describe("/authorization endpoint", () => {
             expect(response.statusCode).toEqual(200);
             expect(responseJson.status).toEqual("success");
             expect(responseJson.data.roleUsers).toBeDefined();
-            expect(responseJson.totalData).toEqual(2);
+            expect(responseJson.totalData).toEqual(1);
             expect(responseJson.totalPage).toEqual(1);
             // console.log(responseJson)
         });

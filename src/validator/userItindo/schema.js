@@ -13,7 +13,7 @@ const PostUserPayloadSchema = Joi.object({
     .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?=.*[a-zA-Z]).{8,}$/)
     .required()
     .messages({
-      "string.pattern.base": "Password tidak valid minimal 8 character, 1 huruf besar, 1 angka, dan 1 character khusus",
+      "string.pattern.base": "Password tidak valid minimal 8 character, tedapat huruf besar, tedapat angka, dan terdapat character khusus",
     }),
 });
 
@@ -41,9 +41,20 @@ const PutAddressUserPayloadSchema = Joi.object({
   }),
 });
 
+const PutPasswordUserPayloadSchema = Joi.object({
+  passwordOld: Joi.string().required(),
+  passwordNew: Joi.string()
+    .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?=.*[a-zA-Z]).{8,}$/)
+    .required()
+    .messages({
+      "string.pattern.base": "Password tidak valid minimal 8 character, tedapat huruf besar, tedapat angka, dan terdapat character khusus",
+    }),
+});
+
 module.exports = {
   PostUserPayloadSchema,
   PutFullnameUserPayloadSchema,
   PutNoPhoneUserPayloadSchema,
-  PutAddressUserPayloadSchema
+  PutAddressUserPayloadSchema,
+  PutPasswordUserPayloadSchema
 };

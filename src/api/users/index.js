@@ -7,11 +7,13 @@ module.exports = {
   version: "1.0.0",
   register: async (
     server,
-    { service, authentication, logActivityService, validator }
+    { lock, service, authentication, authorizationService, logActivityService, validator }
   ) => {
     const usersHandler = new UsersHandler({
+      lock,
       service,
       authentication,
+      authorizationService,
       logActivityService,
       validator,
     });

@@ -28,15 +28,20 @@ class ProductsService {
     typeProduct,
     description,
     categoryId,
+    sale,
+    sparepart,
+    feeReplacementId,
   }) {
     const status = "true";
     const id = `product-${nanoid(8)}`;
     const date = new Date();
+    const feeReplacementData = feeReplacementId || null;
+    if (feeReplacementData) await this.checkFeeReplacement(feeReplacementData);
 
     const query = {
       text: `INSERT INTO products(product_id, name, price, type_product, 
-        created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status, category_id)
-        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8, $9) RETURNING product_id`,
+        created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status, category_id, sale, sparepart, fee_replacement_id)
+        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING product_id`,
       values: [
         id,
         name,
@@ -46,7 +51,10 @@ class ProductsService {
         credentialUserId,
         description,
         status,
-        categoryId
+        categoryId,
+        sale,
+        sparepart,
+        feeReplacementData,
       ],
     };
 
@@ -55,6 +63,16 @@ class ProductsService {
     if (!result.rowCount) throw new InvariantError("Gagal menambahkan product");
 
     return result.rows[0].product_id;
+  }
+
+  async checkFeeReplacement(feeReplacement) {
+    const query = {
+      text: 'SELECT fee_replacement_id FROM fee_replacements WHERE fee_replacement_id = $1',
+      values: [feeReplacement]
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) throw new NotFoundError('Fee replacement is not found')
   }
 
   async getCountProductsSearch(search_query) {
@@ -70,12 +88,12 @@ class ProductsService {
   }
 
   async getProductsSearch({ search, limit, offset }) {
-    search = search ? `%${search.toLowerCase()}%` : '%%';
+    search = search ? `%${search}%` : '%%';
     const query = {
       text: `SELECT product_id, name, price, created, status,
         price_promotion
         FROM products 
-        WHERE LOWER(name) LIKE $3
+        WHERE LOWER(name) ILIKE $3
         ORDER BY created
         LIMIT $1 OFFSET $2`,
       values: [limit, offset, search],
@@ -120,14 +138,20 @@ class ProductsService {
     price,
     typeProduct,
     description,
-    categoryId
+    categoryId,
+    sale,
+    sparepart,
+    feeReplacementId,
   }) {
+    // try {
     await this.checkNameProductForUpdate(name, productId);
+    const feeReplacementData = feeReplacementId || null;
+    if (feeReplacementData) await this.checkFeeReplacement(feeReplacementData);
 
     const date = new Date();
     const query = {
       text: `UPDATE products SET name = $1, price = $2, type_product = $3,
-        updated = $4, updatedby_user_id = $5, deskripsi_product = $7, category_id = $8 WHERE product_id = $6`,
+        updated = $4, updatedby_user_id = $5, deskripsi_product = $7, category_id = $8, sale = $9, sparepart = $10, fee_replacement_id = $11 WHERE product_id = $6`,
       values: [
         name,
         price,
@@ -136,13 +160,21 @@ class ProductsService {
         credentialUserId,
         productId,
         description,
-        categoryId
+        categoryId,
+        sale,
+        sparepart,
+        feeReplacementData,
       ],
     };
 
     const result = await this._pool.query(query);
     if (!result.rowCount)
       throw new NotFoundError("Gagal edit product, product id tidak ditemukan");
+
+    // } catch (error) {
+    //   console.log(error)
+    //   throw new InvariantError('error')
+    // }
   }
 
   async editStatusProductsById({ productId, status, credentialUserId }) {
@@ -161,24 +193,20 @@ class ProductsService {
   }
 
   async addImageProduct(productId, imageUrl) {
-    try {
-      const id = `image-product-${nanoid(16)}`;
-      const query = {
-        text: `INSERT INTO image_products(image_product_id, product_id, link) VALUES($1, $2, $3) RETURNING image_product_id`,
-        values: [id, productId, imageUrl],
-      };
+    const id = `image-product-${nanoid(16)}`;
+    const query = {
+      text: `INSERT INTO image_products(image_product_id, product_id, link) VALUES($1, $2, $3) RETURNING image_product_id`,
+      values: [id, productId, imageUrl],
+    };
 
-      const result = await this._pool.query(query);
+    const result = await this._pool.query(query);
 
-      if (!result.rowCount)
-        throw new InvariantError(
-          "Gagal upload image product, product id tidak ditemukan"
-        );
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal upload image product, product id tidak ditemukan"
+      );
 
-      return result.rows[0].id;
-    } catch (error) {
-      console.log(error);
-    }
+    return result.rows[0].id;
   }
 
   async getImageProductIdById(productId) {
@@ -259,8 +287,28 @@ class ProductsService {
       values: [productId, price, pricePromotion],
     };
 
-    console.log(query)
     await this._pool.query(query);
+  }
+
+  async getCountProductsSaleOrService(param) {
+    const query = {
+      text: `SELECT count(*) AS count FROM products WHERE ${param} = true`,
+    };
+
+    const result = await this._pool.query(query);
+
+    return result.rows[0].count;
+  }
+
+  async getProductsSaleOrService({ param, limit, offset }) {
+    const query = {
+      text: `SELECT * FROM products WHERE ${param} = true
+        ORDER BY created DESC LIMIT $1 OFFSET $2`,
+      values: [limit, offset],
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows;
   }
 }
 

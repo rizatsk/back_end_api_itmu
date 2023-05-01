@@ -20,7 +20,8 @@ class UserItindoHandler {
 
     this.postUserHandler = this.postUserHandler.bind(this);
     this.getUserByTokenHandler = this.getUserByTokenHandler.bind(this);
-    this.updateDataUserByIdHandler = this.updateDataUserByIdHandler.bind(this)
+    this.updateDataUserByTokenHandler = this.updateDataUserByTokenHandler.bind(this);
+    this.updatePasswordUserByTokenHandler = this.updatePasswordUserByTokenHandler.bind(this);
   }
 
   async postUserHandler(request) {
@@ -72,8 +73,10 @@ class UserItindoHandler {
     };
   }
 
-  async updateDataUserByIdHandler(request) {
-    const { parameter, userId } = request.params;
+  async updateDataUserByTokenHandler(request) {
+    const { parameter } = request.params;
+    const { id: userId } = request.auth.credentials;
+
     const dataUser = await this._service.getUserById(userId)
 
     await this._lock.acquire("data", async () => {
@@ -82,7 +85,6 @@ class UserItindoHandler {
           this._validator.validatePutFullnamePayload(request.payload);
           dataUser.fullname = request.payload.fullname;
 
-          console.log(dataUser)
           await this._service.changeDataUserById(dataUser);
           break;
         case 'handphone':
@@ -105,6 +107,24 @@ class UserItindoHandler {
     return {
       status: 'success',
       message: `Berhasil merubah data ${parameter} user`
+    }
+  }
+
+  async updatePasswordUserByTokenHandler(request) {
+    this._validator.validatePutPasswordPayload(request.payload);
+    const { id: userId } = request.auth.credentials;
+    request.payload.userId = userId;
+
+    await this._lock.acquire("data", async () => {
+      await this._service.editPasswordUser(request.payload);
+      await this._authenticationService.deleteRefreshTokenByUserId(
+        userId
+      );
+    });
+
+    return {
+      status: 'success',
+      message: 'Berhasil mengganti password user'
     }
   }
 }

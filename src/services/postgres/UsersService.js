@@ -43,10 +43,28 @@ class UsersService {
   }
 
   // Get user admin
-  async getAdminUser() {
+  async getCountAdminUser(search) {
+    search = search ? `%${search.toLowerCase()}%` : '%%';
+    const query = {
+      text: "SELECT count(*) AS count FROM user_admins WHERE LOWER(username) LIKE $1 AND admin_id != 'admin-00000001'",
+      values: [search]
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows[0].count;
+  }
+
+  async getAdminUsers({ limit, offset, search }) {
+    search = search ? `%${search.toLowerCase()}%` : '%%';
     const query = {
       text:
-        "SELECT admin_id, fullname, username, fullname, email FROM user_admins",
+        `SELECT admin_id, fullname, username, fullname, 
+        email, role_name 
+        FROM user_admins JOIN auth_role ON
+        user_admins.role_id = auth_role.role_id
+        WHERE LOWER(username) LIKE $3 AND admin_id != 'admin-00000001'
+        ORDER BY user_admins.created DESC LIMIT $1 OFFSET $2`,
+      values: [limit, offset, search],
     };
 
     const result = await this._pool.query(query);
@@ -57,7 +75,11 @@ class UsersService {
   // Get data user By Id
   async getAdminUserById(id) {
     const query = {
-      text: `SELECT admin_id,fullname, username, email FROM user_admins WHERE admin_id = $1`,
+      text: `SELECT admin_id, fullname, username, email,
+        user_admins.role_id, role_name FROM user_admins
+        JOIN auth_role ON
+        user_admins.role_id = auth_role.role_id
+        WHERE admin_id = $1`,
       values: [id],
     };
 
@@ -118,20 +140,20 @@ class UsersService {
     fullname,
     username,
     email,
-    password,
-    createdby_user_id,
+    roleId,
+    credentialUserId,
   }) {
     await this.verifyNewUsernameOrEmailAdminUser(username);
     await this.verifyNewUsernameOrEmailAdminUser(email);
 
     const id = `admin-${nanoid(8)}`;
-    const hashedPassword = await bcrypt.hash(password, 10);
+    const hashedPassword = await bcrypt.hash(process.env.PASSWORD_DEFAULT, 10);
     const date = new Date();
     const status = true;
 
     const query = {
       text: `INSERT INTO user_admins VALUES($1, $2, $3, $4, $5
-            , $6, $7, $6, $7, $8) RETURNING admin_id`,
+            , $6, $7, $6, $7, $8, $9) RETURNING admin_id`,
       values: [
         id,
         fullname,
@@ -139,8 +161,9 @@ class UsersService {
         email,
         hashedPassword,
         date,
-        createdby_user_id,
+        credentialUserId,
         status,
+        roleId
       ],
     };
 
@@ -175,14 +198,12 @@ class UsersService {
   // End
 
   // Edit user
-  async editAdminUserById({ credentialUserId, userId, fullname, email }) {
-    await this.verifyNewUsernameOrEmailAdminUser(email);
-
+  async editAdminUserById({ credentialUserId, userId, fullname }) {
     const date = new Date();
     const query = {
       text:
-        "UPDATE user_admins SET fullname = $2, email = $3, updated = $4, updatedby_user_id = $5 WHERE admin_id = $1",
-      values: [userId, fullname, email, date, credentialUserId],
+        "UPDATE user_admins SET fullname = $2, updated = $3, updatedby_user_id = $4 WHERE admin_id = $1",
+      values: [userId, fullname, date, credentialUserId],
     };
 
     const result = await this._pool.query(query);
@@ -190,6 +211,20 @@ class UsersService {
     if (!result.rowCount)
       throw new InvariantError(
         "Gagal edit admin user, user id tidak ditemukan"
+      );
+  }
+
+  async verifyNewEmailAdminUserForUpdate(userId, email) {
+    const query = {
+      text: `SELECT admin_id FROM user_admins WHERE email = $1 AND admin_id != $2`,
+      values: [email, userId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (result.rowCount)
+      throw new InvariantError(
+        `Gagal merubah data user, email sudah digunakan`
       );
   }
 
@@ -210,33 +245,42 @@ class UsersService {
       );
   }
 
-  // Get Role Access User
-  async checkRoleAccessUser(userId, authorization) {
+  // Update role authorization user admin
+  async editRoleAdminUserById({ credentialUserId, userId, roleId }) {
+    const date = new Date();
     const query = {
-      text: `SELECT user_admins.role_id, access_role FROM user_admins 
-        JOIN auth_role ON
-        user_admins.role_id = auth_role.role_id
-        WHERE admin_id = $1`,
-      values: [userId],
+      text:
+        `UPDATE user_admins SET role_id = $1, updated = $2, 
+        updatedby_user_id = $3 WHERE admin_id = $4
+        RETURNING admin_id`,
+      values: [roleId, date, credentialUserId, userId],
     };
 
     const result = await this._pool.query(query);
-    if (!result.rowCount) throw new NotFoundError("User tidak ditemukan");
 
-    authorization = authorization.split();
-    authorization.push("super_admin");
-    const accessRoleUser = result.rows[0].access_role;
-
-    const response = accessRoleUser.every((item) =>
-      authorization.includes(item)
-    );
-
-    console.log(authorization);
-    console.log(accessRoleUser);
-    console.log(response);
-    // if (!response) throw new InvariantError("Authorization error");
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal edit role admin user"
+      );
   }
 
+  async resetPassword({ credentialUserId, userId }) {
+    const date = new Date();
+    const hashedPassword = await bcrypt.hash(process.env.PASSWORD_DEFAULT, 10);
+
+    const query = {
+      text:
+        "UPDATE user_admins SET password = $1, updated = $2, updatedby_user_id = $3 WHERE admin_id = $4",
+      values: [hashedPassword, date, credentialUserId, userId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal reset password admin user, user id tidak ditemukan"
+      );
+  }
 }
 
 module.exports = UsersService;

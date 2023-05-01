@@ -71,6 +71,11 @@ const routes = (handler) => [
       auth: "itindosolution_jwt",
     },
   },
+  {
+    method: "GET",
+    path: "/product/type/{param}",
+    handler: handler.getProductsSaleOrServiceHandler,
+  },
 ];
 
 module.exports = routes;

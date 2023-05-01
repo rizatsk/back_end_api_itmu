@@ -8,9 +8,17 @@ const routes = (handler) => [
     },
   },
   {
+    method: 'GET',
+    path: '/user/admin/data',
+    handler: handler.getAdminUserByTokenHandler,
+    options: {
+      auth: 'itindosolution_jwt',
+    },
+  },
+  {
     method: 'PUT',
     path: '/user/admin',
-    handler: handler.putAdminUserByIdHandler,
+    handler: handler.putAdminUserByTokenHandler,
     options: {
       auth: 'itindosolution_jwt',
     },
@@ -18,7 +26,7 @@ const routes = (handler) => [
   {
     method: 'PUT',
     path: '/user/admin/password',
-    handler: handler.putPasswordAdminUserHandler,
+    handler: handler.putPasswordAdminUserByTokenHandler,
     options: {
       auth: 'itindosolution_jwt',
     },
@@ -26,14 +34,14 @@ const routes = (handler) => [
   {
     method: 'GET',
     path: '/user/admin',
-    handler: handler.getAdminUserHandler,
+    handler: handler.getAdminUsersHandler,
     options: {
       auth: 'itindosolution_jwt',
     },
   },
   {
     method: 'GET',
-    path: '/user/admin/{id}',
+    path: '/user/admin/{userId}',
     handler: handler.getAdminUserByIdHandler,
     options: {
       auth: 'itindosolution_jwt',
@@ -41,8 +49,24 @@ const routes = (handler) => [
   },
   {
     method: 'PUT',
-    path: '/user/admin/status',
+    path: '/user/admin/status/{userId}',
     handler: handler.putStatusAdminUserByIdHandler,
+    options: {
+      auth: 'itindosolution_jwt',
+    },
+  },
+  {
+    method: 'PUT',
+    path: '/user/admin/role/{userId}',
+    handler: handler.putRoleAdminUserById,
+    options: {
+      auth: 'itindosolution_jwt',
+    },
+  },
+  {
+    method: 'PUT',
+    path: '/user/admin/password/{userId}',
+    handler: handler.resetPassowrdAdminUserByIdHandler,
     options: {
       auth: 'itindosolution_jwt',
     },

@@ -7,6 +7,9 @@ const PostProductPayloadSchema = Joi.object({
   typeProduct: Joi.string().required(),
   description: Joi.string().required(),
   image: Joi.allow(),
+  sale: Joi.boolean().required(),
+  sparepart: Joi.boolean().required(),
+  feeReplacementId: Joi.string().max(50),
 });
 
 const PutProductPayloadSchema = Joi.object({
@@ -15,7 +18,14 @@ const PutProductPayloadSchema = Joi.object({
   price: Joi.number().required(),
   typeProduct: Joi.string().required(),
   description: Joi.string().required(),
+  sale: Joi.boolean().required(),
+  sparepart: Joi.boolean().required(),
+  feeReplacementId: Joi.string().max(50),
 });
+
+const feeReplacementPayloadSchema = Joi.object({
+  feeReplacementId: Joi.string().max(50).required(),
+})
 
 const PutStatusProductPayloadSchema = Joi.object({
   status: Joi.boolean().required(),
@@ -49,5 +59,6 @@ module.exports = {
   PutStatusProductPayloadSchema,
   PutImageProductPayloadSchema,
   ImageHeaderSchema,
-  PutPricePromotionProductPayloadSchema
+  PutPricePromotionProductPayloadSchema,
+  feeReplacementPayloadSchema
 };

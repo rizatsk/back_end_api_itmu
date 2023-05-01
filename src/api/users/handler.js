@@ -1,104 +1,143 @@
-const ConfigAuthorization = require("../../ConfigAuthorization");
+const Authorization = require('../../../config/authorization.json');
+const InvariantError = require('../../exceptions/InvariantError');
 
 class UsersHandler {
-  constructor({ service, authentication, logActivityService, validator }) {
+  constructor({ lock, service, authentication, authorizationService, logActivityService, validator }) {
+    this._lock = lock;
     this._service = service;
     this._logActivityService = logActivityService;
     this._serviceAuthentication = authentication;
+    this._authorizationService = authorizationService;
     this._validator = validator;
+    this._authorization = Authorization['user admin'];
 
     this.postRegisterAdminUserHandler = this.postRegisterAdminUserHandler.bind(
       this
     );
-    this.getAdminUserHandler = this.getAdminUserHandler.bind(this);
-    this.getAdminUserByIdHandler = this.getAdminUserByIdHandler.bind(this);
-    this.putPasswordAdminUserHandler = this.putPasswordAdminUserHandler.bind(
+    this.getAdminUsersHandler = this.getAdminUsersHandler.bind(this);
+
+    this.getAdminUserByTokenHandler = this.getAdminUserByTokenHandler.bind(this);
+    this.putPasswordAdminUserByTokenHandler = this.putPasswordAdminUserByTokenHandler.bind(
       this
     );
-    this.putAdminUserByIdHandler = this.putAdminUserByIdHandler.bind(this);
+    this.putAdminUserByTokenHandler = this.putAdminUserByTokenHandler.bind(this);
+
     this.putStatusAdminUserByIdHandler = this.putStatusAdminUserByIdHandler.bind(
       this
     );
+
+    this.getAdminUserByIdHandler = this.getAdminUserByIdHandler.bind(this);
+    this.putRoleAdminUserById = this.putRoleAdminUserById.bind(this);
+    this.resetPassowrdAdminUserByIdHandler = this.resetPassowrdAdminUserByIdHandler.bind(this);
   }
 
   async postRegisterAdminUserHandler(request, h) {
     this._validator.validatePostAdminUserPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { fullname, username, email, password } = request.payload;
+    request.payload.credentialUserId = credentialUserId;
 
-    // Check only admin itindo can access this API
-    await this._service.checkRoleAccessUser(
-      credentialUserId,
-      ConfigAuthorization.user_admin.insert
+
+    await this._lock.acquire("data", async () => {
+      // Check only admin itindo can access this API
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorization['insert user admin']
+      );
+
+      const resultUserId = await this._service.addAdminUser(request.payload);
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "daftarkan admin user",
+        refersId: resultUserId,
+      });
+    });
+
+    return {
+      status: "success",
+      message: "User admin berhasil didaftarkan",
+    };
+  }
+
+  async getAdminUsersHandler(request, h) {
+    const { id: credentialUserId } = request.auth.credentials;
+    const { page, limit, search_query } = request.query;
+
+    await this._lock.acquire("data", async () => {
+      // Check only admin itindo can access this API
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorization['get user admin']
+      );
+    });
+
+    const search = search_query ? search_query : "";
+    const totalData = parseInt(
+      await this._service.getCountAdminUser(search)
     );
-
-    const resultUserId = await this._service.addAdminUser({
-      fullname,
-      username,
-      email,
-      password,
-      createdby_user_id: credentialUserId,
-    });
-
-    await this._logActivityService.postLogActivity({
-      credentialUserId,
-      activity: "daftarkan admin user",
-      refersId: resultUserId,
+    const limitPage = limit || 10;
+    const pages = parseInt(page) || 1;
+    const totalPage = Math.ceil(totalData / limitPage);
+    const offset = (pages - 1) * limitPage;
+    const usersAdmin = await this._service.getAdminUsers({
+      search,
+      limit: limitPage,
+      offset,
     });
 
     return {
       status: "success",
-      message: "User berhasil didaftarkan",
+      data: {
+        usersAdmin,
+      },
+      totalData,
+      totalPage,
+      nextPage: pages + 1,
+      previousPage: pages - 1,
     };
   }
 
-  async getAdminUserHandler(request, h) {
+  async getAdminUserByTokenHandler(request, h) {
     const { id: credentialUserId } = request.auth.credentials;
+    await this._lock.acquire("data", async () => {
+      // Check only admin itindo can access this API
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorization['update user admin']
+      );
+    });
 
-    // Check only admin itindo can access this API
-    await this._service.verifyAdminItindoCredential(credentialUserId);
-    const user_admins = await this._service.getAdminUser();
-
+    const userAdmin = await this._service.getAdminUserById(credentialUserId);
     return {
       status: "success",
       data: {
-        user_admins,
+        userAdmin,
       },
     };
   }
 
-  async getAdminUserByIdHandler(request, h) {
-    const { id: credentialUserId } = request.auth.credentials;
-
-    const user_admin = await this._service.getAdminUserById(credentialUserId);
-    return {
-      status: "success",
-      data: {
-        user_admin,
-      },
-    };
-  }
-
-  async putPasswordAdminUserHandler(request, h) {
-    await this._validator.validatePutPasswordAdminUserPayload(request.payload);
+  async putPasswordAdminUserByTokenHandler(request, h) {
+    this._validator.validatePutPasswordAdminUserPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
     const { passwordOld, passwordNew } = request.payload;
 
-    await this._service.editPasswordAdminUser({
-      credentialUserId,
-      passwordOld,
-      passwordNew,
-    });
-    await this._serviceAuthentication.deleteRefreshTokenByUserId(
-      credentialUserId
-    );
+    await this._lock.acquire("data", async () => {
+      await this._service.editPasswordAdminUser({
+        credentialUserId,
+        passwordOld,
+        passwordNew,
+      });
+      await this._serviceAuthentication.deleteRefreshTokenByUserId(
+        credentialUserId
+      );
 
-    await this._logActivityService.postLogActivity({
-      credentialUserId,
-      activity: "ganti password",
-      refersId: credentialUserId,
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "ganti password",
+        refersId: credentialUserId,
+      });
     });
 
     return {
@@ -107,21 +146,21 @@ class UsersHandler {
     };
   }
 
-  async putAdminUserByIdHandler(request, h) {
-    await this._validator.validatePutAdminUserByIdPayload(request.payload);
+  async putAdminUserByTokenHandler(request, h) {
+    this._validator.validatePutAdminUserByIdPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { fullname } = request.payload;
+    request.payload.credentialUserId = credentialUserId;
+    request.payload.userId = credentialUserId;
 
-    await this._service.editAdminUserById({
-      credentialUserId,
-      fullname,
-    });
+    await this._lock.acquire("data", async () => {
+      await this._service.editAdminUserById(request.payload);
 
-    await this._logActivityService.postLogActivity({
-      credentialUserId,
-      activity: "merubah data admin user",
-      refersId: userId,
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "merubah data admin user",
+        refersId: credentialUserId,
+      });
     });
 
     return {
@@ -131,32 +170,114 @@ class UsersHandler {
   }
 
   async putStatusAdminUserByIdHandler(request, h) {
-    await this._validator.validatePutStatusAdminUserByIdPayload(
+    this._validator.validatePutStatusAdminUserByIdPayload(
       request.payload
     );
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { userId, status } = request.payload;
+    const { userId } = request.params;
+    request.payload.userId = userId;
+    request.payload.credentialUserId = credentialUserId;
 
-    await this._service.verifyAdminItindoCredential({
-      credentialUserId,
-    });
+    if (request.payload.userId === 'admin-00000001') throw new InvariantError('Superadmin tidak bisa di non aktifkan');
 
-    await this._service.editStatusAdminUserById({
-      credentialUserId,
-      userId,
-      status,
-    });
+    await this._lock.acquire("data", async () => {
+      // Check only admin itindo can access this API
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorization['update status user admin']
+      );
 
-    await this._logActivityService.postLogActivity({
-      credentialUserId,
-      activity: "merubah status admin user",
-      refersId: userId,
+      await this._service.editStatusAdminUserById(request.payload);
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "merubah status admin user",
+        refersId: userId,
+      });
     });
 
     return {
       status: "success",
       message: "Status admin user berhasil di update",
+    };
+  }
+
+  async getAdminUserByIdHandler(request) {
+    const { userId } = request.params;
+    const { id: credentialUserId } = request.auth.credentials;
+
+    await this._lock.acquire("data", async () => {
+      // Check only admin itindo can access this API
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorization['update user admin']
+      );
+    });
+
+    const userAdmin = await this._service.getAdminUserById(userId);
+
+    return {
+      status: 'success',
+      data: { userAdmin }
+    }
+  }
+
+  async putRoleAdminUserById(request) {
+    this._validator.validatePutRoleAdminUserByIdPayload(request.payload);
+
+    const { userId } = request.params;
+    const { id: credentialUserId } = request.auth.credentials;
+    request.payload.userId = userId
+    request.payload.credentialUserId = credentialUserId;
+
+    await this._lock.acquire("data", async () => {
+      // Check only admin itindo can access this API
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorization['update user admin']
+      );
+
+      await this._service.editRoleAdminUserById(request.payload);
+    });
+
+
+    return {
+      status: 'success',
+      message: 'Berhasil merubah role admin'
+    }
+  }
+
+  async resetPassowrdAdminUserByIdHandler(request) {
+    const { id: credentialUserId } = request.auth.credentials;
+    const { userId } = request.params;
+
+    await this._lock.acquire("data", async () => {
+      // Check only admin itindo can access this API
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorization['update user admin']
+      );
+
+      await this._service.resetPassword({
+        credentialUserId,
+        userId
+      });
+
+      await this._serviceAuthentication.deleteRefreshTokenByUserId(
+        userId
+      );
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "reset password",
+        refersId: credentialUserId,
+      });
+    });
+
+    return {
+      status: "success",
+      message: "Password admin user berhasil direset",
     };
   }
 }

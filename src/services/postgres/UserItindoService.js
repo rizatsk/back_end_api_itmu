@@ -113,6 +113,49 @@ class UserItindoService {
       throw new InvariantError('Server error')
     }
   }
+
+  // Ganti Password
+  async editPasswordUser({ userId, passwordOld, passwordNew }) {
+    const hashedPasswordOld = await this.getPasswordUserById(
+      userId
+    );
+
+    const match = await bcrypt.compare(passwordOld, hashedPasswordOld);
+    if (!match) {
+      throw new AuthenticationError("Password yang anda berikan salah");
+    }
+
+    const hashedPassword = await bcrypt.hash(passwordNew, 10);
+    const date = new Date();
+    const query = {
+      text: `UPDATE users SET password = $2, updated_at = $3 WHERE user_id = $1`,
+      values: [userId, hashedPassword, date],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) {
+      throw new NotFoundError(
+        "Gagal mengubah password, user id tidak ditemukan"
+      );
+    }
+  }
+
+  async getPasswordUserById(userId) {
+    const query = {
+      text: `SELECT password FROM users WHERE user_id = $1`,
+      values: [userId],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) {
+      throw new NotFoundError(
+        "Gagal mengubah password, user id tidak ditemukan"
+      );
+    }
+
+    return result.rows[0].password;
+  }
 }
 
 module.exports = UserItindoService;

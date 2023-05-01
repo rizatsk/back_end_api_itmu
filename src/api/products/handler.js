@@ -1,5 +1,6 @@
 const InvariantError = require("../../exceptions/InvariantError");
 const AuthorizationUser = require('../../../config/authorization.json');
+const NotFoundError = require("../../exceptions/NotFoundError");
 
 
 class ProductsHandler {
@@ -31,13 +32,15 @@ class ProductsHandler {
     this.putImageProductsHandler = this.putImageProductsHandler.bind(this);
     this.deleteProductByIdHandler = this.deleteProductByIdHandler.bind(this);
     this.putPricePromotionProductByIdHandler = this.putPricePromotionProductByIdHandler.bind(this);
+    this.getProductsSaleOrServiceHandler = this.getProductsSaleOrServiceHandler.bind(this);
   }
 
   async postProductHandler(request, h) {
     this._validator.validatePostProductPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
-    const { name, price, typeProduct, image, description, categoryId } = request.payload;
+    const { name, price, typeProduct, image, description, categoryId, sale, sparepart, feeReplacementId } = request.payload;
+    if (sparepart == 'true' || sparepart == true) this._validator.validateFeeReplacementPayloadSchema({ feeReplacementId });
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
@@ -69,7 +72,10 @@ class ProductsHandler {
         price,
         typeProduct,
         description,
-        categoryId
+        categoryId,
+        sale,
+        sparepart,
+        feeReplacementId
       });
 
       if (image) {
@@ -115,7 +121,7 @@ class ProductsHandler {
     const offset = (pages - 1) * limitPage;
     const products = await this._service.getProductsSearch({
       search,
-      limit,
+      limit: limitPage,
       offset,
     });
 
@@ -155,7 +161,8 @@ class ProductsHandler {
 
     const { id: credentialUserId } = request.auth.credentials;
     const { id: productId } = request.params;
-    const { name, price, typeProduct, description, categoryId } = request.payload;
+    const { name, price, typeProduct, description, categoryId, sale, sparepart, feeReplacementId } = request.payload;
+    if (sparepart == 'true' || sparepart == true) this._validator.validateFeeReplacementPayloadSchema({ feeReplacementId });
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
@@ -170,7 +177,10 @@ class ProductsHandler {
         price,
         typeProduct,
         description,
-        categoryId
+        categoryId,
+        sale,
+        sparepart,
+        feeReplacementId
       });
 
       await this._logActivityService.postLogActivity({
@@ -360,6 +370,49 @@ class ProductsHandler {
       status: "success",
       message: "Berhasil update price promotion product",
     };
+  }
+
+  async getProductsSaleOrServiceHandler(request) {
+    const { param } = request.params;
+    const { page, limit } = request.query;
+
+    const limitPage = limit || 10;
+    const pages = parseInt(page) || 1;
+    const offset = (pages - 1) * limitPage;
+
+    let products;
+    let totalData;
+    let totalPage;
+
+    switch (param) {
+      case 'sale':
+        totalData = parseInt(
+          await this._service.getCountProductsSaleOrService('sale')
+        );
+        totalPage = Math.ceil(totalData / limitPage);
+
+        products = await this._service.getProductsSaleOrService({ param: 'sale', limit: limitPage, offset });
+        break;
+      case 'service':
+        totalData = parseInt(
+          await this._service.getCountProductsSaleOrService('service')
+        );
+        totalPage = Math.ceil(totalData / limitPage);
+
+        products = await this._service.getProductsSaleOrService({ param: 'service', limit: limitPage, offset });
+        break;
+      default:
+        throw new NotFoundError('Param tidak tersedia')
+    }
+
+    return {
+      status: 'success',
+      data: { products },
+      totalData,
+      totalPage,
+      nextPage: pages + 1,
+      previousPage: pages - 1,
+    }
   }
 }
 

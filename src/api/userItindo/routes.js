@@ -14,8 +14,16 @@ const routes = (handler) => [
   },
   {
     method: "PUT",
-    path: "/user/{parameter}/{userId}",
-    handler: handler.updateDataUserByIdHandler,
+    path: "/user/data/{parameter}",
+    handler: handler.updateDataUserByTokenHandler,
+    options: {
+      auth: "itindosolution_user_jwt",
+    },
+  },
+  {
+    method: "PUT",
+    path: "/user/password",
+    handler: handler.updatePasswordUserByTokenHandler,
     options: {
       auth: "itindosolution_user_jwt",
     },

@@ -10,7 +10,7 @@ class UserItindoTestHelper {
     const id = `user-${nanoid(8)}`;
     const fullname = "Jokowi JKT48";
     const email = data.email || "jamaludin@gmail.com";
-    const noHandphone = "081231412";
+    const noHandphone = "081231412123";
     const hashedPassword = await bcrypt.hash(
       data.password || "Jokowihorehore",
       10

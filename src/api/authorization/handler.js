@@ -51,7 +51,7 @@ class AuthorizationHandler {
         const totalPage = Math.ceil(totalData / limitPage);
         const offset = (pages - 1) * limitPage;
         const roleUsers = await this._service.getRoleUsers({
-            limit,
+            limit: limitPage,
             offset,
             search
         });

@@ -1,19 +1,27 @@
 const pool_test = require("../databaseTest");
 const app = require("../src/app");
 const AuthenticationTestHelper = require("../test/AuthenticationTestHelper");
+const AuthorizationTestHelper = require("../test/AuthorizationTestHelper");
 const CategoryProductTestHelper = require("../test/CategoryProductTestHelper");
+const LogActivityTestHelper = require("../test/LogActivityTestHelper");
 const ProductTestHelper = require("../test/ProductTestHelper");
+const UserAdminTestHelper = require("../test/UserAdminTestHelper");
 
 describe("/authentications endpoint", () => {
+  const userAdminTestHelper = new UserAdminTestHelper(pool_test);
   const authenticationTestHelper = new AuthenticationTestHelper(pool_test);
+  const logActivityTestHelper = new LogActivityTestHelper(pool_test);
+  const authorizationTestHelper = new AuthorizationTestHelper(pool_test);
   const categoryProductTestHelper = new CategoryProductTestHelper(pool_test);
   const productTestHelper = new ProductTestHelper(pool_test);
 
   afterAll(async () => {
-    // await categoryProductTestHelper.deleteCategoriesProduct();
+    await logActivityTestHelper.deleteLogActivity();
   });
 
   afterEach(async () => {
+    await userAdminTestHelper.deleteUserAdmin();
+    await authorizationTestHelper.deleteAccessRole();
     await productTestHelper.deleteProduct();
     await categoryProductTestHelper.deleteCategoriesProduct();
     await authenticationTestHelper.deleteAuthentication();
@@ -67,6 +75,31 @@ describe("/authentications endpoint", () => {
       expect(responseJson.message).toEqual(
         "Name category, parent id is available"
       );
+    });
+
+    it("should response 403 Authorization", async () => {
+      const server = await app(pool_test);
+      const roleId = await authorizationTestHelper.addAccessRole();
+      const adminId = await userAdminTestHelper.addUserAdmin({ roleId })
+      const accessToken = authenticationTestHelper.getAccessTokenAdminUser(adminId);
+      const data = {
+        name: "komputer",
+      };
+
+      const response = await server.inject({
+        method: "POST",
+        url: "/api/category_product",
+        payload: data,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("You don't have access");
     });
   });
 
@@ -215,6 +248,31 @@ describe("/authentications endpoint", () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual("fail");
     });
+
+    it("should response 403 Authorization", async () => {
+      const server = await app(pool_test);
+      const roleId = await authorizationTestHelper.addAccessRole();
+      const adminId = await userAdminTestHelper.addUserAdmin({ roleId })
+      const accessToken = authenticationTestHelper.getAccessTokenAdminUser(adminId);
+      const categoryId = await categoryProductTestHelper.addCategoryChild();
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/category_product/status/${categoryId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: {
+          status: false
+        }
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("You don't have access");
+    });
   });
 
   describe("when PUT /category_product/id", () => {
@@ -258,6 +316,31 @@ describe("/authentications endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual("fail");
+    });
+
+    it("should response 403 Authorization", async () => {
+      const server = await app(pool_test);
+      const roleId = await authorizationTestHelper.addAccessRole();
+      const adminId = await userAdminTestHelper.addUserAdmin({ roleId })
+      const accessToken = authenticationTestHelper.getAccessTokenAdminUser(adminId);
+      const categoryId = await categoryProductTestHelper.addCategoryChild();
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/category_product/${categoryId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: {
+          name: 'Storage'
+        }
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("You don't have access");
     });
   });
 
@@ -305,6 +388,28 @@ describe("/authentications endpoint", () => {
       expect(response.statusCode).toEqual(400);
       expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual("Gagal menghapus, product Keyboard menggunakan category ini");
+    });
+
+    it("should response 403 Authorization", async () => {
+      const server = await app(pool_test);
+      const roleId = await authorizationTestHelper.addAccessRole();
+      const adminId = await userAdminTestHelper.addUserAdmin({ roleId })
+      const accessToken = authenticationTestHelper.getAccessTokenAdminUser(adminId);
+      const categoryId = await categoryProductTestHelper.addCategoryChild();
+
+      const response = await server.inject({
+        method: "DELETE",
+        url: `/api/category_product/${categoryId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("You don't have access");
     });
   });
 });

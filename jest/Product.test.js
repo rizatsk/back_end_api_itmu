@@ -7,12 +7,14 @@ const AuthenticationTestHelper = require("../test/AuthenticationTestHelper");
 const ProductTestHelper = require("../test/ProductTestHelper");
 const LogActivityTestHelper = require("../test/LogActivityTestHelper");
 const CategoryProductTestHelper = require("../test/CategoryProductTestHelper");
+const FeeReplacementTestHelper = require("../test/FeeReplacementTestHelper");
 
 describe("/products endpoint", () => {
   const authenticationTestHelper = new AuthenticationTestHelper(pool_test);
   const productTestHelper = new ProductTestHelper(pool_test);
   const logActivityTestHelper = new LogActivityTestHelper(pool_test);
   const categoryProductTestHelper = new CategoryProductTestHelper(pool_test);
+  const feeReplacementTestHelper = new FeeReplacementTestHelper(pool_test);
 
   const storagePublic = path.resolve(__dirname, "images");
   const image1 = fs.readFileSync(`${storagePublic}/pp putih polos.jpg`);
@@ -21,12 +23,14 @@ describe("/products endpoint", () => {
   let productId = "";
   let images = [];
   let thiscategoryId = "";
+  let thisfeeReplacementId = "";
 
   afterAll(async () => {
     await logActivityTestHelper.deleteLogActivity();
     await productTestHelper.deleteProduct();
     productTestHelper.deleteImageProduct();
     await categoryProductTestHelper.deleteCategoriesProduct();
+    await feeReplacementTestHelper.deleteFeeReplacement();
   });
 
   afterEach(async () => {
@@ -38,6 +42,8 @@ describe("/products endpoint", () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();
       const categoryId = await categoryProductTestHelper.addCategoryChild();
+      const feeReplacementId = await feeReplacementTestHelper.addFeeReplacement();
+      thisfeeReplacementId = feeReplacementId;
       thiscategoryId = categoryId;
 
       const payload = new FormData();
@@ -46,6 +52,9 @@ describe("/products endpoint", () => {
       payload.append("price", 500000);
       payload.append("typeProduct", "logo");
       payload.append("description", "Logo itindo terdapat logo 404 dan ITINDO");
+      payload.append("sale", 'true');
+      payload.append("sparepart", 'true');
+      payload.append("feeReplacementId", feeReplacementId);
       payload.append("image", image1, { filename: "pp putih polos.jpg" });
       payload.append("image", image2, { filename: "Logo.png" });
 
@@ -106,6 +115,8 @@ describe("/products endpoint", () => {
       payload.append("price", 500000);
       payload.append("typeProduct", "logo");
       payload.append("description", "Logo itindo terdapat logo 404 dan ITINDO");
+      payload.append("sale", 'true');
+      payload.append("service", 'false');
       payload.append("image", image1, { filename: "pp putih polos.jpg" });
       payload.append("image", imageLarge, { filename: "image_large.jpg" });
 
@@ -135,6 +146,9 @@ describe("/products endpoint", () => {
       payload.append("price", 500000);
       payload.append("typeProduct", "logo");
       payload.append("description", "Logo itindo terdapat logo 404 dan ITINDO");
+      payload.append("sale", 'true');
+      payload.append("sparepart", 'true');
+      payload.append("feeReplacementId", thisfeeReplacementId);
       payload.append("image", image1, { filename: "pp putih polos.jpg" });
 
       const response = await server.inject({
@@ -219,6 +233,7 @@ describe("/products endpoint", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
       const accessToken = authenticationTestHelper.getAccessToken();
+      const productIdSparepart = await productTestHelper.addProductSparepart(thisfeeReplacementId, thiscategoryId);
 
       const payload = {
         name: "monitor lg",
@@ -226,11 +241,13 @@ describe("/products endpoint", () => {
         categoryId: thiscategoryId,
         typeProduct: "monitor",
         description: "oke",
+        sale: true,
+        sparepart: false,
       };
 
       const response = await server.inject({
         method: "PUT",
-        url: `/api/product/${productId}`,
+        url: `/api/product/${productIdSparepart}`,
         payload: payload,
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -253,6 +270,8 @@ describe("/products endpoint", () => {
         price: 610000,
         typeProduct: "monitor",
         description: "oke",
+        sale: true,
+        sparepart: false,
       };
 
       const response = await server.inject({

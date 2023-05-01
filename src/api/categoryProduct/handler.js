@@ -1,9 +1,20 @@
+const AuthorizationUser = require('../../../config/authorization.json');
+
 class CategoryProductHandler {
-  constructor({ lock, service, validator, productService }) {
+  constructor({ lock,
+    service,
+    authorizationService,
+    validator,
+    productService,
+    logActivityService,
+  }) {
     this._lock = lock;
     this._service = service;
+    this._authorizationService = authorizationService;
     this._validator = validator;
-    this._productService = productService
+    this._productService = productService;
+    this._logActivityService = logActivityService;
+    this._authorizationUser = AuthorizationUser['category product'];
 
     this.postCategoryProductHandler = this.postCategoryProductHandler.bind(
       this
@@ -28,13 +39,28 @@ class CategoryProductHandler {
     request.payload.credentialUserId = credentialUserId;
 
     const categoryProductId = await this._lock.acquire("data", async () => {
-      return await this._service.addCategoryProduct(
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser['insert catgory product']
+      );
+
+
+      const categoryProductId = await this._service.addCategoryProduct(
         request.payload
       );
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "menambahkan category product",
+        refersId: categoryProductId,
+      });
+
+      return categoryProductId;
     });
 
     return {
       status: "success",
+      message: 'Berhasil menambahkan category product',
       data: {
         categoryProductId,
       },
@@ -50,7 +76,7 @@ class CategoryProductHandler {
     const totalPage = Math.ceil(totalData / limitPage);
     const offset = (pages - 1) * limitPage;
     const categories = await this._service.getCategories({
-      limit,
+      limit: limitPage,
       offset,
       search
     });
@@ -102,11 +128,23 @@ class CategoryProductHandler {
   async updateStatusCategoriesByIdHandler(request) {
     this._validator.validatePutStatusCategoryProductPayload(request.payload);
 
+    const { id: credentialUserId } = request.auth.credentials;
     const { id } = request.params;
     const { status } = request.payload;
 
     await this._lock.acquire("data", async () => {
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser['update status category product']
+      );
+
       await this._service.updateStatusCategoryById(id, status);
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "merubah status category product",
+        refersId: id,
+      });
     });
 
     return {
@@ -118,10 +156,22 @@ class CategoryProductHandler {
   async updateCategoriesByIdHandler(request) {
     this._validator.validatePostCategoryProductPayload(request.payload)
 
+    const { id: credentialUserId } = request.auth.credentials;
     request.payload.categoryId = request.params.id;
 
     await this._lock.acquire("data", async () => {
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser['update category product']
+      );
+
       await this._service.updateCategoryById(request.payload);
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "merubah data category product",
+        refersId: request.params.id,
+      });
     });
 
     return {
@@ -132,10 +182,22 @@ class CategoryProductHandler {
 
   async deleteCategoriesAndChildHandler(request) {
     const { id } = request.params;
+    const { id: credentialUserId } = request.auth.credentials;
 
     await this._lock.acquire("data", async () => {
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser['update category product']
+      );
+
       await this._productService.checkProductByCategoryId(id);
       await this._service.deleteCategoryAndChild(id);
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: "menghapus data category product",
+        refersId: id,
+      });
     });
 
     return {

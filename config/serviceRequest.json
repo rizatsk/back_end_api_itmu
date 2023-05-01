@@ -1,0 +1,24 @@
+{
+  "device": [
+    {
+      "komputer": {
+        "brand": ["Dan lain-lain"]
+      }
+    },
+    {
+      "laptop": {
+        "brand": [
+          "Asus",
+          "Acer",
+          "Lenovo",
+          "HP",
+          "Thosiba",
+          "Dell",
+          "MSI",
+          "Samsung",
+          "Sony"
+        ]
+      }
+    }
+  ]
+}

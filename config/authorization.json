@@ -10,6 +10,7 @@
     "update status category product": "update-status_category_product"
   },
   "user admin": {
+    "get user admin": "get_user_admin",
     "insert user admin": "insert_user_admin",
     "update user admin": "update_user_admin",
     "update status user admin": "update-status_user_admin"
@@ -18,5 +19,15 @@
     "insert role user": "insert_role_user",
     "update role user": "update_role_user",
     "delete role user": "delete_role_user"
+  },
+  "request service": {
+    "get request service": "get_request_service",
+    "update request service": "update_request_service"
+  },
+  "fee replacement": {
+    "insert fee replacement": "insert_fee_replacement",
+    "get fee replacement": "get_fee_replacement",
+    "update fee replacement": "update_fee_replacement",
+    "delete fee replacement": "delete_fee_replacement"
   }
 }

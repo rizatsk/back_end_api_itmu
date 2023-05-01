@@ -1,19 +1,17 @@
 const pool_test = require("../databaseTest");
-const ConfigAuthorization = require("../src/ConfigAuthorization");
 const app = require("../src/app");
-const UsersService = require("../src/services/postgres/UsersService");
 const AuthenticationTestHelper = require("../test/AuthenticationTestHelper");
 const UserItindoTestHelper = require("../test/UserItindoTestHelper");
 
-describe("/users ITindo endpoint", () => {
+describe("/user ITindo endpoint", () => {
   const authenticationTestHelper = new AuthenticationTestHelper(pool_test);
   const userItindoTestHelper = new UserItindoTestHelper(pool_test);
 
   afterAll(async () => {
-    await userItindoTestHelper.deleteUserItindo();
   });
 
   afterEach(async () => {
+    await userItindoTestHelper.deleteUserItindo();
     await authenticationTestHelper.deleteAuthentication();
   });
 
@@ -44,11 +42,13 @@ describe("/users ITindo endpoint", () => {
 
     it("should response 400 email is available", async () => {
       const server = await app(pool_test);
+      const email = "bambang@gmail.com"
+      await userItindoTestHelper.addUserItindo({ email });
 
       const data = {
         fullname: "Bambang Sutejo",
         noHandphone: "0877829870678",
-        email: "bambang@gmail.com",
+        email,
         password: "Bambangasalole123.-",
       };
 
@@ -67,10 +67,11 @@ describe("/users ITindo endpoint", () => {
 
     it("should response 400 no handphone is available", async () => {
       const server = await app(pool_test);
+      await userItindoTestHelper.addUserItindo();
 
       const data = {
         fullname: "Bambang Sutejo",
-        noHandphone: "087782987067",
+        noHandphone: "081231412123",
         email: "bambang123@gmail.com",
         password: "Bambangasalole123.-",
       };
@@ -130,7 +131,7 @@ describe("/users ITindo endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(400);
       expect(responseJson.message).toEqual(
-        "Password tidak valid minimal 8 character, 1 huruf besar, 1 angka, dan 1 character khusus"
+        "Password tidak valid minimal 8 character, tedapat huruf besar, tedapat angka, dan terdapat character khusus"
       );
     });
 
@@ -154,7 +155,7 @@ describe("/users ITindo endpoint", () => {
     });
   });
 
-  describe("when GET /user/id", () => {
+  describe("when GET /user/data", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
 
@@ -210,4 +211,270 @@ describe("/users ITindo endpoint", () => {
     });
   });
 
+  describe("when PUT data /user/data/{parameter}", () => {
+    it("should response 200 update fullname", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        fullname: 'Bambang I love you'
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/data/fullname",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+      expect(responseJson.message).toEqual("Berhasil merubah data fullname user");
+    });
+
+    it("should response 400 update fullname required", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        fullname: ''
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/data/fullname",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+    });
+
+    it("should response 200 update handphone", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        noHandphone: '087781427523'
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/data/handphone",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+      expect(responseJson.message).toEqual("Berhasil merubah data handphone user");
+    });
+
+    it("should response 400 update no hadphone is not valid", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        noHandphone: '12425123142'
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/data/handphone",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+    });
+
+    it("should response 200 update address", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        address: {
+          label: 'kantor',
+          provinsi: 'DKI Jakarta',
+          kota: 'Jakarta Barat',
+          kecamatan: 'Kebon Jeruk',
+          kelurahan: 'Kebon',
+          alamat: 'Ruko Rich Palace No 3 Blok B',
+        }
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/data/address",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+      expect(responseJson.message).toEqual("Berhasil merubah data address user");
+    });
+
+    it("should response 400 update address is not valid payload", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        address: {
+          labol: 'kantor',
+          provinsi: 'DKI Jakarta',
+          kota: 'Jakarta Barat',
+          kecamatan: 'Kebon Jeruk',
+          kelurahan: 'Kebon',
+        }
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/data/address",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+    });
+
+    it("should response 404 update data parameter not found", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        batukali: 'Tester'
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/data/batuKali",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(404);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("Data user yang ingin dirubah tidak ditemukan");
+    });
+  });
+
+  describe("when PUT password /user/password", () => {
+    it("should response 200", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        passwordOld: 'Jokowihorehore',
+        passwordNew: 'JokowiLoveYou123.-'
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/password",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+      expect(responseJson.message).toEqual("Berhasil mengganti password user");
+    });
+
+    it("should response 400 password new is not valid", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        passwordOld: 'Jokowihorehore',
+        passwordNew: 'JokowiLoveYou123'
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/password",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("Password tidak valid minimal 8 character, tedapat huruf besar, tedapat angka, dan terdapat character khusus");
+    });
+
+    it("should response 401", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenUser(userId);
+
+      const data = {
+        passwordOld: 'Jokowihoreshores',
+        passwordNew: 'JokowiLoveYou123.-'
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: "/api/user/password",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: data
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(401);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("Password yang anda berikan salah");
+    });
+  });
 });

@@ -54,6 +54,16 @@ const authorization = require('./api/authorization');
 const AuthorizationService = require("./services/postgres/AuthorizationService");
 const AuthorizationValidator = require('./validator/authorization');
 
+// Request service
+const requestService = require('./api/requestService');
+const RequestServiceService = require('./services/postgres/RequestServiceService');
+const RequestServiceValidator = require('./validator/requestService');
+
+// Fee Replacement
+const feeReplacement = require('./api/feeReplacement');
+const FeeReplacementService = require('./services/postgres/FeeReplacementService');
+const FeeReplacementValidator = require('./validator/feeReplacement');
+
 const app = async (pool) => {
   const lock = new Lock();
   const usersService = new UsersService({ pool });
@@ -68,6 +78,8 @@ const app = async (pool) => {
   const authorizationService = new AuthorizationService({ pool });
   const userItindoService = new UserItindoService({ pool });
   const categoryProductService = new CategoryProductService({ pool });
+  const requestServiceService = new RequestServiceService({ pool });
+  const feeRelacementService = new FeeReplacementService({ pool });
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -164,6 +176,7 @@ const app = async (pool) => {
         service: usersService,
         logActivityService,
         authentication: authenticationService,
+        authorizationService,
         validator: UsersValidator,
       },
     },
@@ -223,7 +236,9 @@ const app = async (pool) => {
         lock,
         service: categoryProductService,
         validator: CategoryProductValidator,
-        productService: productsService
+        authorizationService,
+        productService: productsService,
+        logActivityService,
       },
     },
     {
@@ -232,6 +247,26 @@ const app = async (pool) => {
         lock,
         service: authorizationService,
         validator: AuthorizationValidator,
+      },
+    },
+    {
+      plugin: requestService,
+      options: {
+        lock,
+        service: requestServiceService,
+        logActivityService,
+        authorizationService,
+        validator: RequestServiceValidator,
+      },
+    },
+    {
+      plugin: feeReplacement,
+      options: {
+        lock,
+        service: feeRelacementService,
+        authorizationService,
+        validator: FeeReplacementValidator,
+        logActivityService,
       },
     },
   ]);
