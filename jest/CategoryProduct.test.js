@@ -7,7 +7,7 @@ const LogActivityTestHelper = require("../test/LogActivityTestHelper");
 const ProductTestHelper = require("../test/ProductTestHelper");
 const UserAdminTestHelper = require("../test/UserAdminTestHelper");
 
-describe("/authentications endpoint", () => {
+describe("/category_product endpoint", () => {
   const userAdminTestHelper = new UserAdminTestHelper(pool_test);
   const authenticationTestHelper = new AuthenticationTestHelper(pool_test);
   const logActivityTestHelper = new LogActivityTestHelper(pool_test);

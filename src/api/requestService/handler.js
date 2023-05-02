@@ -1,5 +1,4 @@
 const AuthorizationUser = require('../../../config/authorization.json');
-const InvariantError = require('../../exceptions/InvariantError');
 
 class RequestServiceHandler {
     constructor({

@@ -64,6 +64,10 @@ const feeReplacement = require('./api/feeReplacement');
 const FeeReplacementService = require('./services/postgres/FeeReplacementService');
 const FeeReplacementValidator = require('./validator/feeReplacement');
 
+const productService = require('./api/productService');
+const ProductServiceService = require('./services/postgres/ProductServiceService');
+const ProductServiceValidator = require('./validator/productService')
+
 const app = async (pool) => {
   const lock = new Lock();
   const usersService = new UsersService({ pool });
@@ -80,6 +84,7 @@ const app = async (pool) => {
   const categoryProductService = new CategoryProductService({ pool });
   const requestServiceService = new RequestServiceService({ pool });
   const feeRelacementService = new FeeReplacementService({ pool });
+  const productServiceService = new ProductServiceService({ pool });
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -266,6 +271,16 @@ const app = async (pool) => {
         service: feeRelacementService,
         authorizationService,
         validator: FeeReplacementValidator,
+        logActivityService,
+      },
+    },
+    {
+      plugin: productService,
+      options: {
+        lock,
+        service: productServiceService,
+        authorizationService,
+        validator: ProductServiceValidator,
         logActivityService,
       },
     },

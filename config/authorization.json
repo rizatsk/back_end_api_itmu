@@ -29,5 +29,11 @@
     "get fee replacement": "get_fee_replacement",
     "update fee replacement": "update_fee_replacement",
     "delete fee replacement": "delete_fee_replacement"
+  },
+  "product service": {
+    "insert product service": "insert_product_service",
+    "get product service": "get_product_service",
+    "update product service": "update_product_service",
+    "delete product service": "delete_product_service"
   }
 }

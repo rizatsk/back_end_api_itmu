@@ -5,7 +5,7 @@ const LogActivityTestHelper = require("../test/LogActivityTestHelper");
 const RequestServiceTestHelper = require("../test/RequestServiceTestHelper");
 const UserItindoTestHelper = require("../test/UserItindoTestHelper");
 
-describe("/user/admin User Admin endpoint", () => {
+describe("/request-service User Admin endpoint", () => {
     const userItindoTestHelper = new UserItindoTestHelper(pool_test);
     const logActivityTestHelper = new LogActivityTestHelper(pool_test);
     const authenticationTestHelper = new AuthenticationTestHelper(pool_test);

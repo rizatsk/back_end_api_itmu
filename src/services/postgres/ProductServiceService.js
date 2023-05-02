@@ -8,13 +8,13 @@ class ProductServiceService {
     }
 
     async addProductService({ name, service, price }) {
-        await this.checkAddNameAndServiceProductService(name);
+        await this.checkAddNameAndServiceProductService(name, service);
 
         const id = `product_service-${nanoid(10)}`
         const query = {
             text: `INSERT INTO product_services(product_service_id,
                 name, service, price)
-                VALUES($1, $2, $3) RETURNING fee_replacement_id`,
+                VALUES($1, $2, $3, $4) RETURNING product_service_id`,
             values: [id, name, service, price]
         };
 
@@ -22,7 +22,7 @@ class ProductServiceService {
 
         if (!result.rowCount) throw new InvariantError('Gagal insert fee replacement')
 
-        return result.rows[0].fee_replacement_id;
+        return result.rows[0].product_service_id;
     }
 
     async checkAddNameAndServiceProductService(name, service) {
@@ -63,7 +63,7 @@ class ProductServiceService {
         return result.rows;
     }
 
-    async getProductServicesForRequestService() {
+    async getProductServicesForRequestService(id) {
         const query = {
             text: `SELECT product_service_id,
                 name, service, price
@@ -94,7 +94,7 @@ class ProductServiceService {
 
         const query = {
             text: `UPDATE product_services SET name = $2, service = $3, price = $4, updated_at = $5
-                WHERE product_services = $1`,
+                WHERE product_service_id = $1`,
             values: [productServiceId, name, service, price, new Date()]
         };
 
