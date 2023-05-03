@@ -5,7 +5,7 @@ const LogActivityTestHelper = require("../test/LogActivityTestHelper");
 const ProductServiceTestHelper = require("../test/ProductServiceTestHelper");
 
 
-describe("/fee-replacement endpoint", () => {
+describe("/product-service   endpoint", () => {
     const authenticationTestHelper = new AuthenticationTestHelper(pool_test);
     const logActivityTestHelper = new LogActivityTestHelper(pool_test);
     const productServiceTestHelper = new ProductServiceTestHelper(pool_test);

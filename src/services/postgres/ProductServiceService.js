@@ -38,7 +38,7 @@ class ProductServiceService {
     async getCountProductServices(search) {
         search = search ? `%${search}%` : '%%';
         const query = {
-            text: `SELECT count(*) AS product_services FROM fee_replacements WHERE name ILIKE $1`,
+            text: `SELECT count(*) AS count FROM product_services WHERE name ILIKE $1`,
             values: [search]
         };
 

@@ -241,7 +241,6 @@ describe("/products endpoint", () => {
         categoryId: thiscategoryId,
         typeProduct: "monitor",
         description: "oke",
-        sale: true,
         sparepart: false,
       };
 
@@ -270,7 +269,6 @@ describe("/products endpoint", () => {
         price: 610000,
         typeProduct: "monitor",
         description: "oke",
-        sale: true,
         sparepart: false,
       };
 
@@ -347,6 +345,51 @@ describe("/products endpoint", () => {
       const response = await server.inject({
         method: "PUT",
         url: `/api/product/status/${productId}`,
+        payload: payload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+    });
+  });
+
+  describe("when PUT /product/sale/{id}", () => {
+    it("should response 200", async () => {
+      const server = await app(pool_test);
+      const accessToken = authenticationTestHelper.getAccessToken();
+
+      const payload = {
+        sale: false,
+      };
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/product/sale/${productId}`,
+        payload: payload,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+      expect(responseJson.message).toEqual("Berhasil update status sale product");
+    });
+
+    it("should response 400 payload is required", async () => {
+      const server = await app(pool_test);
+      const accessToken = authenticationTestHelper.getAccessToken();
+
+      const payload = {};
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/product/sale/${productId}`,
         payload: payload,
         headers: {
           Authorization: `Bearer ${accessToken}`,

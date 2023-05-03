@@ -27,7 +27,7 @@ class UsersHandler {
     );
 
     this.getAdminUserByIdHandler = this.getAdminUserByIdHandler.bind(this);
-    this.putRoleAdminUserById = this.putRoleAdminUserById.bind(this);
+    this.putRoleAdminUserByIdHandler = this.putRoleAdminUserByIdHandler.bind(this);
     this.resetPassowrdAdminUserByIdHandler = this.resetPassowrdAdminUserByIdHandler.bind(this);
   }
 
@@ -44,6 +44,9 @@ class UsersHandler {
         credentialUserId,
         this._authorization['insert user admin']
       );
+
+      // check role id
+      await this._authorizationService.getRoleUserById(request.payload.roleId);
 
       const resultUserId = await this._service.addAdminUser(request.payload);
 
@@ -223,7 +226,7 @@ class UsersHandler {
     }
   }
 
-  async putRoleAdminUserById(request) {
+  async putRoleAdminUserByIdHandler(request) {
     this._validator.validatePutRoleAdminUserByIdPayload(request.payload);
 
     const { userId } = request.params;
@@ -237,6 +240,9 @@ class UsersHandler {
         credentialUserId,
         this._authorization['update user admin']
       );
+
+      // check role id
+      await this._authorizationService.getRoleUserById(request.payload.roleId);
 
       await this._service.editRoleAdminUserById(request.payload);
     });

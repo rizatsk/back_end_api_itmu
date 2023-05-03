@@ -333,7 +333,7 @@ describe("/fee-replacement endpoint", () => {
             expect(responseJson.message).toEqual("Berhasil menghapus fee replacement");
         });
 
-        it("should response 400", async () => {
+        it("should response 400 fee replacement available in product", async () => {
             const server = await app(pool_test);
             const feeReplacementId = await feeReplacementTestHelper.addFeeReplacement();
             const categoryId = await categoryProductTestHelper.addCategoryChild();

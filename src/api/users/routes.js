@@ -58,7 +58,7 @@ const routes = (handler) => [
   {
     method: 'PUT',
     path: '/user/admin/role/{userId}',
-    handler: handler.putRoleAdminUserById,
+    handler: handler.putRoleAdminUserByIdHandler,
     options: {
       auth: 'itindosolution_jwt',
     },

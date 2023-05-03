@@ -91,7 +91,7 @@ class ProductsService {
     search = search ? `%${search}%` : '%%';
     const query = {
       text: `SELECT product_id, name, price, created, status,
-        price_promotion
+        price_promotion, sale, sparepart
         FROM products 
         WHERE LOWER(name) ILIKE $3
         ORDER BY created
@@ -139,11 +139,9 @@ class ProductsService {
     typeProduct,
     description,
     categoryId,
-    sale,
     sparepart,
     feeReplacementId,
   }) {
-    // try {
     await this.checkNameProductForUpdate(name, productId);
     const feeReplacementData = feeReplacementId || null;
     if (feeReplacementData) await this.checkFeeReplacement(feeReplacementData);
@@ -151,7 +149,7 @@ class ProductsService {
     const date = new Date();
     const query = {
       text: `UPDATE products SET name = $1, price = $2, type_product = $3,
-        updated = $4, updatedby_user_id = $5, deskripsi_product = $7, category_id = $8, sale = $9, sparepart = $10, fee_replacement_id = $11 WHERE product_id = $6`,
+        updated = $4, updatedby_user_id = $5, deskripsi_product = $7, category_id = $8, sparepart = $9, fee_replacement_id = $10 WHERE product_id = $6`,
       values: [
         name,
         price,
@@ -161,7 +159,6 @@ class ProductsService {
         productId,
         description,
         categoryId,
-        sale,
         sparepart,
         feeReplacementData,
       ],
@@ -170,11 +167,6 @@ class ProductsService {
     const result = await this._pool.query(query);
     if (!result.rowCount)
       throw new NotFoundError("Gagal edit product, product id tidak ditemukan");
-
-    // } catch (error) {
-    //   console.log(error)
-    //   throw new InvariantError('error')
-    // }
   }
 
   async editStatusProductsById({ productId, status, credentialUserId }) {
@@ -189,6 +181,21 @@ class ProductsService {
     if (!result.rowCount)
       throw new InvariantError(
         "Gagal edit status product, product id tidak ditemukan"
+      );
+  }
+
+  async editSaleProductById({ productId, sale, credentialUserId }) {
+    const date = new Date();
+    const query = {
+      text: `UPDATE products SET sale = $1, updated = $3, updatedby_user_id = $4 WHERE product_id = $2`,
+      values: [sale, productId, date, credentialUserId],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount)
+      throw new InvariantError(
+        "Gagal edit status sale product, product id tidak ditemukan"
       );
   }
 

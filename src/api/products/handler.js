@@ -29,6 +29,7 @@ class ProductsHandler {
     this.putStatusProductsByIdHandler = this.putStatusProductsByIdHandler.bind(
       this
     );
+    this.putSaleProductsByIdHandler = this.putSaleProductsByIdHandler.bind(this);
     this.putImageProductsHandler = this.putImageProductsHandler.bind(this);
     this.deleteProductByIdHandler = this.deleteProductByIdHandler.bind(this);
     this.putPricePromotionProductByIdHandler = this.putPricePromotionProductByIdHandler.bind(this);
@@ -225,6 +226,38 @@ class ProductsHandler {
     return {
       status: "success",
       message: "Berhasil update data product",
+    };
+  }
+
+  async putSaleProductsByIdHandler(request) {
+    this._validator.validatePutSaleProductPayload(request.payload);
+
+    const { id: credentialUserId } = request.auth.credentials;
+    const { id: productId } = request.params;
+    const { sale } = request.payload;
+
+    await this._lock.acquire("data", async () => {
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser["update product"]
+      );
+
+      await this._service.editSaleProductById({
+        credentialUserId,
+        productId,
+        sale,
+      });
+
+      await this._logActivityService.postLogActivity({
+        credentialUserId,
+        activity: `update status sale product menjadi ${sale}`,
+        refersId: productId,
+      });
+    });
+
+    return {
+      status: "success",
+      message: "Berhasil update status sale product",
     };
   }
 

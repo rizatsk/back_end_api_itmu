@@ -2,6 +2,7 @@ const {
   PostProductPayloadSchema,
   PutProductPayloadSchema,
   PutStatusProductPayloadSchema,
+  PutSaleProductPayloadSchema,
   PutImageProductPayloadSchema,
   ImageHeaderSchema,
   PutPricePromotionProductPayloadSchema,
@@ -26,6 +27,13 @@ const ProductsValidator = {
   },
   validatePutStatusProductPayload: (payload) => {
     const validationResult = PutStatusProductPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validatePutSaleProductPayload: (payload) => {
+    const validationResult = PutSaleProductPayloadSchema.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

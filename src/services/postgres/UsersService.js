@@ -59,7 +59,7 @@ class UsersService {
     const query = {
       text:
         `SELECT admin_id, fullname, username, fullname, 
-        email, role_name 
+        email, role_name, status
         FROM user_admins JOIN auth_role ON
         user_admins.role_id = auth_role.role_id
         WHERE LOWER(username) LIKE $3 AND admin_id != 'admin-00000001'
