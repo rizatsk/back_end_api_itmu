@@ -1,27 +1,22 @@
-const { createCanvas } = require("canvas");
+const textToImage = require('text-to-image');
 
-function createProfileImage(initials) {
+async function createProfileImage(initials) {
     initials = initials.split(' ').slice(0, 2).map(word => word.charAt(0)).join('');
     initials = initials.toUpperCase();
 
-    const canvas = createCanvas(200, 200);
-    const context = canvas.getContext('2d');
+    const imageBuffer = await textToImage.generate(initials, {
+        maxWidth: 200,
+        fontSize: 80,
+        lineHeight: 100,
+        margin: 50,
+        textAlign: 'center',
+        bgColor: '#0F3D3E',
+        textColor: '#FFFFFF',
+    });
 
-    // atur latar belakang
-    context.fillStyle = '#0F3D3E';
-    context.fillRect(0, 0, canvas.width, canvas.height);
-
-    // atur font
-    context.font = '80px Impact';
-    context.fillStyle = '#FFFFFF';
-    context.textAlign = 'center';
-    context.textBaseline = 'middle';
-
-    // tulis inisial di tengah-tengah
-    context.fillText(initials, canvas.width / 2, canvas.height / 2);
-
-    // kembalikan data gambar dalam bentuk Base64
-    return canvas.toDataURL('image/png');
+    const base64Image = imageBuffer.toString('base64');
+    const imageUrl = `${base64Image}`;
+    return imageUrl;
 }
 
 module.exports = createProfileImage;

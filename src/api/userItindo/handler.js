@@ -63,7 +63,7 @@ class UserItindoHandler {
     const { id: credentialUserId } = request.auth.credentials;
 
     const user = await this._service.getUserById(credentialUserId)
-    user.profileImage = createProfileImage(user.fullname)
+    user.profileImage = await createProfileImage(user.fullname)
 
     return {
       status: "success",
