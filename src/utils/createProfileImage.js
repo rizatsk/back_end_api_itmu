@@ -1,22 +1,23 @@
-const textToImage = require('text-to-image');
+const svgCaptcha = require('svg-captcha');
+const crypto = require('crypto');
 
-async function createProfileImage(initials) {
+function createProfileImage(initials) {
     initials = initials.split(' ').slice(0, 2).map(word => word.charAt(0)).join('');
     initials = initials.toUpperCase();
 
-    const imageBuffer = await textToImage.generate(initials, {
-        maxWidth: 200,
-        fontSize: 80,
-        lineHeight: 100,
-        margin: 50,
-        textAlign: 'center',
-        bgColor: '#0F3D3E',
-        textColor: '#FFFFFF',
-    });
+    // generate captcha
+    const captcha = svgCaptcha.create({ size: 6, ignoreChars: '0o1i' });
 
-    const base64Image = imageBuffer.toString('base64');
-    const imageUrl = `${base64Image}`;
-    return imageUrl;
+    // buat SVG sederhana
+    const svg = `
+    <svg width="200" height="200" viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+      <rect width="200" height="200" fill="#0F3D3E" />
+      <text x="50%" y="60%" text-anchor="middle" font-size="80" fill="#FFFFFF">${initials}</text>
+    </svg>
+  `;
+
+    // kembalikan URL data
+    return `data:image/svg+xml;base64,${Buffer.from(svg).toString('base64')}`;
 }
 
 module.exports = createProfileImage;
