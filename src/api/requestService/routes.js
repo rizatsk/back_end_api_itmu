@@ -1,8 +1,21 @@
 const routes = (handler) => [
     {
+        method: "GET",
+        path: "/request-service/before",
+        handler: handler.getDataForRequestServiceHandler,
+    },
+    {
         method: "POST",
         path: "/request-service",
         handler: handler.postRequestServiceHandler,
+        options: {
+            auth: "itindosolution_user_jwt",
+        },
+    },
+    {
+        method: "GET",
+        path: "/request-service/user",
+        handler: handler.getRequestServiceByTokenUserHandler,
         options: {
             auth: "itindosolution_user_jwt",
         },
@@ -32,9 +45,17 @@ const routes = (handler) => [
         },
     },
     {
+        method: "GET",
+        path: "/request-service/track-history/{id}",
+        handler: handler.getTrackHistoryServicesByServiceIdHandler,
+        options: {
+            auth: "itindosolution_jwt",
+        },
+    },
+    {
         method: "PUT",
-        path: "/request-service/status/{id}",
-        handler: handler.putStatusRequestServiceByIdHandler,
+        path: "/request-service/status-realprice/{id}",
+        handler: handler.putStatusAndRealPriceRequestServiceByIdHandler,
         options: {
             auth: "itindosolution_jwt",
         },

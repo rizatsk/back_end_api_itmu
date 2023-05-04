@@ -49,9 +49,32 @@ const MappingProducts = ({
   sparepart
 });
 
+const MappingProductsForUser = ({
+  product_id,
+  name,
+  price,
+  price_promotion,
+  image_link
+}) => ({
+  product_id,
+  name,
+  price,
+  price_promotion,
+  percent_promotion: price_promotion ? Math.ceil(((price - price_promotion) / price) * 100) : null,
+  image_link: image_link ? `${process.env.URLIMAGE}${image_link}` : null
+})
+
+const MappingImageProductForUser = ({
+  link,
+}) => ({
+  image_link: link ? `${process.env.URLIMAGE}${link}` : null
+})
+
 module.exports = {
   MappingCategoriesProduct,
   mappedDataCategories,
   MappingPricePromotionProductById,
-  MappingProducts
+  MappingProducts,
+  MappingProductsForUser,
+  MappingImageProductForUser
 };

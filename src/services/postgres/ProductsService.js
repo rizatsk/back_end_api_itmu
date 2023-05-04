@@ -1,7 +1,7 @@
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
-const { MappingPricePromotionProductById, MappingProducts } = require("../../utils/MappingResultDB");
+const { MappingPricePromotionProductById, MappingProducts, MappingProductsForUser } = require("../../utils/MappingResultDB");
 
 class ProductsService {
   constructor({ pool }) {
@@ -35,7 +35,7 @@ class ProductsService {
     const status = "true";
     const id = `product-${nanoid(8)}`;
     const date = new Date();
-    const feeReplacementData = feeReplacementId || null;
+    const feeReplacementData = sparepart ? feeReplacementId : null;
     if (feeReplacementData) await this.checkFeeReplacement(feeReplacementData);
 
     const query = {
@@ -107,7 +107,20 @@ class ProductsService {
 
   async getProductsById(productId) {
     const query = {
-      text: "SELECT * FROM products WHERE product_id = $1",
+      text: `SELECT products.product_id,
+        products.name,
+        products.price,
+        type_product,
+        deskripsi_product,
+        category_id,
+        price_promotion,
+        sparepart,
+        fee_replacements.name AS fee_replacement_name,
+        fee_replacements.price AS fee_replacement_price
+        FROM products 
+        LEFT JOIN fee_replacements ON 
+        fee_replacements.fee_replacement_id = products.fee_replacement_id
+        WHERE product_id = $1`,
       values: [productId],
     };
 
@@ -143,7 +156,7 @@ class ProductsService {
     feeReplacementId,
   }) {
     await this.checkNameProductForUpdate(name, productId);
-    const feeReplacementData = feeReplacementId || null;
+    const feeReplacementData = sparepart ? feeReplacementId : null;
     if (feeReplacementData) await this.checkFeeReplacement(feeReplacementData);
 
     const date = new Date();
@@ -299,7 +312,8 @@ class ProductsService {
 
   async getCountProductsSaleOrService(param) {
     const query = {
-      text: `SELECT count(*) AS count FROM products WHERE ${param} = true`,
+      text: `SELECT count(*) AS count FROM products WHERE ${param} = true
+        AND status = true`,
     };
 
     const result = await this._pool.query(query);
@@ -309,13 +323,18 @@ class ProductsService {
 
   async getProductsSaleOrService({ param, limit, offset }) {
     const query = {
-      text: `SELECT * FROM products WHERE ${param} = true
+      text: `select products.product_id, 
+        name, price, price_promotion,
+        (SELECT link FROM image_products WHERE product_id = products.product_id 
+        ORDER BY created ASC LIMIT 1) AS image_link 
+        FROM products WHERE ${param} = true AND status = true
         ORDER BY created DESC LIMIT $1 OFFSET $2`,
       values: [limit, offset],
     };
 
     const result = await this._pool.query(query);
-    return result.rows;
+    const data = result.rows.map(MappingProductsForUser);
+    return data;
   }
 }
 

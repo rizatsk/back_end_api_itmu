@@ -1,6 +1,7 @@
 const InvariantError = require("../../exceptions/InvariantError");
 const AuthorizationUser = require('../../../config/authorization.json');
 const NotFoundError = require("../../exceptions/NotFoundError");
+const { MappingImageProductForUser } = require("../../utils/MappingResultDB");
 
 
 class ProductsHandler {
@@ -34,6 +35,7 @@ class ProductsHandler {
     this.deleteProductByIdHandler = this.deleteProductByIdHandler.bind(this);
     this.putPricePromotionProductByIdHandler = this.putPricePromotionProductByIdHandler.bind(this);
     this.getProductsSaleOrServiceHandler = this.getProductsSaleOrServiceHandler.bind(this);
+    this.getProductsByIdForUserHandler = this.getProductsByIdForUserHandler.bind(this);
   }
 
   async postProductHandler(request, h) {
@@ -426,13 +428,13 @@ class ProductsHandler {
 
         products = await this._service.getProductsSaleOrService({ param: 'sale', limit: limitPage, offset });
         break;
-      case 'service':
+      case 'sparepart':
         totalData = parseInt(
-          await this._service.getCountProductsSaleOrService('service')
+          await this._service.getCountProductsSaleOrService('sparepart')
         );
         totalPage = Math.ceil(totalData / limitPage);
 
-        products = await this._service.getProductsSaleOrService({ param: 'service', limit: limitPage, offset });
+        products = await this._service.getProductsSaleOrService({ param: 'sparepart', limit: limitPage, offset });
         break;
       default:
         throw new NotFoundError('Param tidak tersedia')
@@ -446,6 +448,26 @@ class ProductsHandler {
       nextPage: pages + 1,
       previousPage: pages - 1,
     }
+  }
+
+  async getProductsByIdForUserHandler(request) {
+    const { id: productId } = request.params;
+
+    const product = await this._service.getProductsById(productId);
+    const { parentName } = await this._categoryService.getCategoryByIdForProduct(product.category_id)
+    product.categoryParentName = parentName;
+    product.no_wa = '+62 877 8298 7067';
+
+    const linkimageProducts = await this._service.getImageProducts(productId);
+    const imageProducts = linkimageProducts.map(MappingImageProductForUser);
+
+    return {
+      status: "success",
+      data: {
+        product,
+        imageProducts,
+      },
+    };
   }
 }
 

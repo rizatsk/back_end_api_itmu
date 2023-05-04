@@ -1,8 +1,9 @@
 {
-  "device": [
+  "devices": ["komputer", "laptop"],
+  "brands": [
     {
       "komputer": {
-        "brand": ["Dan lain-lain"]
+        "brand": ["Asus", "Lenovo", "Dell", "HP", "Dan lain-lain"]
       }
     },
     {
@@ -16,7 +17,8 @@
           "Dell",
           "MSI",
           "Samsung",
-          "Sony"
+          "Sony",
+          "Dan lain-lain"
         ]
       }
     }

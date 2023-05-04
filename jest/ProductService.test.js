@@ -158,22 +158,6 @@ describe("/product-service   endpoint", () => {
         });
     });
 
-    describe("when GET /product-service/request-service", () => {
-        it("should response 200", async () => {
-            const server = await app(pool_test);
-
-            const response = await server.inject({
-                method: "GET",
-                url: "/api/product-service/request-service",
-            });
-
-            const responseJson = JSON.parse(response.payload);
-            expect(response.statusCode).toEqual(200);
-            expect(responseJson.status).toEqual("success");
-            expect(responseJson.data.productServices).toBeDefined();
-        });
-    });
-
     describe("when GET /product-service/{id}", () => {
         it("should response 200", async () => {
             const server = await app(pool_test);

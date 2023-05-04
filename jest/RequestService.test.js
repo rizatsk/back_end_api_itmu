@@ -22,6 +22,25 @@ describe("/request-service User Admin endpoint", () => {
     });
 
 
+    describe("when GET /request-service/before", () => {
+        it("should response 200", async () => {
+            const server = await app(pool_test);
+
+            const response = await server.inject({
+                method: "GET",
+                url: "/api/request-service/before",
+            });
+
+            const responseJson = JSON.parse(response.payload);
+            expect(response.statusCode).toEqual(200);
+            expect(responseJson.status).toEqual("success");
+            expect(responseJson.data.devices).toBeDefined();
+            expect(responseJson.data.devices.devices[0]).toEqual("komputer");
+            expect(responseJson.data.devices.devices[1]).toEqual("laptop");
+            expect(responseJson.data.deviceServices).toBeDefined();
+        });
+    });
+
     describe("when POST /request-service", () => {
         it("should response 200", async () => {
             const server = await app(pool_test);
@@ -35,7 +54,6 @@ describe("/request-service User Admin endpoint", () => {
                 cracker: "layar lcd",
                 servicing: "kunjungan toko",
                 estimationPrice: 750000,
-                technicianService: 'pergantian',
             };
 
             const response = await server.inject({
@@ -64,8 +82,7 @@ describe("/request-service User Admin endpoint", () => {
                 brand: "asus",
                 cracker: "layar lcd",
                 servicing: "kunjungan toko",
-                estimationPrice: 750000,
-                // technicianService: 'pergantian',
+                // estimationPrice: 750000,
             };
 
             const response = await server.inject({
@@ -191,7 +208,7 @@ describe("/request-service User Admin endpoint", () => {
             expect(response.statusCode).toEqual(200);
             expect(responseJson.status).toEqual("success");
             expect(responseJson.data.requestService).toBeDefined();
-            expect(responseJson.data.trackHistoryService).toBeDefined();
+            // expect(responseJson.data.trackHistoryService).toBeDefined();
         });
 
         it("should response 403 unauthorized", async () => {
@@ -235,7 +252,30 @@ describe("/request-service User Admin endpoint", () => {
         });
     });
 
-    describe("when PUT /request-service/status/id", () => {
+    describe("when GET /request-service/track-history/id", () => {
+        it("should response 200", async () => {
+            const server = await app(pool_test);
+
+            const userId = await userItindoTestHelper.addUserItindo();
+            const requestId = await requestServiceTestHelper.addRequestService({ userId });
+            const accessToken = authenticationTestHelper.getAccessToken();
+
+            const response = await server.inject({
+                method: "GET",
+                url: `/api/request-service/track-history/${requestId}`,
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+
+            const responseJson = JSON.parse(response.payload);
+            expect(response.statusCode).toEqual(200);
+            expect(responseJson.status).toEqual("success");
+            expect(responseJson.data.trackHistoryService).toBeDefined();
+        });
+    })
+
+    describe("when PUT /request-service/status-realprice/id", () => {
         it("should response 200", async () => {
             const server = await app(pool_test);
 
@@ -243,12 +283,13 @@ describe("/request-service User Admin endpoint", () => {
             const requestId = await requestServiceTestHelper.addRequestService({ userId });
             const accessToken = authenticationTestHelper.getAccessToken();
             const data = {
-                status: 'in progress'
+                status: 'in progress',
+                realPrice: 80000
             };
 
             const response = await server.inject({
                 method: "PUT",
-                url: `/api/request-service/status/${requestId}`,
+                url: `/api/request-service/status-realprice/${requestId}`,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
@@ -268,12 +309,13 @@ describe("/request-service User Admin endpoint", () => {
             const requestId = await requestServiceTestHelper.addRequestService({ userId });
             const accessToken = authenticationTestHelper.getAccessTokenAdminUser('admin-00000002');
             const data = {
-                status: 'in progress'
+                status: 'in progress',
+                realPrice: 80000
             };
 
             const response = await server.inject({
                 method: "PUT",
-                url: `/api/request-service/status/${requestId}`,
+                url: `/api/request-service/status-realprice/${requestId}`,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
@@ -293,12 +335,13 @@ describe("/request-service User Admin endpoint", () => {
             const requestId = await requestServiceTestHelper.addRequestService({ userId });
             const accessToken = authenticationTestHelper.getAccessToken();
             const data = {
-                status: ''
+                status: '',
+                realprice: 0,
             };
 
             const response = await server.inject({
                 method: "PUT",
-                url: `/api/request-service/status/${requestId}`,
+                url: `/api/request-service/status-realprice/${requestId}`,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },
@@ -316,12 +359,13 @@ describe("/request-service User Admin endpoint", () => {
             const requestId = 'request_service-123';
             const accessToken = authenticationTestHelper.getAccessToken();
             const data = {
-                status: 'in progress'
+                status: 'in progress',
+                realPrice: 80000
             };
 
             const response = await server.inject({
                 method: "PUT",
-                url: `/api/request-service/status/${requestId}`,
+                url: `/api/request-service/status-realprice/${requestId}`,
                 headers: {
                     Authorization: `Bearer ${accessToken}`,
                 },

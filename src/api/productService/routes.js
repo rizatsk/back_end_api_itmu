@@ -17,11 +17,6 @@ const routes = (handler) => [
     },
     {
         method: "GET",
-        path: "/product-service/request-service",
-        handler: handler.getProductServicesForRequestService,
-    },
-    {
-        method: "GET",
         path: "/product-service/{id}",
         handler: handler.getProductServiceByIdHandler,
         options: {

@@ -112,6 +112,7 @@ class UserItindoHandler {
 
   async updatePasswordUserByTokenHandler(request) {
     this._validator.validatePutPasswordPayload(request.payload);
+
     const { id: userId } = request.auth.credentials;
     request.payload.userId = userId;
 

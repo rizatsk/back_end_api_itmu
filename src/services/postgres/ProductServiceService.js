@@ -63,18 +63,6 @@ class ProductServiceService {
         return result.rows;
     }
 
-    async getProductServicesForRequestService(id) {
-        const query = {
-            text: `SELECT product_service_id,
-                name, service, price
-                FROM product_services`,
-        };
-
-        const result = await this._pool.query(query);
-
-        return result.rows;
-    }
-
     async getProductServiceById(id) {
         const query = {
             text: `SELECT product_service_id,

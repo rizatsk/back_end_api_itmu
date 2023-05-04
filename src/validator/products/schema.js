@@ -9,7 +9,7 @@ const PostProductPayloadSchema = Joi.object({
   image: Joi.allow(),
   sale: Joi.boolean().required(),
   sparepart: Joi.boolean().required(),
-  feeReplacementId: Joi.string().max(50),
+  feeReplacementId: Joi.string().max(50).allow(''),
 });
 
 const PutProductPayloadSchema = Joi.object({
@@ -19,7 +19,7 @@ const PutProductPayloadSchema = Joi.object({
   typeProduct: Joi.string().required(),
   description: Joi.string().required(),
   sparepart: Joi.boolean().required(),
-  feeReplacementId: Joi.string().max(50),
+  feeReplacementId: Joi.string().max(50).allow(''),
 });
 
 const feeReplacementPayloadSchema = Joi.object({

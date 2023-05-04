@@ -19,7 +19,6 @@ class ProductServiceHandler {
 
         this.postProductServiceHandler = this.postProductServiceHandler.bind(this);
         this.getProductServicesHandler = this.getProductServicesHandler.bind(this);
-        this.getProductServicesForRequestService = this.getProductServicesForRequestService.bind(this);
         this.getProductServiceByIdHandler = this.getProductServiceByIdHandler.bind(this);
         this.updateProductServiceByIdHandler = this.updateProductServiceByIdHandler.bind(this);
         this.deleteProductServiceByIdHandler = this.deleteProductServiceByIdHandler.bind(this);
@@ -85,15 +84,6 @@ class ProductServiceHandler {
             nextPage: pages + 1,
             previousPage: pages - 1,
         };
-    }
-
-    async getProductServicesForRequestService() {
-        const productServices = await this._service.getProductServicesForRequestService();
-
-        return {
-            status: 'success',
-            data: { productServices }
-        }
     }
 
     async getProductServiceByIdHandler(request) {

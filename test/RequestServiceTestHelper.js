@@ -12,15 +12,14 @@ class RequestServiceTestHelper {
             brand = 'Lenovo',
             cracker = 'Storage Samsung SSD M.2 500GB',
             servicing = 'Pergantian',
-            estimationPrice = '1500000',
-            technicianService = 'layanan teknisi';
+            estimationPrice = '1500000';
         const id = `request_service-${nanoid(10)}`;
 
         const query = {
             text: `INSERT INTO request_services(request_service_id,
-                user_id, device, brand, cracker, servicing, estimation_price, technician_service)
-                VALUES($1, $2, $3, $4, $5, $6, $7, $8) RETURNING request_service_id`,
-            values: [id, userId, device, brand, cracker, servicing, estimationPrice, technicianService]
+                user_id, device, brand, cracker, servicing, estimation_price)
+                VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING request_service_id`,
+            values: [id, userId, device, brand, cracker, servicing, estimationPrice]
         };
 
         const result = await this._pool.query(query);

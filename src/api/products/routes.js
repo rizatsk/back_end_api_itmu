@@ -84,6 +84,11 @@ const routes = (handler) => [
     path: "/product/type/{param}",
     handler: handler.getProductsSaleOrServiceHandler,
   },
+  {
+    method: "GET",
+    path: "/product/user/{id}",
+    handler: handler.getProductsByIdForUserHandler,
+  },
 ];
 
 module.exports = routes;
