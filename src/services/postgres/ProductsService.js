@@ -115,6 +115,7 @@ class ProductsService {
         category_id,
         price_promotion,
         sparepart,
+        fee_replacements.fee_replacement_id,
         fee_replacements.name AS fee_replacement_name,
         fee_replacements.price AS fee_replacement_price
         FROM products 
