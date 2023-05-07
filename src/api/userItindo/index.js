@@ -13,6 +13,7 @@ module.exports = {
       validator,
       logActivityService,
       authenticationService,
+      authorizationService,
     }
   ) => {
     const userItindoHandler = new UserItindoHandler({
@@ -22,6 +23,7 @@ module.exports = {
       validator,
       logActivityService,
       authenticationService,
+      authorizationService,
     });
     server.route(routerGroup(process.env.PREFIX, routes(userItindoHandler)));
   },

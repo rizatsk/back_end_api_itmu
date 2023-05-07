@@ -20,6 +20,10 @@
     "update role user": "update_role_user",
     "delete role user": "delete_role_user"
   },
+  "user": {
+    "get user": "get_user",
+    "update user": "update_user"
+  },
   "request service": {
     "get request service": "get_request_service",
     "update request service": "update_request_service"

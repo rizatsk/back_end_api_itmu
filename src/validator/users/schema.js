@@ -1,8 +1,16 @@
-const Joi = require('joi');
+const Joi = require("joi");
 
 const PostAdminUserPayloadSchema = Joi.object({
-  fullname: Joi.string().required(),
-  username: Joi.string().required(),
+  fullname: Joi.string().min(3).max(100).required(),
+  username: Joi.string()
+    .min(3)
+    .max(50)
+    .regex(/^[a-zA-Z0-9]*$/)
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Username tidak valid hanya boleh terdapat huruf dan angka",
+    }),
   email: Joi.string().email({ tlds: true }).required(),
   roleId: Joi.string().max(4).required(),
 });
@@ -13,7 +21,8 @@ const PutPasswordAdminUserPayloadSchema = Joi.object({
     .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?=.*[a-zA-Z]).{8,}$/)
     .required()
     .messages({
-      "string.pattern.base": "Password tidak valid minimal 8 character, terdapat huruf besar, terdapat angka, dan terdapat character khusus",
+      "string.pattern.base":
+        "Password tidak valid minimal 8 character, terdapat huruf besar, terdapat angka, dan terdapat character khusus",
     }),
 });
 
@@ -34,5 +43,5 @@ module.exports = {
   PutPasswordAdminUserPayloadSchema,
   PutAdminUserByIdPayloadSchema,
   PutStatusAdminUserByIdPayloadSchema,
-  PutRoleAdminUserByIdPayloadSchema
+  PutRoleAdminUserByIdPayloadSchema,
 };

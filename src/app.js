@@ -50,23 +50,23 @@ const CategoryProductService = require("./services/postgres/CategoryProductServi
 const CategoryProductValidator = require("./validator/categoryProduct");
 
 // Authorization
-const authorization = require('./api/authorization');
+const authorization = require("./api/authorization");
 const AuthorizationService = require("./services/postgres/AuthorizationService");
-const AuthorizationValidator = require('./validator/authorization');
+const AuthorizationValidator = require("./validator/authorization");
 
 // Request service
-const requestService = require('./api/requestService');
-const RequestServiceService = require('./services/postgres/RequestServiceService');
-const RequestServiceValidator = require('./validator/requestService');
+const requestService = require("./api/requestService");
+const RequestServiceService = require("./services/postgres/RequestServiceService");
+const RequestServiceValidator = require("./validator/requestService");
 
 // Fee Replacement
-const feeReplacement = require('./api/feeReplacement');
-const FeeReplacementService = require('./services/postgres/FeeReplacementService');
-const FeeReplacementValidator = require('./validator/feeReplacement');
+const feeReplacement = require("./api/feeReplacement");
+const FeeReplacementService = require("./services/postgres/FeeReplacementService");
+const FeeReplacementValidator = require("./validator/feeReplacement");
 
-const productService = require('./api/productService');
-const ProductServiceService = require('./services/postgres/ProductServiceService');
-const ProductServiceValidator = require('./validator/productService')
+const productService = require("./api/productService");
+const ProductServiceService = require("./services/postgres/ProductServiceService");
+const ProductServiceValidator = require("./validator/productService");
 
 const app = async (pool) => {
   const lock = new Lock();
@@ -204,7 +204,7 @@ const app = async (pool) => {
         validator: ProductsValidator,
         storageService,
         authorizationService,
-        categoryService: categoryProductService
+        categoryService: categoryProductService,
       },
     },
     {
@@ -222,6 +222,7 @@ const app = async (pool) => {
         tokenManager: TokenManager,
         authenticationService,
         logActivityService,
+        authorizationService,
       },
     },
     {

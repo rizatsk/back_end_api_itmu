@@ -109,16 +109,14 @@ class UserItindoService {
       const result = await this._pool.query(query);
       if (!result.rowCount) throw new NotFoundError("User tidak ditemukan");
     } catch (error) {
-      console.log(error)
-      throw new InvariantError('Server error')
+      console.log(error);
+      throw new InvariantError("Server error");
     }
   }
 
   // Ganti Password
   async editPasswordUser({ userId, passwordOld, passwordNew }) {
-    const hashedPasswordOld = await this.getPasswordUserById(
-      userId
-    );
+    const hashedPasswordOld = await this.getPasswordUserById(userId);
 
     const match = await bcrypt.compare(passwordOld, hashedPasswordOld);
     if (!match) {
@@ -155,6 +153,47 @@ class UserItindoService {
     }
 
     return result.rows[0].password;
+  }
+
+  // Get user admin
+  async getCountUsers(search) {
+    search = search ? `%${search.toLowerCase()}%` : "%%";
+    const query = {
+      text: "SELECT count(*) AS count FROM users WHERE LOWER(email) LIKE $1",
+      values: [search],
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows[0].count;
+  }
+
+  async getUsers({ limit, offset, search }) {
+    search = search ? `%${search.toLowerCase()}%` : "%%";
+    const query = {
+      text: `SELECT user_id, fullname,
+        email, no_handphone, address, status,
+        created_at, updated_at
+        FROM users
+        WHERE LOWER(email) LIKE $3
+        ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
+      values: [limit, offset, search],
+    };
+
+    const result = await this._pool.query(query);
+
+    return result.rows;
+  }
+
+  async updateStatusUserById({ userId, status }) {
+    const query = {
+      text: `UPDATE users SET status = $2
+        WHERE user_id = $1`,
+      values: [userId, status],
+    };
+
+    const result = await this._pool.query(query);
+
+    if (!result.rowCount) throw new InvariantError("Gagal update status user");
   }
 }
 

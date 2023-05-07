@@ -44,10 +44,11 @@ class UsersService {
 
   // Get user admin
   async getCountAdminUser(search) {
-    search = search ? `%${search.toLowerCase()}%` : '%%';
+    search = search ? `%${search.toLowerCase()}%` : "%%";
     const query = {
-      text: "SELECT count(*) AS count FROM user_admins WHERE LOWER(username) LIKE $1 AND admin_id != 'admin-00000001'",
-      values: [search]
+      text:
+        "SELECT count(*) AS count FROM user_admins WHERE LOWER(username) LIKE $1 AND admin_id != 'admin-00000001'",
+      values: [search],
     };
 
     const result = await this._pool.query(query);
@@ -55,11 +56,11 @@ class UsersService {
   }
 
   async getAdminUsers({ limit, offset, search }) {
-    search = search ? `%${search.toLowerCase()}%` : '%%';
+    search = search ? `%${search.toLowerCase()}%` : "%%";
     const query = {
-      text:
-        `SELECT admin_id, fullname, username, fullname, 
-        email, role_name, status
+      text: `SELECT admin_id, fullname, username, fullname, 
+        email, role_name, status,
+        user_admins.created, user_admins.updated
         FROM user_admins JOIN auth_role ON
         user_admins.role_id = auth_role.role_id
         WHERE LOWER(username) LIKE $3 AND admin_id != 'admin-00000001'
@@ -100,7 +101,7 @@ class UsersService {
 
     const match = await bcrypt.compare(passwordOld, hashedPasswordOld);
     if (!match) {
-      throw new AuthenticationError("Password yang anda berikan salah");
+      throw new InvariantError("Password yang anda berikan salah");
     }
 
     const hashedPassword = await bcrypt.hash(passwordNew, 10);
@@ -136,13 +137,7 @@ class UsersService {
   }
 
   // Admin User
-  async addAdminUser({
-    fullname,
-    username,
-    email,
-    roleId,
-    credentialUserId,
-  }) {
+  async addAdminUser({ fullname, username, email, roleId, credentialUserId }) {
     await this.verifyNewUsernameOrEmailAdminUser(username);
     await this.verifyNewUsernameOrEmailAdminUser(email);
 
@@ -150,6 +145,8 @@ class UsersService {
     const hashedPassword = await bcrypt.hash(process.env.PASSWORD_DEFAULT, 10);
     const date = new Date();
     const status = true;
+    username = username.toLowerCase();
+    email = email.toLowerCase();
 
     const query = {
       text: `INSERT INTO user_admins VALUES($1, $2, $3, $4, $5
@@ -163,7 +160,7 @@ class UsersService {
         date,
         credentialUserId,
         status,
-        roleId
+        roleId,
       ],
     };
 
@@ -249,8 +246,7 @@ class UsersService {
   async editRoleAdminUserById({ credentialUserId, userId, roleId }) {
     const date = new Date();
     const query = {
-      text:
-        `UPDATE user_admins SET role_id = $1, updated = $2, 
+      text: `UPDATE user_admins SET role_id = $1, updated = $2, 
         updatedby_user_id = $3 WHERE admin_id = $4
         RETURNING admin_id`,
       values: [roleId, date, credentialUserId, userId],
@@ -259,9 +255,7 @@ class UsersService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount)
-      throw new InvariantError(
-        "Gagal edit role admin user"
-      );
+      throw new InvariantError("Gagal edit role admin user");
   }
 
   async resetPassword({ credentialUserId, userId }) {
@@ -280,6 +274,17 @@ class UsersService {
       throw new InvariantError(
         "Gagal reset password admin user, user id tidak ditemukan"
       );
+  }
+
+  async getRoleUsersForInsertOrUpdateUserAdmin() {
+    const query = {
+      text: `SELECT role_id, role_name FROM auth_role
+        WHERE role_id != 9999
+        ORDER BY created DESC`,
+    };
+
+    const result = await this._pool.query(query);
+    return result.rows;
   }
 }
 

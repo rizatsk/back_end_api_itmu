@@ -1,74 +1,82 @@
 const routes = (handler) => [
   {
-    method: 'POST',
-    path: '/user/admin',
+    method: "POST",
+    path: "/user/admin",
     handler: handler.postRegisterAdminUserHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'GET',
-    path: '/user/admin/data',
+    method: "GET",
+    path: "/user/admin/data",
     handler: handler.getAdminUserByTokenHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'PUT',
-    path: '/user/admin',
+    method: "PUT",
+    path: "/user/admin",
     handler: handler.putAdminUserByTokenHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'PUT',
-    path: '/user/admin/password',
+    method: "PUT",
+    path: "/user/admin/password",
     handler: handler.putPasswordAdminUserByTokenHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'GET',
-    path: '/user/admin',
+    method: "GET",
+    path: "/user/admin",
     handler: handler.getAdminUsersHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'GET',
-    path: '/user/admin/{userId}',
+    method: "GET",
+    path: "/user/admin/{userId}",
     handler: handler.getAdminUserByIdHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'PUT',
-    path: '/user/admin/status/{userId}',
+    method: "PUT",
+    path: "/user/admin/status/{userId}",
     handler: handler.putStatusAdminUserByIdHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'PUT',
-    path: '/user/admin/role/{userId}',
+    method: "PUT",
+    path: "/user/admin/role/{userId}",
     handler: handler.putRoleAdminUserByIdHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
     },
   },
   {
-    method: 'PUT',
-    path: '/user/admin/password/{userId}',
+    method: "PUT",
+    path: "/user/admin/password/{userId}",
     handler: handler.resetPassowrdAdminUserByIdHandler,
     options: {
-      auth: 'itindosolution_jwt',
+      auth: "itindosolution_jwt",
+    },
+  },
+  {
+    method: "GET",
+    path: "/user/admin/role",
+    handler: handler.getRoleAdminUserForEditAndInsertUser,
+    options: {
+      auth: "itindosolution_jwt",
     },
   },
 ];

@@ -1,34 +1,52 @@
-const Authorization = require('../../../config/authorization.json');
-const InvariantError = require('../../exceptions/InvariantError');
+const Authorization = require("../../../config/authorization.json");
+const InvariantError = require("../../exceptions/InvariantError");
 
 class UsersHandler {
-  constructor({ lock, service, authentication, authorizationService, logActivityService, validator }) {
+  constructor({
+    lock,
+    service,
+    authentication,
+    authorizationService,
+    logActivityService,
+    validator,
+  }) {
     this._lock = lock;
     this._service = service;
     this._logActivityService = logActivityService;
     this._serviceAuthentication = authentication;
     this._authorizationService = authorizationService;
     this._validator = validator;
-    this._authorization = Authorization['user admin'];
+    this._authorization = Authorization["user admin"];
 
     this.postRegisterAdminUserHandler = this.postRegisterAdminUserHandler.bind(
       this
     );
     this.getAdminUsersHandler = this.getAdminUsersHandler.bind(this);
 
-    this.getAdminUserByTokenHandler = this.getAdminUserByTokenHandler.bind(this);
+    this.getAdminUserByTokenHandler = this.getAdminUserByTokenHandler.bind(
+      this
+    );
     this.putPasswordAdminUserByTokenHandler = this.putPasswordAdminUserByTokenHandler.bind(
       this
     );
-    this.putAdminUserByTokenHandler = this.putAdminUserByTokenHandler.bind(this);
+    this.putAdminUserByTokenHandler = this.putAdminUserByTokenHandler.bind(
+      this
+    );
 
     this.putStatusAdminUserByIdHandler = this.putStatusAdminUserByIdHandler.bind(
       this
     );
 
     this.getAdminUserByIdHandler = this.getAdminUserByIdHandler.bind(this);
-    this.putRoleAdminUserByIdHandler = this.putRoleAdminUserByIdHandler.bind(this);
-    this.resetPassowrdAdminUserByIdHandler = this.resetPassowrdAdminUserByIdHandler.bind(this);
+    this.putRoleAdminUserByIdHandler = this.putRoleAdminUserByIdHandler.bind(
+      this
+    );
+    this.resetPassowrdAdminUserByIdHandler = this.resetPassowrdAdminUserByIdHandler.bind(
+      this
+    );
+    this.getRoleAdminUserForEditAndInsertUser = this.getRoleAdminUserForEditAndInsertUser.bind(
+      this
+    );
   }
 
   async postRegisterAdminUserHandler(request, h) {
@@ -37,12 +55,11 @@ class UsersHandler {
     const { id: credentialUserId } = request.auth.credentials;
     request.payload.credentialUserId = credentialUserId;
 
-
     await this._lock.acquire("data", async () => {
       // Check only admin itindo can access this API
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorization['insert user admin']
+        this._authorization["insert user admin"]
       );
 
       // check role id
@@ -71,14 +88,12 @@ class UsersHandler {
       // Check only admin itindo can access this API
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorization['get user admin']
+        this._authorization["get user admin"]
       );
     });
 
     const search = search_query ? search_query : "";
-    const totalData = parseInt(
-      await this._service.getCountAdminUser(search)
-    );
+    const totalData = parseInt(await this._service.getCountAdminUser(search));
     const limitPage = limit || 10;
     const pages = parseInt(page) || 1;
     const totalPage = Math.ceil(totalData / limitPage);
@@ -107,7 +122,7 @@ class UsersHandler {
       // Check only admin itindo can access this API
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorization['update user admin']
+        this._authorization["update user admin"]
       );
     });
 
@@ -173,22 +188,21 @@ class UsersHandler {
   }
 
   async putStatusAdminUserByIdHandler(request, h) {
-    this._validator.validatePutStatusAdminUserByIdPayload(
-      request.payload
-    );
+    this._validator.validatePutStatusAdminUserByIdPayload(request.payload);
 
     const { id: credentialUserId } = request.auth.credentials;
     const { userId } = request.params;
     request.payload.userId = userId;
     request.payload.credentialUserId = credentialUserId;
 
-    if (request.payload.userId === 'admin-00000001') throw new InvariantError('Superadmin tidak bisa di non aktifkan');
+    if (request.payload.userId === "admin-00000001")
+      throw new InvariantError("Superadmin tidak bisa di non aktifkan");
 
     await this._lock.acquire("data", async () => {
       // Check only admin itindo can access this API
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorization['update status user admin']
+        this._authorization["update status user admin"]
       );
 
       await this._service.editStatusAdminUserById(request.payload);
@@ -214,16 +228,16 @@ class UsersHandler {
       // Check only admin itindo can access this API
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorization['update user admin']
+        this._authorization["update user admin"]
       );
     });
 
     const userAdmin = await this._service.getAdminUserById(userId);
 
     return {
-      status: 'success',
-      data: { userAdmin }
-    }
+      status: "success",
+      data: { userAdmin },
+    };
   }
 
   async putRoleAdminUserByIdHandler(request) {
@@ -231,14 +245,14 @@ class UsersHandler {
 
     const { userId } = request.params;
     const { id: credentialUserId } = request.auth.credentials;
-    request.payload.userId = userId
+    request.payload.userId = userId;
     request.payload.credentialUserId = credentialUserId;
 
     await this._lock.acquire("data", async () => {
       // Check only admin itindo can access this API
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorization['update user admin']
+        this._authorization["update user admin"]
       );
 
       // check role id
@@ -247,11 +261,10 @@ class UsersHandler {
       await this._service.editRoleAdminUserById(request.payload);
     });
 
-
     return {
-      status: 'success',
-      message: 'Berhasil merubah role admin'
-    }
+      status: "success",
+      message: "Berhasil merubah role admin",
+    };
   }
 
   async resetPassowrdAdminUserByIdHandler(request) {
@@ -262,17 +275,15 @@ class UsersHandler {
       // Check only admin itindo can access this API
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorization['update user admin']
+        this._authorization["update user admin"]
       );
 
       await this._service.resetPassword({
         credentialUserId,
-        userId
+        userId,
       });
 
-      await this._serviceAuthentication.deleteRefreshTokenByUserId(
-        userId
-      );
+      await this._serviceAuthentication.deleteRefreshTokenByUserId(userId);
 
       await this._logActivityService.postLogActivity({
         credentialUserId,
@@ -284,6 +295,26 @@ class UsersHandler {
     return {
       status: "success",
       message: "Password admin user berhasil direset",
+    };
+  }
+
+  async getRoleAdminUserForEditAndInsertUser(request) {
+    const { id: credentialUserId } = request.auth.credentials;
+    await this._lock.acquire("data", async () => {
+      // Check only admin itindo can access this API
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorization["update user admin"]
+      );
+    });
+
+    const roleAdmins = await this._service.getRoleUsersForInsertOrUpdateUserAdmin();
+
+    return {
+      status: "success",
+      data: {
+        roleAdmins,
+      },
     };
   }
 }
