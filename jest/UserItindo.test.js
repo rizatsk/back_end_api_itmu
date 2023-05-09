@@ -477,4 +477,141 @@ describe("/user ITindo endpoint", () => {
       expect(responseJson.message).toEqual("Password yang anda berikan salah");
     });
   });
+
+  // For CMS
+  describe("when GET /user", () => {
+    it("should response 200", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessToken();
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/user",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+      expect(responseJson.data.users).toBeDefined();
+      expect(responseJson.totalData).toEqual(1);
+      expect(responseJson.totalPage).toEqual(1);
+      // console.log(responseJson)
+    });
+
+    it("should response 403 Authorization", async () => {
+      const server = await app(pool_test);
+      const accessToken = authenticationTestHelper.getAccessTokenAdminUser('admin-00000002');
+
+      const response = await server.inject({
+        method: "GET",
+        url: "/api/user",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("You don't have access");
+    });
+  });
+
+  describe("when PUT /user/status/{id}", () => {
+    it("should response 200", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessToken();
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/user/status/${userId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: {
+          status: false
+        }
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(200);
+      expect(responseJson.status).toEqual("success");
+      expect(responseJson.message).toEqual("Berhasil update status user");
+    });
+
+    it("should response 403 Authorization", async () => {
+      const server = await app(pool_test);
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessTokenAdminUser('admin-00000002');
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/user/status/${userId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: {
+          status: false
+        }
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(403);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("You don't have access");
+    });
+
+    it("should response 400 gagal update status user, user tidak ada", async () => {
+      const server = await app(pool_test);
+
+      // const userId = await userItindoTestHelper.addUserItindo();
+      const userId = 'user-123';
+      const accessToken = authenticationTestHelper.getAccessToken();
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/user/status/${userId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: {
+          status: false
+        }
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("Gagal update status user");
+    });
+
+    it("should response 400 payload is not valid", async () => {
+      const server = await app(pool_test);
+
+      const userId = await userItindoTestHelper.addUserItindo();
+      const accessToken = authenticationTestHelper.getAccessToken();
+
+      const response = await server.inject({
+        method: "PUT",
+        url: `/api/user/status/${userId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        },
+        payload: {
+          // status: 'false'
+        }
+      });
+
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(400);
+      expect(responseJson.status).toEqual("fail");
+    });
+  });
 });
