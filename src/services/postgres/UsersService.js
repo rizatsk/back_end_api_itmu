@@ -47,7 +47,7 @@ class UsersService {
     search = search ? `%${search.toLowerCase()}%` : "%%";
     const query = {
       text:
-        "SELECT count(*) AS count FROM user_admins WHERE LOWER(username) LIKE $1 AND admin_id != 'admin-00000001'",
+        "SELECT count(*) AS count FROM user_admins WHERE LOWER(email) LIKE $1 AND admin_id != 'admin-00000001'",
       values: [search],
     };
 
@@ -63,7 +63,7 @@ class UsersService {
         user_admins.created, user_admins.updated
         FROM user_admins JOIN auth_role ON
         user_admins.role_id = auth_role.role_id
-        WHERE LOWER(username) LIKE $3 AND admin_id != 'admin-00000001'
+        WHERE LOWER(email) LIKE $3 AND admin_id != 'admin-00000001'
         ORDER BY user_admins.created DESC LIMIT $1 OFFSET $2`,
       values: [limit, offset, search],
     };
