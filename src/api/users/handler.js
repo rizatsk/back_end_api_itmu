@@ -118,13 +118,6 @@ class UsersHandler {
 
   async getAdminUserByTokenHandler(request, h) {
     const { id: credentialUserId } = request.auth.credentials;
-    await this._lock.acquire("data", async () => {
-      // Check only admin itindo can access this API
-      await this._authorizationService.checkRoleUser(
-        credentialUserId,
-        this._authorization["update user admin"]
-      );
-    });
 
     const userAdmin = await this._service.getAdminUserById(credentialUserId);
     return {
