@@ -98,7 +98,9 @@ class RequestServiceService {
     async getCountRequestService(search) {
         search = search ? `%${search.toLowerCase()}%` : '%%';
         const query = {
-            text: `SELECT count(*) AS count FROM request_services WHERE LOWER(email) ILIKE $1`,
+            text: `SELECT count(*) AS count FROM request_services 
+                JOIN users ON request_services.user_id = users.user_id 
+                WHERE LOWER(email) ILIKE $1`,
             values: [search]
         };
 

@@ -77,7 +77,7 @@ class UsersService {
   async getAdminUserById(id) {
     const query = {
       text: `SELECT admin_id, fullname, username, email,
-        user_admins.role_id, role_name FROM user_admins
+        user_admins.role_id, role_name, access_role FROM user_admins
         JOIN auth_role ON
         user_admins.role_id = auth_role.role_id
         WHERE admin_id = $1`,
