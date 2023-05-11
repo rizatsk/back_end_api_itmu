@@ -18,11 +18,17 @@ const routes = (handler) => [
     method: "GET",
     path: "/product",
     handler: handler.getProductsHandler,
+    options: {
+      auth: "itindosolution_jwt",
+    },
   },
   {
     method: "GET",
     path: "/product/{id}",
     handler: handler.getProductsByIdHandler,
+    options: {
+      auth: "itindosolution_jwt",
+    },
   },
   {
     method: "PUT",
@@ -79,6 +85,7 @@ const routes = (handler) => [
       auth: "itindosolution_jwt",
     },
   },
+  // For User
   {
     method: "GET",
     path: "/product/type/{param}",

@@ -28,6 +28,7 @@ const routes = (handler) => [
             auth: "itindosolution_user_jwt",
         },
     },
+    // For CMS
     {
         method: "GET",
         path: "/request-service",

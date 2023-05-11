@@ -58,8 +58,15 @@ class ProductServiceHandler {
   }
 
   async getProductServicesHandler(request) {
-    const { page, limit, search_query } = request.query;
     const { id: credentialUserId } = request.auth.credentials;
+    await this._lock.acquire("data", async () => {
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser['get product service']
+      );
+    });
+
+    const { page, limit, search_query } = request.query;
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
@@ -95,8 +102,15 @@ class ProductServiceHandler {
   }
 
   async getProductServiceByIdHandler(request) {
-    const { id: productServiceId } = request.params;
     const { id: credentialUserId } = request.auth.credentials;
+    await this._lock.acquire("data", async () => {
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser['update product service']
+      );
+    });
+
+    const { id: productServiceId } = request.params;
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(

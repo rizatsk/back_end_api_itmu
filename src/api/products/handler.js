@@ -112,6 +112,14 @@ class ProductsHandler {
   }
 
   async getProductsHandler(request) {
+    const { id: credentialUserId } = request.auth.credentials;
+    await this._lock.acquire("data", async () => {
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser['get product']
+      );
+    });
+
     const { page, limit, search_query } = request.query;
 
     const search = search_query ? search_query : "";
@@ -141,12 +149,19 @@ class ProductsHandler {
   }
 
   async getProductsByIdHandler(request) {
+    const { id: credentialUserId } = request.auth.credentials;
+    await this._lock.acquire("data", async () => {
+      await this._authorizationService.checkRoleUser(
+        credentialUserId,
+        this._authorizationUser['update product']
+      );
+    });
+
     const { id: productId } = request.params;
 
     const product = await this._service.getProductsById(productId);
     const { parentName } = await this._categoryService.getCategoryByIdForProduct(product.category_id)
     product.categoryParentName = parentName;
-    product.no_wa = '+62 877 8298 7067';
 
     const imageProduct = await this._service.getImageProducts(productId);
 
@@ -407,6 +422,7 @@ class ProductsHandler {
     };
   }
 
+  // For User
   async getProductsSaleOrServiceHandler(request) {
     const { param } = request.params;
     const { page, limit } = request.query;

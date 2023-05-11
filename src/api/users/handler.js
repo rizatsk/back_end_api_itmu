@@ -44,9 +44,10 @@ class UsersHandler {
     this.resetPassowrdAdminUserByIdHandler = this.resetPassowrdAdminUserByIdHandler.bind(
       this
     );
-    this.getRoleAdminUserForEditAndInsertUser = this.getRoleAdminUserForEditAndInsertUser.bind(
+    this.getRoleAdminUserForEditAndInsertUserHandler = this.getRoleAdminUserForEditAndInsertUserHandler.bind(
       this
     );
+    this.getAccessRoleUserByTokenHandler = this.getAccessRoleUserByTokenHandler.bind(this);
   }
 
   async postRegisterAdminUserHandler(request, h) {
@@ -291,7 +292,7 @@ class UsersHandler {
     };
   }
 
-  async getRoleAdminUserForEditAndInsertUser(request) {
+  async getRoleAdminUserForEditAndInsertUserHandler(request) {
     const { id: credentialUserId } = request.auth.credentials;
     await this._lock.acquire("data", async () => {
       // Check only admin itindo can access this API
@@ -309,6 +310,16 @@ class UsersHandler {
         roleAdmins,
       },
     };
+  }
+
+  async getAccessRoleUserByTokenHandler(request) {
+    const { id: userId } = request.auth.credentials;
+
+    const access_role = await this._authorizationService.getAccessRoleUser(userId);
+    return {
+      status: 'success',
+      data: { access_role }
+    }
   }
 }
 

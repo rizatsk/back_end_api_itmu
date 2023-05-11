@@ -11,6 +11,9 @@ const routes = (handler) => [
     path: "/category_product",
     method: "GET",
     handler: handler.getCategoriesProductHandler,
+    options: {
+      auth: "itindosolution_jwt",
+    },
   },
   {
     path: "/category_product/parent",

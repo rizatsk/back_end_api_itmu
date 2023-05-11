@@ -74,7 +74,15 @@ const routes = (handler) => [
   {
     method: "GET",
     path: "/user/admin/role",
-    handler: handler.getRoleAdminUserForEditAndInsertUser,
+    handler: handler.getRoleAdminUserForEditAndInsertUserHandler,
+    options: {
+      auth: "itindosolution_jwt",
+    },
+  },
+  {
+    method: "GET",
+    path: "/user/admin/access-role",
+    handler: handler.getAccessRoleUserByTokenHandler,
     options: {
       auth: "itindosolution_jwt",
     },

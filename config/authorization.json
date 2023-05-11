@@ -1,10 +1,12 @@
 {
   "product": {
+    "get product": "get_product",
     "insert product": "insert_product",
     "update product": "update_product",
     "update status product": "update-status_product"
   },
   "category product": {
+    "get catgory product": "get_category_product",
     "insert catgory product": "insert_category_product",
     "update category product": "update_category_product",
     "update status category product": "update-status_category_product"
@@ -16,6 +18,7 @@
     "update status user admin": "update-status_user_admin"
   },
   "role user": {
+    "get role user": "get_role_user",
     "insert role user": "insert_role_user",
     "update role user": "update_role_user",
     "delete role user": "delete_role_user"
@@ -29,14 +32,14 @@
     "update request service": "update_request_service"
   },
   "fee replacement": {
-    "insert fee replacement": "insert_fee_replacement",
     "get fee replacement": "get_fee_replacement",
+    "insert fee replacement": "insert_fee_replacement",
     "update fee replacement": "update_fee_replacement",
     "delete fee replacement": "delete_fee_replacement"
   },
   "product service": {
-    "insert product service": "insert_product_service",
     "get product service": "get_product_service",
+    "insert product service": "insert_product_service",
     "update product service": "update_product_service",
     "delete product service": "delete_product_service"
   }

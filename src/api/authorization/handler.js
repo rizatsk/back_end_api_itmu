@@ -41,7 +41,7 @@ class AuthorizationHandler {
         await this._lock.acquire("data", async () => {
             await this._service.checkRoleUser(
                 credentialUserId,
-                this._authorizationUser['insert role user']
+                this._authorizationUser['get role user']
             );
         });
 

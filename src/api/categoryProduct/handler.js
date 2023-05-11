@@ -68,6 +68,12 @@ class CategoryProductHandler {
   }
 
   async getCategoriesProductHandler(request) {
+    const { id: credentialUserId } = request.auth.credentials;
+    await this._authorizationService.checkRoleUser(
+      credentialUserId,
+      this._authorizationUser['get catgory product']
+    );
+
     const { page, limit, search } = request.query;
 
     const totalData = parseInt(await this._service.getCountCategories(search));
