@@ -560,7 +560,7 @@ describe("/user/admin User Admin endpoint", () => {
             });
 
             const responseJson = JSON.parse(response.payload);
-            expect(response.statusCode).toEqual(401);
+            expect(response.statusCode).toEqual(400);
             expect(responseJson.status).toEqual("fail");
             expect(responseJson.message).toEqual("Password yang anda berikan salah");
         });
@@ -608,6 +608,26 @@ describe("/user/admin User Admin endpoint", () => {
             const responseJson = JSON.parse(response.payload);
             expect(response.statusCode).toEqual(400);
             expect(responseJson.status).toEqual("fail");
+        });
+
+        describe("when GET /user/admin/access-role", () => {
+            it("should response 200", async () => {
+                const server = await app(pool_test);
+                const accessToken = authenticationTestHelper.getAccessToken();
+
+                const response = await server.inject({
+                    method: "GET",
+                    url: "/api/user/admin/access-role",
+                    headers: {
+                        Authorization: `Bearer ${accessToken}`,
+                    },
+                });
+
+                const responseJson = JSON.parse(response.payload);
+                expect(response.statusCode).toEqual(200);
+                expect(responseJson.status).toEqual("success");
+                expect(responseJson.data.access_role).toBeDefined();
+            });
         });
     });
 })

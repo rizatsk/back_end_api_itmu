@@ -174,10 +174,14 @@ describe("/products endpoint", () => {
   describe("when GET /products", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
+      const accessToken = authenticationTestHelper.getAccessToken();
 
       const response = await server.inject({
         method: "GET",
         url: "/api/product?page=1&limit=10",
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       });
 
       const responseJson = JSON.parse(response.payload);
@@ -195,10 +199,14 @@ describe("/products endpoint", () => {
   describe("when GET /products/{id}", () => {
     it("should response 200", async () => {
       const server = await app(pool_test);
+      const accessToken = authenticationTestHelper.getAccessToken();
 
       const response = await server.inject({
         method: "GET",
         url: `/api/product/${productId}`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       });
 
       const responseJson = JSON.parse(response.payload);
@@ -216,10 +224,14 @@ describe("/products endpoint", () => {
 
     it("should response 404 product is not found", async () => {
       const server = await app(pool_test);
+      const accessToken = authenticationTestHelper.getAccessToken();
 
       const response = await server.inject({
         method: "GET",
         url: `/api/product/asalolejos`,
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+        }
       });
 
       const responseJson = JSON.parse(response.payload);

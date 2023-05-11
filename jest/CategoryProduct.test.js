@@ -135,14 +135,14 @@ describe("/category_product endpoint", () => {
 
       const response = await server.inject({
         method: "GET",
-        url: "/api/category_product",
+        url: "/api/category_product/parent",
       });
 
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual("success");
       expect(responseJson.data.categories).toBeDefined();
-      expect(responseJson.data.categories[0].parent).toEqual('komputer');
+      expect(responseJson.data.categories[0].parentName).toEqual('komputer');
     });
   });
 
