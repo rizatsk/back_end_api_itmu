@@ -22,6 +22,7 @@ describe("/authentications endpoint", () => {
         email: "udin@gmail.com",
         password: "udil@123.com",
       };
+
       //   Create user
       await userItindoTestHelper.addUserItindo(data);
 
@@ -57,6 +58,29 @@ describe("/authentications endpoint", () => {
       expect(response.statusCode).toEqual(401);
       expect(responseJson.status).toEqual("fail");
       expect(responseJson.message).toEqual("Email atau password anda salah");
+    });
+
+    it("should response 400 account is not activation", async () => {
+      const server = await app(pool_test);
+      const data = {
+        email: "udin@gmail.com",
+        password: "udil@123.com",
+      };
+
+      //   Create user
+      await userItindoTestHelper.addUserItindoEmailNotVerified(data);
+
+      const response = await server.inject({
+        method: "POST",
+        url: "/api/authentication",
+        payload: data,
+      });
+
+      // Assert
+      const responseJson = JSON.parse(response.payload);
+      expect(response.statusCode).toEqual(402);
+      expect(responseJson.status).toEqual("fail");
+      expect(responseJson.message).toEqual("Akun belum di aktivasi");
     });
 
     it("should response 400 bad request", async () => {

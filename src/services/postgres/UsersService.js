@@ -286,6 +286,32 @@ class UsersService {
     const result = await this._pool.query(query);
     return result.rows;
   }
+
+  async getUserByEmail(email) {
+    const query = {
+      text:
+        "SELECT admin_id AS user_id, fullname, email, status FROM user_admins WHERE email = $1",
+      values: [email],
+    };
+
+    const result = await this._pool.query(query);
+    if (!result.rowCount) throw new NotFoundError("Akun tidak ditemukan");
+    if (!result.rows[0].status) throw new InvariantError('Akun sudah tidak aktif');
+
+    return result.rows[0];
+  }
+
+  async updatePasswordForForgotPassword({ userId, passwordNew }) {
+    const hashedPassword = await bcrypt.hash(passwordNew, 10);
+
+    const date = new Date();
+    const query = {
+      text: `UPDATE user_admins SET password = $2, updated = $3 WHERE admin_id = $1`,
+      values: [userId, hashedPassword, date],
+    };
+
+    await this._pool.query(query);
+  }
 }
 
 module.exports = UsersService;

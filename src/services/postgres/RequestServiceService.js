@@ -2,6 +2,7 @@ const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const { stat } = require("fs-extra");
+const { MappingGetUserByServiceId } = require("../../utils/MappingResultDB");
 
 class RequestServiceService {
     constructor({ pool }) {
@@ -217,6 +218,25 @@ class RequestServiceService {
         if (!result.rowCount) throw new NotFoundError('Gagal update status request service, request service tidak ada');
 
         await this.addTrackHistoryService({ requestServiceId, status, credentialUserId });
+    }
+
+    async getUserByRequestServiceId(serviceId) {
+        const query = {
+            text:
+                `SELECT email, fullname, device, brand, cracker,
+                request_services.status, estimation_price, real_price, servicing
+                FROM request_services 
+                JOIN users
+                ON users.user_id = request_services.user_id
+                WHERE request_service_id = $1`,
+            values: [serviceId],
+        };
+
+        const result = await this._pool.query(query);
+        if (result.rowCount < 1) throw new NotFoundError("User tidak ditemukan");
+
+        const data = result.rows.map(MappingGetUserByServiceId);
+        return data[0];
     }
 }
 

@@ -35,6 +35,7 @@ class ProductsHandler {
     this.deleteProductByIdHandler = this.deleteProductByIdHandler.bind(this);
     this.putPricePromotionProductByIdHandler = this.putPricePromotionProductByIdHandler.bind(this);
     this.getProductsSaleOrServiceHandler = this.getProductsSaleOrServiceHandler.bind(this);
+    this.getProductForUserHandler = this.getProductForUserHandler.bind(this);
     this.getProductsByIdForUserHandler = this.getProductsByIdForUserHandler.bind(this);
   }
 
@@ -423,6 +424,35 @@ class ProductsHandler {
   }
 
   // For User
+  async getProductForUserHandler(request) {
+    const { page, limit, search_query } = request.query;
+
+    const search = search_query ? search_query : "";
+    const totalData = parseInt(
+      await this._service.getCountProducts(search)
+    );
+    const limitPage = limit || 10;
+    const pages = parseInt(page) || 1;
+    const totalPage = Math.ceil(totalData / limitPage);
+    const offset = (pages - 1) * limitPage;
+    const products = await this._service.getProducts({
+      search,
+      limit: limitPage,
+      offset,
+    });
+
+    return {
+      status: "success",
+      data: {
+        products,
+      },
+      totalData,
+      totalPage,
+      nextPage: pages + 1,
+      previousPage: pages - 1,
+    };
+  }
+
   async getProductsSaleOrServiceHandler(request) {
     const { param } = request.params;
     const { page, limit } = request.query;

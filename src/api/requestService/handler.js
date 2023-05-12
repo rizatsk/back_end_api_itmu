@@ -1,17 +1,19 @@
 const AuthorizationUser = require('../../../config/authorization.json');
 const DeviceServiceRequest = require('../../../config/serviceRequest.json');
-const InvariantError = require('../../exceptions/InvariantError');
+const ProducerService = require('../../services/RabbitMq/ProducerService');
 
 class RequestServiceHandler {
     constructor({
         lock,
         service,
+        userService,
         logActivityService,
         authorizationService,
         validator,
     }) {
         this._lock = lock;
         this._service = service;
+        this._userService = userService;
         this._logActivityService = logActivityService;
         this._authorizationService = authorizationService;
         this._validator = validator;
@@ -47,9 +49,27 @@ class RequestServiceHandler {
         request.payload.userId = userId;
 
         await this._lock.acquire("data", async () => {
+            const user = await this._userService.getUserById(userId);
             const requestServiceId = await this._service.addRequestService(request.payload);
 
             await this._service.addTrackHistoryService({ requestServiceId, status: 'waiting confirmation', credentialUserId: 'admin-00000001' });
+
+            // Send email
+            const message = {
+                targetEmail: process.env.MAIL_TO,
+                contents: {
+                    data: {
+                        fullname: user.fullname,
+                        email: user.email,
+                        handphone: user.no_handphone,
+                        cracker: request.payload.cracker,
+                        device: request.payload.device,
+                        brand: request.payload.brand,
+                        servicing: request.payload.servicing,
+                    }
+                }
+            }
+            await ProducerService.sendMessage('export:sendEmailNewRequestService', JSON.stringify(message));
         });
 
         return {
@@ -204,6 +224,27 @@ class RequestServiceHandler {
                 activity: "merubah status dan real price request service",
                 refersId: requestServiceId,
             });
+
+            const user = await this._service.getUserByRequestServiceId(request.payload.requestServiceId);
+            // Send email
+            const message = {
+                targetEmail: user.email,
+                contents: {
+                    data: {
+                        fullname: user.fullname,
+                        cracker: user.cracker,
+                        device: user.device,
+                        brand: user.brand,
+                        servicing: user.servicing,
+                        status: user.status,
+                        estimation_price: user.estimation_price,
+                        real_price: user.real_price,
+                    }
+                }
+            }
+
+            await ProducerService.sendMessage('export:sendEmailUpdateRequestService', JSON.stringify(message));
+
         });
 
         return {

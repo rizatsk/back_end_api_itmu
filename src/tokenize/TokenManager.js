@@ -34,6 +34,10 @@ const TokenManager = {
       throw new AuthenticationError("Refresh token tidak valid");
     }
   },
+
+  // User ITindo token
+  generateTokenConfirmation: (payload) =>
+    JwtIO.token.generate(payload, process.env.TOKEN_VALIDATION),
 };
 
 module.exports = TokenManager;

@@ -5,6 +5,7 @@ const {
   PutAddressUserPayloadSchema,
   PutPasswordUserPayloadSchema,
   PutStatusUserByIdPayloadSchema,
+  PutForgotPasswordUserPayloadSchema,
 } = require("./schema");
 const InvariantError = require("../../exceptions/InvariantError");
 
@@ -46,6 +47,13 @@ const UserItindoValidator = {
   },
   validatePutStatusPayload: (payload) => {
     const validationResult = PutStatusUserByIdPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validatePutPasswordBytokenPayload: (payload) => {
+    const validationResult = PutForgotPasswordUserPayloadSchema.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

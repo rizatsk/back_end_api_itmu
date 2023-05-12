@@ -16,6 +16,21 @@ const routes = (handler) => [
     },
   },
   {
+    method: "GET",
+    path: "/user/admin/request-forget-password/{email}",
+    handler: handler.requestForgetPasswordUserHandler,
+  },
+  {
+    method: "GET",
+    path: "/user/admin/forget-password/{token}",
+    handler: handler.pageForgetPasswordUserHandler,
+  },
+  {
+    method: "PUT",
+    path: "/user/admin/forget-password",
+    handler: handler.putForgetPasswordUserByTokenHandler,
+  },
+  {
     method: "PUT",
     path: "/user/admin",
     handler: handler.putAdminUserByTokenHandler,

@@ -1,5 +1,8 @@
+const JwtDecode = require("jwt-decode");
 const Authorization = require("../../../config/authorization.json");
 const InvariantError = require("../../exceptions/InvariantError");
+const ProducerService = require("../../services/RabbitMq/ProducerService");
+const path = require('path')
 
 class UsersHandler {
   constructor({
@@ -9,6 +12,9 @@ class UsersHandler {
     authorizationService,
     logActivityService,
     validator,
+    tokenValidationUserService,
+    storagePublic,
+    tokenManager
   }) {
     this._lock = lock;
     this._service = service;
@@ -16,6 +22,9 @@ class UsersHandler {
     this._serviceAuthentication = authentication;
     this._authorizationService = authorizationService;
     this._validator = validator;
+    this._tokenValidationUserService = tokenValidationUserService;
+    this._storagePublic = storagePublic;
+    this._tokenManager = tokenManager;
     this._authorization = Authorization["user admin"];
 
     this.postRegisterAdminUserHandler = this.postRegisterAdminUserHandler.bind(
@@ -48,6 +57,10 @@ class UsersHandler {
       this
     );
     this.getAccessRoleUserByTokenHandler = this.getAccessRoleUserByTokenHandler.bind(this);
+
+    this.requestForgetPasswordUserHandler = this.requestForgetPasswordUserHandler.bind(this);
+    this.pageForgetPasswordUserHandler = this.pageForgetPasswordUserHandler.bind(this);
+    this.putForgetPasswordUserByTokenHandler = this.putForgetPasswordUserByTokenHandler.bind(this);
   }
 
   async postRegisterAdminUserHandler(request, h) {
@@ -319,6 +332,87 @@ class UsersHandler {
     return {
       status: 'success',
       data: { access_role }
+    }
+  }
+
+  async requestForgetPasswordUserHandler(request) {
+    const { email } = request.params;
+
+    await this._lock.acquire("data", async () => {
+      const user = await this._service.getUserByEmail(email);
+
+      const token = this._tokenManager.generateTokenConfirmation({
+        id: user.user_id,
+      });
+
+      await this._tokenValidationUserService.addToken({ userId: user.user_id, token })
+
+      // Send email
+      const message = {
+        targetEmail: user.email,
+        contents: {
+          name: user.fullname,
+          token,
+        }
+      }
+      await ProducerService.sendMessage('export:sendEmailNewPasswordAdmin', JSON.stringify(message));
+    });
+
+    return {
+      status: "success",
+      message: "Berhasil kirimkan link untuk create new password",
+    };
+  }
+
+  async pageForgetPasswordUserHandler(request, h) {
+    const {
+      token
+    } = request.params;
+
+    const userId = await this._tokenValidationUserService.getUserIdByToken(
+      token
+    );
+
+    if (!userId) {
+      return h.file(
+        path.resolve(
+          `${this._storagePublic}/Pages/ForgetPasswordInvalid.html`
+        )
+      );
+    }
+
+    return h.file(
+      path.resolve(
+        `${this._storagePublic}/Pages/ForgetPasswordAdmin.html`
+      )
+    );
+  }
+
+  async putForgetPasswordUserByTokenHandler(request) {
+    this._validator.validatePutPasswordBytokenPayload(request.payload);
+
+    const { token, passwordNew } = request.payload;
+    const jwtDecode = JwtDecode(token);
+
+    await this._lock.acquire("data", async () => {
+      const checkToken = await this._tokenValidationUserService.deleteToken(
+        token
+      );
+
+      if (!checkToken) {
+        throw new InvariantError('Link sudah tidak berlaku lagi');
+      }
+
+
+      await this._service.updatePasswordForForgotPassword({ userId: jwtDecode.id, passwordNew })
+      await this._serviceAuthentication.deleteRefreshTokenByUserId(
+        jwtDecode.id
+      );
+    });
+
+    return {
+      status: 'success',
+      message: 'Berhasil mengubah password'
     }
   }
 }

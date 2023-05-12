@@ -93,6 +93,11 @@ const routes = (handler) => [
   },
   {
     method: "GET",
+    path: "/product/user",
+    handler: handler.getProductForUserHandler,
+  },
+  {
+    method: "GET",
     path: "/product/user/{id}",
     handler: handler.getProductsByIdForUserHandler,
   },

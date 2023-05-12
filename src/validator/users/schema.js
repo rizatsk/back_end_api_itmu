@@ -38,10 +38,22 @@ const PutRoleAdminUserByIdPayloadSchema = Joi.object({
   roleId: Joi.number().max(9998).required(),
 });
 
+const PutForgotPasswordUserPayloadSchema = Joi.object({
+  token: Joi.string().required(),
+  passwordNew: Joi.string()
+    .regex(/^(?=.*[A-Z])(?=.*\d)(?=.*[\W_])(?=.*[a-zA-Z]).{8,}$/)
+    .required()
+    .messages({
+      "string.pattern.base":
+        "Password tidak valid minimal 8 character, tedapat huruf besar, tedapat angka, dan terdapat character khusus",
+    }),
+});
+
 module.exports = {
   PostAdminUserPayloadSchema,
   PutPasswordAdminUserPayloadSchema,
   PutAdminUserByIdPayloadSchema,
   PutStatusAdminUserByIdPayloadSchema,
   PutRoleAdminUserByIdPayloadSchema,
+  PutForgotPasswordUserPayloadSchema
 };

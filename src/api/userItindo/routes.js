@@ -6,6 +6,31 @@ const routes = (handler) => [
   },
   {
     method: "GET",
+    path: "/user/validation-email/{token}",
+    handler: handler.verificationEmailUserByTokenHandler,
+  },
+  {
+    method: "GET",
+    path: "/user/request-validation-email/{email}",
+    handler: handler.requestVerificationEmailUserHandler,
+  },
+  {
+    method: "GET",
+    path: "/user/request-forget-password/{email}",
+    handler: handler.requestForgetPasswordUserHandler,
+  },
+  {
+    method: "GET",
+    path: "/user/forget-password/{token}",
+    handler: handler.pageForgetPasswordUserHandler,
+  },
+  {
+    method: "PUT",
+    path: "/user/forget-password",
+    handler: handler.putForgetPasswordUserByTokenHandler,
+  },
+  {
+    method: "GET",
     path: "/user/data",
     handler: handler.getUserByTokenHandler,
     options: {
@@ -28,6 +53,7 @@ const routes = (handler) => [
       auth: "itindosolution_user_jwt",
     },
   },
+  // CMS
   {
     method: "GET",
     path: "/user",

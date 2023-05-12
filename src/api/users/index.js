@@ -7,7 +7,16 @@ module.exports = {
   version: "1.0.0",
   register: async (
     server,
-    { lock, service, authentication, authorizationService, logActivityService, validator }
+    { lock,
+      service,
+      authentication,
+      authorizationService,
+      logActivityService,
+      validator,
+      tokenValidationUserService,
+      storagePublic,
+      tokenManager,
+    }
   ) => {
     const usersHandler = new UsersHandler({
       lock,
@@ -16,6 +25,9 @@ module.exports = {
       authorizationService,
       logActivityService,
       validator,
+      tokenValidationUserService,
+      storagePublic,
+      tokenManager
     });
     server.route(routerGroup(process.env.PREFIX, routes(usersHandler)));
   },

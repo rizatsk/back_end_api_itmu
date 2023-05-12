@@ -1,3 +1,5 @@
+const ConvertToRupiah = require("./ConvertToRupiah");
+
 const MappingCategoriesProduct = ({ category_product_id, name, parentName }) => ({
   categoryProductId: category_product_id,
   parentName,
@@ -26,6 +28,28 @@ const MappingPricePromotionProductById = ({ product_id, price, price_promotion }
   productId: product_id,
   price,
   pricePromotion: price_promotion,
+});
+
+const MappingGetUserByServiceId = ({
+  email,
+  fullname,
+  device,
+  brand,
+  cracker,
+  status,
+  servicing,
+  estimation_price,
+  real_price
+}) => ({
+  email,
+  fullname,
+  device,
+  brand,
+  cracker,
+  status,
+  servicing,
+  estimation_price: estimation_price ? ConvertToRupiah(estimation_price) : 'Rp 0',
+  real_price: real_price ? ConvertToRupiah(real_price) : 'Belum di tentukan',
 })
 
 const MappingProducts = ({
@@ -76,5 +100,6 @@ module.exports = {
   MappingPricePromotionProductById,
   MappingProducts,
   MappingProductsForUser,
-  MappingImageProductForUser
+  MappingImageProductForUser,
+  MappingGetUserByServiceId
 };

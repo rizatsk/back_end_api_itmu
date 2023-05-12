@@ -36,8 +36,7 @@ describe("/user ITindo endpoint", () => {
       const responseJson = JSON.parse(response.payload);
       expect(response.statusCode).toEqual(200);
       expect(responseJson.status).toEqual("success");
-      expect(responseJson.data.accessToken).toBeDefined();
-      expect(responseJson.data.refreshToken).toBeDefined();
+      expect(responseJson.message).toEqual("Registrasi anda berhasil, silahkan cek email Anda untuk konfirmasi user");
     });
 
     it("should response 400 email is available", async () => {

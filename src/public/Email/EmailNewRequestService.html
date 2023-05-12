@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ITMU - Request Service Baru</title>
+</head>
+
+<body style="margin: 0; padding: 0; box-sizing: border-box;">
+    <table align="center" cellpadding="0" cellspacing="0" width="95%">
+        <tr>
+            <td align="center">
+                <table align="center" cellpadding="0" cellspacing="0"
+                    style="border-spacing: 2px 5px; max-width: 600px; background-color: rgb(242, 244, 247); border-radius: 10px; padding: 20px 30px; margin-top: 20px;">
+                    <tr>
+                        <td>
+                            <table cellpadding="0" cellspacing="0" width="100%%">
+                                <tr>
+                                    <td align="center" style="padding: 5px 5px 5px 5px;">
+                                        <img src="https://iili.io/HUzNyzb.png" alt="Logo"
+                                            style="width:120px; border:0;" />
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>
+                            <table cellpadding="0" cellspacing="0" width="100%">
+                                <tr>
+                                    <td
+                                        style="padding: 20px 0 20px 0; font-family: sans-serif; font-size: 16px; text-transform: capitalize;">
+                                        Hai, <span id="name">Admin ITMU</span>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0; font-family: sans-serif; font-size: 16px;">
+                                        Terdapat permintaan service baru nih, Tolong di cek yah dengan data sebagai
+                                        berikut:
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <table cellpadding="0" cellspacing="0" width="100%"
+                                        style="margin: 10px 0; font-family: sans-serif; font-size: 16px; text-transform: capitalize;">
+                                        <tr>
+                                            <td>Nama</td>
+                                            <td style="padding: 5px 0;">: {{data.fullname}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Email</td>
+                                            <td style="text-transform: lowercase; padding: 5px 0;">: {{data.email}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>No Handphone</td>
+                                            <td style="padding: 5px 0;">: {{data.handphone}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Kerusakan</td>
+                                            <td style="padding: 5px 0;">: {{data.cracker}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Perangkat</td>
+                                            <td style="padding: 5px 0;">: {{data.device}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Merek</td>
+                                            <td style="padding: 5px 0;">: {{data.brand}}</td>
+                                        </tr>
+                                        <tr>
+                                            <td>Layanan</td>
+                                            <td style="padding: 5px 0;">: {{data.servicing}}</td>
+                                        </tr>
+                                    </table>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 0; font-family: sans-serif; font-size: 16px;">
+                                        <p>Mohon untuk segera di periksa yah di halaman website Itindosolution, atau
+                                            dengan mengeklik link di bawha ini:</p>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td><a href="{{url}}" target="_blank"
+                                            style="font-family: sans-serif; font-size: 14px;">{{url}}</a></td>
+                                </tr>
+                                <tr>
+                                    <td style="padding: 20px 0; font-family: sans-serif; font-size: 16px;">
+                                        Regards,
+                                        <p>ITMU</p>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+</body>
+
+</html>

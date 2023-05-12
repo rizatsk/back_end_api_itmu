@@ -1,6 +1,10 @@
+const JwtDecode = require("jwt-decode");
 const Authorization = require("../../../config/authorization.json");
 const NotFoundError = require("../../exceptions/NotFoundError");
+const ProducerService = require("../../services/RabbitMq/ProducerService");
 const createProfileImage = require("../../utils/createProfileImage");
+const path = require('path');
+const InvariantError = require("../../exceptions/InvariantError");
 
 class UserItindoHandler {
   constructor({
@@ -11,6 +15,8 @@ class UserItindoHandler {
     logActivityService,
     authenticationService,
     authorizationService,
+    tokenValidationUserService,
+    storagePublic,
   }) {
     this._lock = lock;
     this._service = service;
@@ -19,6 +25,8 @@ class UserItindoHandler {
     this._logActivityService = logActivityService;
     this._authenticationService = authenticationService;
     this._authorizationService = authorizationService;
+    this._tokenValidationUserService = tokenValidationUserService;
+    this._storagePublic = storagePublic;
     this._authorization = Authorization["user"];
 
     this.postUserHandler = this.postUserHandler.bind(this);
@@ -33,40 +41,39 @@ class UserItindoHandler {
     this.updateStatusUserByIdHandler = this.updateStatusUserByIdHandler.bind(
       this
     );
+    this.verificationEmailUserByTokenHandler = this.verificationEmailUserByTokenHandler.bind(this);
+    this.requestVerificationEmailUserHandler = this.requestVerificationEmailUserHandler.bind(this);
+    this.requestForgetPasswordUserHandler = this.requestForgetPasswordUserHandler.bind(this);
+    this.pageForgetPasswordUserHandler = this.pageForgetPasswordUserHandler.bind(this);
+    this.putForgetPasswordUserByTokenHandler = this.putForgetPasswordUserByTokenHandler.bind(this);
   }
 
   async postUserHandler(request) {
     this._validator.validatePostUserPayload(request.payload);
-
-    const ip = request.info._request.remoteAddress;
-    const device = request.info._request.headers["user-agent"];
 
     const userId = await this._lock.acquire("data", async () => {
       const userId = await this._service.addUser(request.payload);
       return userId;
     });
 
-    const accessToken = this._tokenManager.generateAccessUserToken({
+    const token = this._tokenManager.generateTokenConfirmation({
       id: userId,
     });
+    await this._tokenValidationUserService.addToken({ userId, token })
 
-    const refreshToken = this._tokenManager.generateRefreshUserToken({
-      id: userId,
-    });
-
-    await this._authenticationService.addRefreshToken({
-      userId,
-      refreshToken,
-      ip,
-      device,
-    });
+    // Send email
+    const message = {
+      targetEmail: request.payload.email,
+      contents: {
+        name: request.payload.fullname,
+        token,
+      }
+    }
+    await ProducerService.sendMessage('export:sendEmailConfirmationUser', JSON.stringify(message));
 
     return {
       status: "success",
-      data: {
-        accessToken,
-        refreshToken,
-      },
+      message: 'Registrasi anda berhasil, silahkan cek email Anda untuk konfirmasi user'
     };
   }
 
@@ -197,6 +204,142 @@ class UserItindoHandler {
       status: "success",
       message: "Berhasil update status user",
     };
+  }
+
+  async verificationEmailUserByTokenHandler(request, h) {
+    const {
+      token
+    } = request.params;
+    const jwtDecode = JwtDecode(token);
+
+    const checkToken = await this._tokenValidationUserService.deleteToken(
+      token
+    );
+
+    if (!checkToken) {
+      return h.file(
+        path.resolve(
+          `${this._storagePublic}/Pages/ConfirmationUserFailed.html`
+        )
+      );
+    }
+
+    await this._service.updateEmailVerifiedUserById(jwtDecode.id);
+
+    return h.file(
+      path.resolve(
+        `${this._storagePublic}/Pages/ConfirmationUserSuccess.html`
+      )
+    );
+  }
+
+  async requestVerificationEmailUserHandler(request) {
+    const { email } = request.params;
+
+    await this._lock.acquire("data", async () => {
+      const user = await this._service.getUserByEmail(email);
+      if (user.email_verified) throw new InvariantError('Akun sudah di aktivasi');
+
+      const token = this._tokenManager.generateTokenConfirmation({
+        id: user.user_id,
+      });
+
+      await this._tokenValidationUserService.addToken({ userId: user.user_id, token })
+
+      // Send email
+      const message = {
+        targetEmail: user.email,
+        contents: {
+          name: user.fullname,
+          token,
+        }
+      }
+      await ProducerService.sendMessage('export:sendEmailConfirmationUser', JSON.stringify(message));
+    });
+
+    return {
+      status: "success",
+      message: "Berhasil kirimkan link untuk aktivasi akun",
+    };
+  }
+
+  async requestForgetPasswordUserHandler(request) {
+    const { email } = request.params;
+
+    await this._lock.acquire("data", async () => {
+      const user = await this._service.getUserByEmail(email);
+      if (!user.email_verified) throw new InvariantError('Akun belum di aktivasi');
+
+      const token = this._tokenManager.generateTokenConfirmation({
+        id: user.user_id,
+      });
+
+      await this._tokenValidationUserService.addToken({ userId: user.user_id, token })
+
+      // Send email
+      const message = {
+        targetEmail: user.email,
+        contents: {
+          name: user.fullname,
+          token,
+        }
+      }
+      await ProducerService.sendMessage('export:sendEmailNewPassword', JSON.stringify(message));
+    });
+
+    return {
+      status: "success",
+      message: "Berhasil kirimkan link untuk create new password",
+    };
+  }
+
+  async pageForgetPasswordUserHandler(request, h) {
+    const {
+      token
+    } = request.params;
+
+    const userId = await this._tokenValidationUserService.getUserIdByToken(
+      token
+    );
+
+    if (!userId) {
+      return h.file(
+        path.resolve(
+          `${this._storagePublic}/Pages/ForgetPasswordInvalid.html`
+        )
+      );
+    }
+
+    return h.file(
+      path.resolve(
+        `${this._storagePublic}/Pages/ForgetPassword.html`
+      )
+    );
+  }
+
+  async putForgetPasswordUserByTokenHandler(request) {
+    this._validator.validatePutPasswordBytokenPayload(request.payload);
+
+    const { token, passwordNew } = request.payload;
+    const jwtDecode = JwtDecode(token);
+
+    await this._lock.acquire("data", async () => {
+      const checkToken = await this._tokenValidationUserService.deleteToken(
+        token
+      );
+
+      if (!checkToken) {
+        throw new InvariantError('Link sudah tidak berlaku lagi');
+      }
+
+      await this._service.updatePasswordForForgotPassword({ userId: jwtDecode.id, passwordNew })
+      await this._authenticationService.deleteRefreshTokenByUserId(jwtDecode.id);
+    });
+
+    return {
+      status: 'success',
+      message: 'Berhasil mengubah password'
+    }
   }
 }
 

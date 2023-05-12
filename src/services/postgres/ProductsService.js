@@ -2,6 +2,7 @@ const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const { MappingPricePromotionProductById, MappingProducts, MappingProductsForUser } = require("../../utils/MappingResultDB");
+const StringToLikeSearch = require("../../utils/StringToLikeSearch");
 
 class ProductsService {
   constructor({ pool }) {
@@ -309,6 +310,36 @@ class ProductsService {
     };
 
     await this._pool.query(query);
+  }
+
+  async getCountProducts(search) {
+    search = StringToLikeSearch(search);
+    const query = {
+      text: `SELECT count(*) AS count FROM products WHERE LOWER(name) ILIKE $1 AND status = true`,
+      values: [search]
+    };
+
+    const result = await this._pool.query(query);
+
+    return result.rows[0].count;
+  }
+
+  async getProducts({ search, limit, offset }) {
+    search = StringToLikeSearch(search);
+    const query = {
+      text: `SELECT product_id, name, price, created, status,
+        price_promotion, sale, sparepart
+        FROM products 
+        WHERE LOWER(name) ILIKE $3 AND status = true
+        ORDER BY created
+        LIMIT $1 OFFSET $2`,
+      values: [limit, offset, search],
+    };
+
+    const result = await this._pool.query(query);
+    const data = result.rows.map(MappingProducts);
+
+    return data;
   }
 
   async getCountProductsSaleOrService(param) {

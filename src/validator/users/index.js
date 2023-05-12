@@ -2,7 +2,9 @@ const { PostAdminUserPayloadSchema,
   PutPasswordAdminUserPayloadSchema,
   PutAdminUserByIdPayloadSchema,
   PutStatusAdminUserByIdPayloadSchema,
-  PutRoleAdminUserByIdPayloadSchema } = require('./schema');
+  PutRoleAdminUserByIdPayloadSchema,
+  PutForgotPasswordUserPayloadSchema,
+} = require('./schema');
 const InvariantError = require('../../exceptions/InvariantError');
 
 const UsersValidator = {
@@ -36,6 +38,13 @@ const UsersValidator = {
   },
   validatePutRoleAdminUserByIdPayload: (payload) => {
     const validationResult = PutRoleAdminUserByIdPayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validatePutPasswordBytokenPayload: (payload) => {
+    const validationResult = PutForgotPasswordUserPayloadSchema.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

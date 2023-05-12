@@ -9,6 +9,7 @@ module.exports = {
         {
             lock,
             service,
+            userService,
             logActivityService,
             authorizationService,
             validator,
@@ -17,6 +18,7 @@ module.exports = {
         const requestServiceHandler = new RequestServiceHandler({
             lock,
             service,
+            userService,
             logActivityService,
             authorizationService,
             validator,

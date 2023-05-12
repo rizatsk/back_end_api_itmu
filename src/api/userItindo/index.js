@@ -14,6 +14,8 @@ module.exports = {
       logActivityService,
       authenticationService,
       authorizationService,
+      tokenValidationUserService,
+      storagePublic
     }
   ) => {
     const userItindoHandler = new UserItindoHandler({
@@ -24,6 +26,8 @@ module.exports = {
       logActivityService,
       authenticationService,
       authorizationService,
+      tokenValidationUserService,
+      storagePublic
     });
     server.route(routerGroup(process.env.PREFIX, routes(userItindoHandler)));
   },
