@@ -17,6 +17,14 @@ jobs:
         ports:
           - 5432:5432
 
+      rabbitmq:
+        image: rabbitmq:3.8
+        env:
+          RABBITMQ_DEFAULT_USER: guest
+          RABBITMQ_DEFAULT_PASS: guest
+        ports:
+          - 5672:5672
+
     strategy:
       matrix:
         node-version: [16.17.0]
@@ -41,4 +49,5 @@ jobs:
           REFRESH_TOKEN_KEY_USER: 16fbbca7fe9ef4f1908ef0994e8da58fe6ea13172b9a42f90cf30ffbcad0bd8faf2f8cb6b634bb99da10d47cda7d86f9c1b7af035927e99febf6ed4ed3372207
           PASSWORD_DEFAULT: admin
           ACCESS_TOKEN_AGE: 1800
+          RABBITMQ_SERVER: amqp://localhost
         run: npm test
