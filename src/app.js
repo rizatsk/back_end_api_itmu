@@ -10,35 +10,35 @@ const Lock = require("async-lock");
 // Token Manager
 const TokenManager = require("./tokenize/TokenManager");
 // Log Activity Service
-const LogActivityService = require("./services/Postgres/LogActivityService");
+const LogActivityService = require("./services/postgres/LogActivityService");
 
 // Authentication
 const authentication = require("./api/authentication");
-const AuthenticationService = require("./services/Postgres/AuthenticationService");
+const AuthenticationService = require("./services/postgres/AuthenticationService");
 const AuthenticationValidator = require("./validator/authentication");
 
 // User
 const users = require("./api/users");
-const UsersService = require("./services/Postgres/UsersService");
+const UsersService = require("./services/postgres/UsersService");
 const UsersValidator = require("./validator/users");
 
 // Package Services
 const packageServices = require("./api/packageServices");
-const PackageServiceService = require("./services/Postgres/PackageServiceService");
+const PackageServiceService = require("./services/postgres/PackageServiceService");
 const PackageServiceValidator = require("./validator/packageService");
 
 // Products
 const products = require("./api/products");
-const ProductsService = require("./services/Postgres/ProductsService");
+const ProductsService = require("./services/postgres/ProductsService");
 const ProductsValidator = require("./validator/products");
 
 // Storage
 const storages = require("./api/storages");
-const StorageService = require("./services/Storage/StorageService");
+const StorageService = require("./services/storage/StorageService");
 
 // User Itindo
 const userItindo = require("./api/userItindo");
-const UserItindoService = require("./services/Postgres/UserItindoService");
+const UserItindoService = require("./services/postgres/UserItindoService");
 const UserItindoValidator = require("./validator/userItindo");
 
 // Authentication itindo
@@ -46,30 +46,31 @@ const authenticationItindo = require("./api/authenticationItindo");
 
 // Category Product
 const categoryProduct = require("./api/categoryProduct");
-const CategoryProductService = require("./services/Postgres/CategoryProductService");
+const CategoryProductService = require("./services/postgres/CategoryProductService");
 const CategoryProductValidator = require("./validator/categoryProduct");
 
 // Authorization
 const authorization = require("./api/authorization");
-const AuthorizationService = require("./services/Postgres/AuthorizationService");
+const AuthorizationService = require("./services/postgres/AuthorizationService");
 const AuthorizationValidator = require("./validator/authorization");
 
 // Request service
 const requestService = require("./api/requestService");
-const RequestServiceService = require("./services/Postgres/RequestServiceService");
+const RequestServiceService = require("./services/postgres/RequestServiceService");
 const RequestServiceValidator = require("./validator/requestService");
 
 // Fee Replacement
 const feeReplacement = require("./api/feeReplacement");
-const FeeReplacementService = require("./services/Postgres/FeeReplacementService");
+const FeeReplacementService = require("./services/postgres/FeeReplacementService");
 const FeeReplacementValidator = require("./validator/feeReplacement");
 
+// Product service
 const productService = require("./api/productService");
-const ProductServiceService = require("./services/Postgres/ProductServiceService");
+const ProductServiceService = require("./services/postgres/ProductServiceService");
 const ProductServiceValidator = require("./validator/productService");
 
 // Token validation user
-const TokenValidationUserService = require('./services/Postgres/TokenValidationUserService')
+const TokenValidationUserService = require('./services/postgres/TokenValidationUserService')
 
 const app = async (pool) => {
   const lock = new Lock();
