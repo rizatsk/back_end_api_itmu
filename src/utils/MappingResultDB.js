@@ -1,4 +1,5 @@
 const ConvertToRupiah = require("./ConvertToRupiah");
+const generateDifferentNumbers = require("./generateDiferentNumber");
 
 const MappingCategoriesProduct = ({ category_product_id, name, parentName }) => ({
   categoryProductId: category_product_id,
@@ -94,6 +95,80 @@ const MappingImageProductForUser = ({
   image_link: link ? `${process.env.URLIMAGE}${link}` : null
 })
 
+const mapRequestServiceLine = (data) => {
+  const groupedData = {};
+  data.forEach(item => {
+    const key = `${item.device} - ${item.brand}`;
+    if (!groupedData[key]) {
+      groupedData[key] = Array(12).fill(0);
+    }
+    groupedData[key][item.month - 1] += parseInt(item.amount);
+  });
+
+  // Mengubah data menjadi format yang diinginkan
+  const output = Object.entries(groupedData).map(([key, data]) => {
+    const brand = key.split(' - ')[1];
+    const color = `hsl(${generateDifferentNumbers() * 3}, 70%, 50%)`;
+    const formattedData = data.map((amount, index) => {
+      return {
+        x: getMonthName(index),
+        y: amount
+      };
+    });
+
+    return {
+      id: `${key}`,
+      color: color,
+      data: formattedData
+    };
+  });
+
+  // Fungsi untuk mendapatkan nama bulan berdasarkan indeks
+  function getMonthName(monthIndex) {
+    const months = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember'
+    ];
+    return months[monthIndex];
+  }
+
+  return output;
+}
+
+const mapRoleUserAdminsDonuts = (data) => {
+  const transformedData = data.map(item => {
+    const id = item.role_name.replace(/\s/g, '_');
+    const label = item.role_name;
+    const value = item.mount ? parseInt(item.mount) : 0;
+    const color = `hsl(${generateDifferentNumbers() * 10}, 70%, 50%)`;
+
+    return { id, label, value, color };
+  });
+
+  return transformedData;
+}
+
+const mapStatusRequestServiceBar = (data) => {
+  const transformedData = data.map(item => {
+    const newObject = {};
+    newObject.type = item.status;
+    newObject[item.status] = parseInt(item.mount);
+    return newObject;
+  });
+
+  return transformedData;
+}
+
 module.exports = {
   MappingCategoriesProduct,
   mappedDataCategories,
@@ -101,5 +176,8 @@ module.exports = {
   MappingProducts,
   MappingProductsForUser,
   MappingImageProductForUser,
-  MappingGetUserByServiceId
+  MappingGetUserByServiceId,
+  mapRequestServiceLine,
+  mapRoleUserAdminsDonuts,
+  mapStatusRequestServiceBar,
 };

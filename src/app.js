@@ -72,6 +72,10 @@ const ProductServiceValidator = require("./validator/productService");
 // Token validation user
 const TokenValidationUserService = require('./services/postgres/TokenValidationUserService')
 
+// Dashboard
+const dashboard = require("./api/dashboard");
+const DashboardService = require('./services/postgres/DashboardService');
+
 const app = async (pool) => {
   const lock = new Lock();
   const usersService = new UsersService({ pool });
@@ -91,6 +95,7 @@ const app = async (pool) => {
   const feeRelacementService = new FeeReplacementService({ pool });
   const productServiceService = new ProductServiceService({ pool });
   const tokenValidationUserService = new TokenValidationUserService({ pool })
+  const dashboardService = new DashboardService({ pool });
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -295,6 +300,14 @@ const app = async (pool) => {
         authorizationService,
         validator: ProductServiceValidator,
         logActivityService,
+      },
+    },
+    {
+      plugin: dashboard,
+      options: {
+        lock,
+        service: dashboardService,
+        authorizationService,
       },
     },
   ]);
