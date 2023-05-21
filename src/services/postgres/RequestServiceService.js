@@ -26,17 +26,24 @@ class RequestServiceService {
         const deviceBrandGeneral = ["cpu", "ram", "storage", "vga"];
         type = type.toLowerCase();
 
-        const name = deviceBrandGeneral.includes(type) || type == 'multiple' ? StringToLikeSearch(device) : StringToLikeSearch(`${device} ${brand}`);
+        const name = deviceBrandGeneral.includes(type) ? StringToLikeSearch(device) : StringToLikeSearch(`${device} ${brand}`);
         let query;
 
         if (type == 'multiple') {
+            const whereTypeProduct = `(${deviceBrandGeneral.map(item => `'${item}'`).join(', ')})`;
             query = {
                 text: `SELECT product_id,
-                name, price
-                FROM products
-                WHERE status = true AND sparepart = true
-                AND name ILIKE $1`,
-                values: [name]
+                    name, price
+                    FROM products
+                    WHERE status = true AND sparepart = true
+                    AND name ILIKE $1
+                    UNION
+                    SELECT product_id,
+                    name, price
+                    FROM products
+                    WHERE status = true AND sparepart = true
+                    AND name ILIKE $2 AND LOWER(type_product) IN ${whereTypeProduct}`,
+                values: [name, StringToLikeSearch(device)]
             };
         } else {
             query = {
