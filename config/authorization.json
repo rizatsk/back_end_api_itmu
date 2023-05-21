@@ -31,16 +31,10 @@
     "get request service": "get_request_service",
     "update request service": "update_request_service"
   },
-  "fee replacement": {
-    "get fee replacement": "get_fee_replacement",
-    "insert fee replacement": "insert_fee_replacement",
-    "update fee replacement": "update_fee_replacement",
-    "delete fee replacement": "delete_fee_replacement"
-  },
-  "product service": {
-    "get product service": "get_product_service",
-    "insert product service": "insert_product_service",
-    "update product service": "update_product_service",
-    "delete product service": "delete_product_service"
+  "setup service": {
+    "get setup service": "get_setup_service",
+    "insert setup service": "insert_setup_service",
+    "update setup service": "update_setup_service",
+    "delete setup service": "delete_setup_service"
   }
 }

@@ -1,7 +1,7 @@
 const AuthorizationUser = require("../../../config/authorization.json");
 const InvariantError = require("../../exceptions/InvariantError");
 
-class ProductServiceHandler {
+class SetupServiceHandler {
   constructor({
     lock,
     service,
@@ -15,75 +15,67 @@ class ProductServiceHandler {
     this._logActivityService = logActivityService;
     this._authorizationService = authorizationService;
     this._validator = validator;
-    this._authorizationUser = AuthorizationUser["product service"];
+    this._authorizationUser = AuthorizationUser["setup service"];
 
-    this.postProductServiceHandler = this.postProductServiceHandler.bind(this);
-    this.getProductServicesHandler = this.getProductServicesHandler.bind(this);
-    this.getProductServiceByIdHandler = this.getProductServiceByIdHandler.bind(
+    this.postSetupServiceHandler = this.postSetupServiceHandler.bind(this);
+    this.getSetupServicesHandler = this.getSetupServicesHandler.bind(this);
+    this.getSetupServiceByIdHandler = this.getSetupServiceByIdHandler.bind(
       this
     );
-    this.updateProductServiceByIdHandler = this.updateProductServiceByIdHandler.bind(
+    this.updateSetupServiceByIdHandler = this.updateSetupServiceByIdHandler.bind(
       this
     );
-    this.deleteProductServiceByIdHandler = this.deleteProductServiceByIdHandler.bind(
+    this.deleteSetupServiceByIdHandler = this.deleteSetupServiceByIdHandler.bind(
       this
     );
   }
 
-  async postProductServiceHandler(request) {
-    this._validator.validatePostProductServicePayload(request.payload);
+  async postSetupServiceHandler(request) {
+    this._validator.validatePostSetupServicePayload(request.payload);
     const { id: credentialUserId } = request.auth.credentials;
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorizationUser["insert product service"]
+        this._authorizationUser["insert setup service"]
       );
 
-      const productServiceId = await this._service.addProductService(
+      const SetupServiceId = await this._service.addSetupService(
         request.payload
       );
 
       await this._logActivityService.postLogActivity({
         credentialUserId,
-        activity: "menambahkan product service",
-        refersId: productServiceId,
+        activity: "menambahkan setup service",
+        refersId: SetupServiceId,
       });
     });
 
     return {
       status: "success",
-      message: "Berhasil menambahkan product service",
+      message: "Berhasil menambahkan setup service",
     };
   }
 
-  async getProductServicesHandler(request) {
+  async getSetupServicesHandler(request) {
     const { id: credentialUserId } = request.auth.credentials;
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorizationUser['get product service']
+        this._authorizationUser['get setup service']
       );
     });
 
     const { page, limit, search_query } = request.query;
-
-    await this._lock.acquire("data", async () => {
-      await this._authorizationService.checkRoleUser(
-        credentialUserId,
-        this._authorizationUser["get product service"]
-      );
-    });
-
     const search = search_query ? search_query : "";
     const totalData = parseInt(
-      await this._service.getCountProductServices(search)
+      await this._service.getCountSetupServices(search)
     );
     const limitPage = limit || 10;
     const pages = parseInt(page) || 1;
     const totalPage = Math.ceil(totalData / limitPage);
     const offset = (pages - 1) * limitPage;
-    const productServices = await this._service.getProductServices({
+    const setupServices = await this._service.getSetupServices({
       search,
       limit: limitPage,
       offset,
@@ -92,7 +84,7 @@ class ProductServiceHandler {
     return {
       status: "success",
       data: {
-        productServices,
+        setupServices,
       },
       totalData,
       totalPage,
@@ -101,88 +93,82 @@ class ProductServiceHandler {
     };
   }
 
-  async getProductServiceByIdHandler(request) {
+  async getSetupServiceByIdHandler(request) {
     const { id: credentialUserId } = request.auth.credentials;
-    await this._lock.acquire("data", async () => {
-      await this._authorizationService.checkRoleUser(
-        credentialUserId,
-        this._authorizationUser['update product service']
-      );
-    });
-
-    const { id: productServiceId } = request.params;
 
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorizationUser["update product service"]
+        this._authorizationUser['update setup service']
       );
     });
 
-    const productService = await this._service.getProductServiceById(
-      productServiceId
+    const { id: setupServiceId } = request.params;
+
+    const setupService = await this._service.getSetupServiceById(
+      setupServiceId
     );
 
     return {
       status: "success",
       data: {
-        productService,
+        setupService,
       },
     };
   }
 
-  async updateProductServiceByIdHandler(request) {
-    this._validator.validatePostProductServicePayload(request.payload);
+  async updateSetupServiceByIdHandler(request) {
+    this._validator.validatePostSetupServicePayload(request.payload);
 
     const { id } = request.params;
-    request.payload.productServiceId = id;
+    request.payload.setupServiceId = id;
 
     const { id: credentialUserId } = request.auth.credentials;
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorizationUser["update product service"]
+        this._authorizationUser["update setup service"]
       );
 
-      await this._service.putProductServiceById(request.payload);
+      await this._service.putSetupServiceById(request.payload);
 
       await this._logActivityService.postLogActivity({
         credentialUserId,
-        activity: "merubah product services",
+        activity: "merubah setup services",
         refersId: id,
       });
     });
 
     return {
       status: "success",
-      message: "Berhasil update product service",
+      message: "Berhasil update setup service",
     };
   }
 
-  async deleteProductServiceByIdHandler(request) {
-    const { id: productServiceId } = request.params;
+  async deleteSetupServiceByIdHandler(request) {
+    const { id: setupServiceId } = request.params;
 
     const { id: credentialUserId } = request.auth.credentials;
     await this._lock.acquire("data", async () => {
       await this._authorizationService.checkRoleUser(
         credentialUserId,
-        this._authorizationUser["delete product service"]
+        this._authorizationUser["delete setup service"]
       );
 
-      await this._service.deleteProductServiceById(productServiceId);
+      await this._service.deleteSetupServiceById(setupServiceId);
 
       await this._logActivityService.postLogActivity({
         credentialUserId,
-        activity: "menghapus product service",
-        refersId: productServiceId,
+        activity: "menghapus setup service",
+        refersId: setupServiceId,
       });
     });
 
     return {
       status: "success",
-      message: "Berhasil menghapus product service",
+      message: "Berhasil menghapus setup service",
     };
   }
 }
 
-module.exports = ProductServiceHandler;
+module.exports = SetupServiceHandler;

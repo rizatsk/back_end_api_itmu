@@ -37,7 +37,23 @@ describe("/request-service User Admin endpoint", () => {
             expect(responseJson.data.devices).toBeDefined();
             expect(responseJson.data.devices.devices[0]).toEqual("komputer");
             expect(responseJson.data.devices.devices[1]).toEqual("laptop");
-            expect(responseJson.data.deviceServices).toBeDefined();
+            expect(responseJson.data.setupServices).toBeDefined();
+        });
+    });
+
+    describe("when GET /request-service/product", () => {
+        it("should response 200", async () => {
+            const server = await app(pool_test);
+
+            const response = await server.inject({
+                method: "GET",
+                url: `/api/request-service/product?device=laptop&brand=lenovo&type=storage`,
+            });
+
+            const responseJson = JSON.parse(response.payload);
+            expect(response.statusCode).toEqual(200);
+            expect(responseJson.status).toEqual("success");
+            expect(responseJson.data.products).toBeDefined();
         });
     });
 
@@ -54,6 +70,8 @@ describe("/request-service User Admin endpoint", () => {
                 cracker: "layar lcd",
                 servicing: "kunjungan toko",
                 estimationPrice: 750000,
+                product: [],
+                description: "test"
             };
 
             const response = await server.inject({
@@ -83,6 +101,8 @@ describe("/request-service User Admin endpoint", () => {
                 cracker: "layar lcd",
                 servicing: "kunjungan toko",
                 // estimationPrice: 750000,
+                product: [],
+                description: "test"
             };
 
             const response = await server.inject({

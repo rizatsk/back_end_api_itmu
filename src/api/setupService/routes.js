@@ -1,40 +1,40 @@
 const routes = (handler) => [
     {
         method: "POST",
-        path: "/product-service",
-        handler: handler.postProductServiceHandler,
+        path: "/setup-service",
+        handler: handler.postSetupServiceHandler,
         options: {
             auth: "itindosolution_jwt",
         },
     },
     {
         method: "GET",
-        path: "/product-service",
-        handler: handler.getProductServicesHandler,
+        path: "/setup-service",
+        handler: handler.getSetupServicesHandler,
         options: {
             auth: "itindosolution_jwt",
         },
     },
     {
         method: "GET",
-        path: "/product-service/{id}",
-        handler: handler.getProductServiceByIdHandler,
+        path: "/setup-service/{id}",
+        handler: handler.getSetupServiceByIdHandler,
         options: {
             auth: "itindosolution_jwt",
         },
     },
     {
         method: "PUT",
-        path: "/product-service/{id}",
-        handler: handler.updateProductServiceByIdHandler,
+        path: "/setup-service/{id}",
+        handler: handler.updateSetupServiceByIdHandler,
         options: {
             auth: "itindosolution_jwt",
         },
     },
     {
         method: "DELETE",
-        path: "/product-service/{id}",
-        handler: handler.deleteProductServiceByIdHandler,
+        path: "/setup-service/{id}",
+        handler: handler.deleteSetupServiceByIdHandler,
         options: {
             auth: "itindosolution_jwt",
         },

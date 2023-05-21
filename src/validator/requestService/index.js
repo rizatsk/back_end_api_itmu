@@ -1,5 +1,6 @@
 const { postRequestServicePayloadSchema,
-  putStatusRequestServicePayloadSchema } = require('./schema');
+  putStatusRequestServicePayloadSchema,
+  getProductForRequestServiceSchema } = require('./schema');
 const InvariantError = require('../../exceptions/InvariantError');
 
 const RequestServiceValidator = {
@@ -12,6 +13,13 @@ const RequestServiceValidator = {
   },
   validatePutStatusRequestServicePayload: (payload) => {
     const validationResult = putStatusRequestServicePayloadSchema.validate(payload);
+
+    if (validationResult.error) {
+      throw new InvariantError(validationResult.error.message);
+    }
+  },
+  validateGetProductForRequestServicePayload: (payload) => {
+    const validationResult = getProductForRequestServiceSchema.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

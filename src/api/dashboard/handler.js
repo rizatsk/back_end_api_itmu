@@ -9,6 +9,7 @@ class DashboardHandler {
         this._authorizationService = authorizationService;
 
         this.getDataDashboardHandler = this.getDataDashboardHandler.bind(this);
+        this.getDataHomeHandler = this.getDataHomeHandler.bind(this);
     }
 
     async getDataDashboardHandler() {
@@ -25,6 +26,15 @@ class DashboardHandler {
                 statusRequestService,
                 requestServices,
             }
+        }
+    }
+
+    async getDataHomeHandler() {
+        const { imageBanner, productPromo, productSparepart } = await this._service.getDataProductForHome();
+
+        return {
+            status: 'success',
+            data: { imageBanner, productPromo, productSparepart }
         }
     }
 }

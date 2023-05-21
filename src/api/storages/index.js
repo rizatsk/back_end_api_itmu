@@ -8,10 +8,11 @@ module.exports = {
     server,
     {
       storageImage,
+      storagePublic
     }
   ) => {
     server.route(
-      routerGroup(process.env.PREFIX, routes(storageImage))
+      routerGroup(process.env.PREFIX, routes({ storageImage, storagePublic }))
     );
   },
 };

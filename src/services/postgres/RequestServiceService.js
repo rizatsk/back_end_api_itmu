@@ -3,17 +3,18 @@ const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const { stat } = require("fs-extra");
 const { MappingGetUserByServiceId } = require("../../utils/MappingResultDB");
+const StringToLikeSearch = require("../../utils/StringToLikeSearch");
 
 class RequestServiceService {
     constructor({ pool }) {
         this._pool = pool;
     }
 
-    async getProductServicesForRequestService() {
+    async getSetupServicesForRequestService() {
         const query = {
-            text: `SELECT product_service_id,
-                name, service, price
-                FROM product_services`,
+            text: `SELECT setup_service_id,
+                name, type, price
+                FROM setup_services`,
         };
 
         const result = await this._pool.query(query);
@@ -21,13 +22,47 @@ class RequestServiceService {
         return result.rows;
     }
 
-    async addRequestService({ userId, device, brand, cracker, servicing, estimationPrice }) {
+    async getProductForRequestService({ device, brand, type }) {
+        const deviceBrandGeneral = ["cpu", "ram", "storage", "vga"];
+        type = type.toLowerCase();
+
+        const name = deviceBrandGeneral.includes(type) || type == 'multiple' ? StringToLikeSearch(device) : StringToLikeSearch(`${device} ${brand}`);
+        let query;
+
+        if (type == 'multiple') {
+            query = {
+                text: `SELECT product_id,
+                name, price
+                FROM products
+                WHERE status = true AND sparepart = true
+                AND name ILIKE $1`,
+                values: [name]
+            };
+        } else {
+            query = {
+                text: `SELECT product_id,
+                name, price
+                FROM products
+                WHERE status = true AND sparepart = true
+                AND name ILIKE $1 AND LOWER(type_product) = $2`,
+                values: [name, type]
+            };
+        }
+
+        const result = await this._pool.query(query);
+
+        return result.rows;
+    }
+
+    async addRequestService({ userId, device, brand, cracker, servicing, estimationPrice, product, description }) {
         const id = `request_service-${nanoid(10)}`
+        description = description || null;
+
         const query = {
             text: `INSERT INTO request_services(request_service_id,
-                user_id, device, brand, cracker, servicing, estimation_price)
-                VALUES($1, $2, $3, $4, $5, $6, $7) RETURNING request_service_id`,
-            values: [id, userId, device, brand, cracker, servicing, estimationPrice]
+                user_id, device, brand, cracker, servicing, estimation_price, product, description)
+                VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING request_service_id`,
+            values: [id, userId, device, brand, cracker, servicing, estimationPrice, product, description]
         };
 
         const result = await this._pool.query(query);
@@ -36,6 +71,18 @@ class RequestServiceService {
 
         return result.rows[0].request_service_id;
     }
+
+    async checkProductId(productId) {
+        const query = {
+            text: `SELECT product_id, sparepart FROM products WHERE product_id = $1 `,
+            values: [productId]
+        };
+
+        const result = await this._pool.query(query);
+
+        if (!result.rowCount) throw new NotFoundError('Product tidak tersedia')
+        if (!result.rows[0].sparepart) throw new InvariantError('Product bukan bertype sparepart');
+    };
 
     async addTrackHistoryService({ requestServiceId, status, credentialUserId }) {
         const query = {
@@ -147,7 +194,9 @@ class RequestServiceService {
                 request_services.servicing,
                 request_services.estimation_price,
                 request_services.real_price,
-                request_services.status, 
+                request_services.status,
+                request_services.product,
+                request_services.description,
                 users.fullname, users.email, users.no_handphone, 
                 users.address FROM request_services
                 JOIN users ON users.user_id = request_services.user_id
@@ -157,6 +206,17 @@ class RequestServiceService {
 
         const result = await this._pool.query(query);
         if (!result.rowCount) throw new NotFoundError('Request service tidak ditemukan')
+        if (result.rows[0].product.length > 0) {
+            const products = result.rows[0].product
+            const whereProductId = `(${products.map(item => `'${item}'`).join(', ')})`;
+
+            const query = {
+                text: `SELECT name, price FROM products WHERE product_id IN ${whereProductId}`,
+            };
+
+            const resultProducts = await this._pool.query(query);
+            result.rows[0].product = resultProducts.rows;
+        }
 
         return result.rows[0];
     }
@@ -169,6 +229,17 @@ class RequestServiceService {
 
         const result = await this._pool.query(query);
         if (!result.rowCount) throw new NotFoundError('Request service tidak ditemukan')
+        if (result.rows[0].product.length > 0) {
+            const products = result.rows[0].product
+            const whereProductId = `(${products.map(item => `'${item}'`).join(', ')})`;
+
+            const query = {
+                text: `SELECT name, price FROM products WHERE product_id IN ${whereProductId}`
+            };
+
+            const resultProducts = await this._pool.query(query);
+            result.rows[0].product = resultProducts.rows;
+        }
 
         return result.rows[0];
     }

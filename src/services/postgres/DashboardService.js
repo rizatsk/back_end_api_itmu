@@ -1,4 +1,4 @@
-const { mapRoleUserAdminsDonuts, mapRequestServiceLine, mapStatusRequestServiceBar } = require("../../utils/MappingResultDB");
+const { mapRoleUserAdminsDonuts, mapRequestServiceLine, mapStatusRequestServiceBar, MappingProductsForUser } = require("../../utils/MappingResultDB");
 
 class DashboardService {
     constructor({ pool }) {
@@ -9,14 +9,14 @@ class DashboardService {
         const resultUsers = await this._pool.query({ text: 'SELECT count(*) AS amount_users FROM users' });
         const resultUserAdmins = await this._pool.query({ text: 'SELECT count(*) AS amount_users_admin FROM user_admins' });
         const resultProducts = await this._pool.query({ text: 'SELECT count(*) AS amount_products FROM products' });
-        const resultProductServices = await this._pool.query({ text: 'SELECT count(*) AS amount_product_services FROM product_services' });
+        const resultSetupServices = await this._pool.query({ text: 'SELECT count(*) AS amount_setup_services FROM setup_services' });
 
         const amountUsers = resultUsers.rows[0].amount_users;
         const amountUserAdmins = resultUserAdmins.rows[0].amount_users_admin;
         const amountProducts = resultProducts.rows[0].amount_products;
-        const amountProductServices = resultProductServices.rows[0].amount_product_services;
+        const amountSetupServices = resultSetupServices.rows[0].amount_setup_services;
 
-        return { amountUsers, amountUserAdmins, amountProducts, amountProductServices };
+        return { amountUsers, amountUserAdmins, amountProducts, amountSetupServices };
     }
 
     async getRequestServiceLine() {
@@ -60,6 +60,35 @@ class DashboardService {
         const result = await this._pool.query(query);
         const data = mapStatusRequestServiceBar(result.rows);
         return data;
+    }
+
+    // Home Mobile
+    async getDataProductForHome() {
+        const resultProductPromo = await this._pool.query({
+            text: `
+            SELECT products.product_id, 
+            name, price, price_promotion,
+            (SELECT link FROM image_products WHERE product_id = products.product_id 
+            ORDER BY created ASC LIMIT 1) AS image_link 
+            FROM products WHERE status = true AND price_promotion IS NOT NULL
+            LIMIT 3
+        `});
+
+        const resultProductSparepart = await this._pool.query({
+            text: `
+            SELECT products.product_id, 
+            name, price, price_promotion,
+            (SELECT link FROM image_products WHERE product_id = products.product_id 
+            ORDER BY created ASC LIMIT 1) AS image_link 
+            FROM products WHERE status = true AND sparepart = true
+            LIMIT 3
+        `});
+
+        const imageBanner = [`${process.env.URLIMAGE}/Banner/banner-1.webp`, `${process.env.URLIMAGE}/Banner/banner-2.webp`];
+        const productPromo = resultProductPromo.rows.map(MappingProductsForUser);
+        const productSparepart = resultProductSparepart.rows.map(MappingProductsForUser);
+
+        return { imageBanner, productPromo, productSparepart }
     }
 }
 

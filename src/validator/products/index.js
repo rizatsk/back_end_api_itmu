@@ -2,11 +2,9 @@ const {
   PostProductPayloadSchema,
   PutProductPayloadSchema,
   PutStatusProductPayloadSchema,
-  PutSaleProductPayloadSchema,
   PutImageProductPayloadSchema,
   ImageHeaderSchema,
   PutPricePromotionProductPayloadSchema,
-  feeReplacementPayloadSchema
 } = require("./schema");
 const InvariantError = require("../../exceptions/InvariantError");
 
@@ -32,13 +30,6 @@ const ProductsValidator = {
       throw new InvariantError(validationResult.error.message);
     }
   },
-  validatePutSaleProductPayload: (payload) => {
-    const validationResult = PutSaleProductPayloadSchema.validate(payload);
-
-    if (validationResult.error) {
-      throw new InvariantError(validationResult.error.message);
-    }
-  },
   validatePutPricePromotionProductPayload: (payload) => {
     const validationResult = PutPricePromotionProductPayloadSchema.validate(payload);
 
@@ -55,13 +46,6 @@ const ProductsValidator = {
   },
   validateImageHeaderSchema: (headers) => {
     const validationResult = ImageHeaderSchema.validate(headers);
-
-    if (validationResult.error) {
-      throw new InvariantError(validationResult.error.message);
-    }
-  },
-  validateFeeReplacementPayloadSchema: (payload) => {
-    const validationResult = feeReplacementPayloadSchema.validate(payload);
 
     if (validationResult.error) {
       throw new InvariantError(validationResult.error.message);

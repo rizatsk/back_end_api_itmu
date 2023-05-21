@@ -5,6 +5,11 @@ const routes = (handler) => [
         handler: handler.getDataForRequestServiceHandler,
     },
     {
+        method: "GET",
+        path: "/request-service/product",
+        handler: handler.getProductForRequestServiceHandler,
+    },
+    {
         method: "POST",
         path: "/request-service",
         handler: handler.postRequestServiceHandler,

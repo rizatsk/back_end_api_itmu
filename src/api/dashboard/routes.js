@@ -7,6 +7,11 @@ const routes = (handler) => [
             auth: "itindosolution_jwt",
         },
     },
+    {
+        path: "/mobile/home",
+        method: "GET",
+        handler: handler.getDataHomeHandler,
+    },
 ];
 
 module.exports = routes;

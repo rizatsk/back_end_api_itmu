@@ -20,6 +20,7 @@ class RequestServiceHandler {
         this._authorizationUser = AuthorizationUser['request service'];
 
         this.getDataForRequestServiceHandler = this.getDataForRequestServiceHandler.bind(this);
+        this.getProductForRequestServiceHandler = this.getProductForRequestServiceHandler.bind(this);
         this.postRequestServiceHandler = this.postRequestServiceHandler.bind(this);
         this.getRequestServiceByTokenUserHandler = this.getRequestServiceByTokenUserHandler.bind(this);
         this.getRequestServiceByIdAndUserIdHandler = this.getRequestServiceByIdAndUserIdHandler.bind(this);
@@ -32,13 +33,26 @@ class RequestServiceHandler {
 
     async getDataForRequestServiceHandler() {
         const devices = DeviceServiceRequest;
-        const deviceServices = await this._service.getProductServicesForRequestService();
+        const setupServices = await this._service.getSetupServicesForRequestService();
 
         return {
             status: 'success',
             data: {
                 devices,
-                deviceServices
+                setupServices
+            }
+        }
+    }
+
+    async getProductForRequestServiceHandler(request) {
+        this._validator.validateGetProductForRequestServicePayload(request.query);
+
+        const products = await this._service.getProductForRequestService(request.query);
+
+        return {
+            status: 'success',
+            data: {
+                products
             }
         }
     }
@@ -46,10 +60,16 @@ class RequestServiceHandler {
     async postRequestServiceHandler(request) {
         this._validator.validatePostRequestServicePayload(request.payload);
         const { id: userId } = request.auth.credentials;
+        const { product } = request.payload;
         request.payload.userId = userId;
 
         await this._lock.acquire("data", async () => {
             const user = await this._userService.getUserById(userId);
+
+            for (let productId of product) {
+                await this._service.checkProductId(productId);
+            }
+
             const requestServiceId = await this._service.addRequestService(request.payload);
 
             await this._service.addTrackHistoryService({ requestServiceId, status: 'waiting confirmation', credentialUserId: 'admin-00000001' });

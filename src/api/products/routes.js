@@ -48,14 +48,6 @@ const routes = (handler) => [
   },
   {
     method: "PUT",
-    path: "/product/sale/{id}",
-    handler: handler.putSaleProductsByIdHandler,
-    options: {
-      auth: "itindosolution_jwt",
-    },
-  },
-  {
-    method: "PUT",
     path: "/product/images/{id}",
     handler: handler.putImageProductsHandler,
     options: {
@@ -90,11 +82,6 @@ const routes = (handler) => [
     method: "GET",
     path: "/product/type/{param}",
     handler: handler.getProductsSaleOrServiceHandler,
-  },
-  {
-    method: "GET",
-    path: "/product/user",
-    handler: handler.getProductForUserHandler,
   },
   {
     method: "GET",

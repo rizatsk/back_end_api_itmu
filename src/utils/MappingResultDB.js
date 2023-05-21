@@ -60,7 +60,6 @@ const MappingProducts = ({
   created,
   status,
   price_promotion,
-  sale,
   sparepart
 }) => ({
   product_id,
@@ -70,7 +69,6 @@ const MappingProducts = ({
   percent_promotion: price_promotion ? Math.ceil(((price - price_promotion) / price) * 100) : null,
   created,
   status,
-  sale,
   sparepart
 });
 

@@ -1,7 +1,7 @@
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
-const { MappingPricePromotionProductById, MappingProducts, MappingProductsForUser } = require("../../utils/MappingResultDB");
+const { MappingProducts, MappingProductsForUser } = require("../../utils/MappingResultDB");
 const StringToLikeSearch = require("../../utils/StringToLikeSearch");
 
 class ProductsService {
@@ -29,20 +29,16 @@ class ProductsService {
     typeProduct,
     description,
     categoryId,
-    sale,
     sparepart,
-    feeReplacementId,
   }) {
     const status = "true";
     const id = `product-${nanoid(8)}`;
     const date = new Date();
-    const feeReplacementData = sparepart ? feeReplacementId : null;
-    if (feeReplacementData) await this.checkFeeReplacement(feeReplacementData);
 
     const query = {
       text: `INSERT INTO products(product_id, name, price, type_product, 
-        created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status, category_id, sale, sparepart, fee_replacement_id)
-        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8, $9, $10, $11, $12) RETURNING product_id`,
+        created, createdby_user_id, updated, updatedby_user_id, deskripsi_product, status, category_id, sparepart)
+        VALUES($1, $2, $3, $4, $5, $6, $5, $6, $7, $8, $9, $10) RETURNING product_id`,
       values: [
         id,
         name,
@@ -53,9 +49,7 @@ class ProductsService {
         description,
         status,
         categoryId,
-        sale,
         sparepart,
-        feeReplacementData,
       ],
     };
 
@@ -64,16 +58,6 @@ class ProductsService {
     if (!result.rowCount) throw new InvariantError("Gagal menambahkan product");
 
     return result.rows[0].product_id;
-  }
-
-  async checkFeeReplacement(feeReplacement) {
-    const query = {
-      text: 'SELECT fee_replacement_id FROM fee_replacements WHERE fee_replacement_id = $1',
-      values: [feeReplacement]
-    };
-
-    const result = await this._pool.query(query);
-    if (!result.rowCount) throw new NotFoundError('Fee replacement is not found')
   }
 
   async getCountProductsSearch(search_query) {
@@ -92,7 +76,7 @@ class ProductsService {
     search = search ? `%${search}%` : '%%';
     const query = {
       text: `SELECT product_id, name, price, created, status,
-        price_promotion, sale, sparepart
+        price_promotion, sparepart
         FROM products 
         WHERE LOWER(name) ILIKE $3
         ORDER BY created
@@ -108,7 +92,7 @@ class ProductsService {
 
   async getProductsById(productId) {
     const query = {
-      text: `SELECT products.product_id,
+      text: `SELECT product_id,
         products.name,
         products.price,
         type_product,
@@ -116,12 +100,10 @@ class ProductsService {
         category_id,
         price_promotion,
         sparepart,
-        fee_replacements.fee_replacement_id,
-        fee_replacements.name AS fee_replacement_name,
-        fee_replacements.price AS fee_replacement_price
+        setup_services.price AS price_replacement
         FROM products 
-        LEFT JOIN fee_replacements ON 
-        fee_replacements.fee_replacement_id = products.fee_replacement_id
+        LEFT JOIN setup_services ON 
+        setup_services.type = products.type_product
         WHERE product_id = $1`,
       values: [productId],
     };
@@ -155,16 +137,13 @@ class ProductsService {
     description,
     categoryId,
     sparepart,
-    feeReplacementId,
   }) {
     await this.checkNameProductForUpdate(name, productId);
-    const feeReplacementData = sparepart ? feeReplacementId : null;
-    if (feeReplacementData) await this.checkFeeReplacement(feeReplacementData);
 
     const date = new Date();
     const query = {
       text: `UPDATE products SET name = $1, price = $2, type_product = $3,
-        updated = $4, updatedby_user_id = $5, deskripsi_product = $7, category_id = $8, sparepart = $9, fee_replacement_id = $10 WHERE product_id = $6`,
+        updated = $4, updatedby_user_id = $5, deskripsi_product = $7, category_id = $8, sparepart = $9 WHERE product_id = $6`,
       values: [
         name,
         price,
@@ -175,7 +154,6 @@ class ProductsService {
         description,
         categoryId,
         sparepart,
-        feeReplacementData,
       ],
     };
 
@@ -196,21 +174,6 @@ class ProductsService {
     if (!result.rowCount)
       throw new InvariantError(
         "Gagal edit status product, product id tidak ditemukan"
-      );
-  }
-
-  async editSaleProductById({ productId, sale, credentialUserId }) {
-    const date = new Date();
-    const query = {
-      text: `UPDATE products SET sale = $1, updated = $3, updatedby_user_id = $4 WHERE product_id = $2`,
-      values: [sale, productId, date, credentialUserId],
-    };
-
-    const result = await this._pool.query(query);
-
-    if (!result.rowCount)
-      throw new InvariantError(
-        "Gagal edit status sale product, product id tidak ditemukan"
       );
   }
 
@@ -328,7 +291,7 @@ class ProductsService {
     search = StringToLikeSearch(search);
     const query = {
       text: `SELECT product_id, name, price, created, status,
-        price_promotion, sale, sparepart
+        price_promotion, sparepart
         FROM products 
         WHERE LOWER(name) ILIKE $3 AND status = true
         ORDER BY created
@@ -342,10 +305,12 @@ class ProductsService {
     return data;
   }
 
-  async getCountProductsSaleOrService(param) {
+  async getCountProductsSparepartOrNo(param) {
+    let where = '';
+    if (param) where = 'AND sparepart = true';
+
     const query = {
-      text: `SELECT count(*) AS count FROM products WHERE ${param} = true
-        AND status = true`,
+      text: `SELECT count(*) AS count FROM products WHERE status = true ${where}`,
     };
 
     const result = await this._pool.query(query);
@@ -353,13 +318,16 @@ class ProductsService {
     return result.rows[0].count;
   }
 
-  async getProductsSaleOrService({ param, limit, offset }) {
+  async getProductsSparepartOrNo({ param, limit, offset }) {
+    let where = '';
+    if (param) where = 'AND sparepart = true';
+
     const query = {
       text: `select products.product_id, 
         name, price, price_promotion,
         (SELECT link FROM image_products WHERE product_id = products.product_id 
         ORDER BY created ASC LIMIT 1) AS image_link 
-        FROM products WHERE ${param} = true AND status = true
+        FROM products WHERE status = true ${where}
         ORDER BY created DESC LIMIT $1 OFFSET $2`,
       values: [limit, offset],
     };

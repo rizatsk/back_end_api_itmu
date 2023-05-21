@@ -1,9 +1,9 @@
 const routerGroup = require("../../utils/routerGroup");
-const FeeReplacementHandler = require("./handler");
+const SetupServiceHandler = require("./handler");
 const routes = require("./routes");
 
 module.exports = {
-  name: "feeReplacement",
+  name: "setupService",
   register: async (server, {
     lock,
     service,
@@ -11,7 +11,7 @@ module.exports = {
     validator,
     logActivityService,
   }) => {
-    const feeReplacementHandler = new FeeReplacementHandler({
+    const setupServiceHandler = new SetupServiceHandler({
       lock,
       service,
       authorizationService,
@@ -19,7 +19,7 @@ module.exports = {
       logActivityService,
     });
     server.route(
-      routerGroup(process.env.PREFIX, routes(feeReplacementHandler))
+      routerGroup(process.env.PREFIX, routes(setupServiceHandler))
     );
   },
 };

@@ -59,15 +59,10 @@ const requestService = require("./api/requestService");
 const RequestServiceService = require("./services/postgres/RequestServiceService");
 const RequestServiceValidator = require("./validator/requestService");
 
-// Fee Replacement
-const feeReplacement = require("./api/feeReplacement");
-const FeeReplacementService = require("./services/postgres/FeeReplacementService");
-const FeeReplacementValidator = require("./validator/feeReplacement");
-
-// Product service
-const productService = require("./api/productService");
-const ProductServiceService = require("./services/postgres/ProductServiceService");
-const ProductServiceValidator = require("./validator/productService");
+// setup service
+const setupService = require("./api/setupService");
+const SetupServiceService = require("./services/postgres/SetupServiceService");
+const SetupServiceValidator = require("./validator/setupService");
 
 // Token validation user
 const TokenValidationUserService = require('./services/postgres/TokenValidationUserService')
@@ -92,8 +87,7 @@ const app = async (pool) => {
   const userItindoService = new UserItindoService({ pool });
   const categoryProductService = new CategoryProductService({ pool });
   const requestServiceService = new RequestServiceService({ pool });
-  const feeRelacementService = new FeeReplacementService({ pool });
-  const productServiceService = new ProductServiceService({ pool });
+  const setupServiceService = new SetupServiceService({ pool });
   const tokenValidationUserService = new TokenValidationUserService({ pool })
   const dashboardService = new DashboardService({ pool });
 
@@ -225,6 +219,7 @@ const app = async (pool) => {
       plugin: storages,
       options: {
         storageImage,
+        storagePublic
       },
     },
     {
@@ -283,22 +278,12 @@ const app = async (pool) => {
       },
     },
     {
-      plugin: feeReplacement,
+      plugin: setupService,
       options: {
         lock,
-        service: feeRelacementService,
+        service: setupServiceService,
         authorizationService,
-        validator: FeeReplacementValidator,
-        logActivityService,
-      },
-    },
-    {
-      plugin: productService,
-      options: {
-        lock,
-        service: productServiceService,
-        authorizationService,
-        validator: ProductServiceValidator,
+        validator: SetupServiceValidator,
         logActivityService,
       },
     },
