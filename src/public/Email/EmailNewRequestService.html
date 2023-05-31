@@ -5,21 +5,154 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ITMU - Request Service Baru</title>
+    <style>
+        td {
+            font-size: 16px;
+        }
+
+        .table-in {
+            background-color: white;
+            box-shadow: 1px 0px 6px 0px rgba(77, 77, 77, 0.75);
+            -webkit-box-shadow: 1px 0px 6px 0px rgba(77, 77, 77, 0.75);
+            -moz-box-shadow: 1px 0px 6px 0px rgba(77, 77, 77, 0.75);
+        }
+
+        .table-in-in {
+            padding: 20px 30px;
+        }
+
+        .table-out {
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+
+        .footer {
+            background-color: #0F3D3E;
+            padding: 40px 0;
+            color: white;
+            font-family: sans-serif;
+            border-radius: 0 0 10px 10px;
+            padding: 20px 30px;
+        }
+
+        .footer tr td {
+            font-size: 15px;
+        }
+
+        @media only screen and (max-width: 500px) {
+            .table-in-in {
+                padding: 5px 10px;
+            }
+
+            .footer {
+                padding: 5px 10px;
+            }
+
+            .footer tr td {
+                font-size: 14px;
+            }
+        }
+    </style>
 </head>
 
-<body style="margin: 0; padding: 0; box-sizing: border-box;">
-    <table align="center" cellpadding="0" cellspacing="0" width="95%">
+<body style="margin: 0; padding: 0; box-sizing: border-box; background-color: rgb(242, 244, 247);">
+    <table class="table-out" align="center" cellpadding="0" cellspacing="0" width="95%">
         <tr>
             <td align="center">
-                <table align="center" cellpadding="0" cellspacing="0"
-                    style="border-spacing: 2px 5px; max-width: 600px; background-color: rgb(242, 244, 247); border-radius: 10px; padding: 20px 30px; margin-top: 20px;">
+                <table class="table-in" align="center" cellpadding="0" cellspacing="0"
+                    style="max-width: 600px; border-radius: 10px; margin-top: 20px;">
                     <tr>
                         <td>
-                            <table cellpadding="0" cellspacing="0" width="100%%">
+                            <table class="table-in-in">
                                 <tr>
-                                    <td align="center" style="padding: 5px 5px 5px 5px;">
-                                        <img src="https://iili.io/HUzNyzb.png" alt="Logo"
-                                            style="width:120px; border:0;" />
+                                    <td>
+                                        <table cellpadding="0" cellspacing="0" width="100%%">
+                                            <tr>
+                                                <td align="center" style="padding: 5px 5px 5px 5px;">
+                                                    <img src="https://iili.io/HUzNyzb.png" alt="Logo"
+                                                        style="width:90px; border:0;" />
+                                                </td>
+                                            </tr>
+                                        </table>
+                                    </td>
+                                </tr>
+                                <tr>
+                                    <td>
+                                        <table cellpadding="0" cellspacing="0" width="100%">
+                                            <tr>
+                                                <td
+                                                    style="padding: 20px 0 20px 0; font-family: sans-serif; font-size: 16px; text-transform: capitalize;">
+                                                    Hai, <span id="name">Admin ITMU</span>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0; font-family: sans-serif; font-size: 16px;">
+                                                    Terdapat permintaan service baru nih, Tolong di cek yah dengan data
+                                                    sebagai
+                                                    berikut:
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td>
+                                                    <table cellpadding="0" cellspacing="0" width="100%"
+                                                        style="margin: 10px 0; font-family: sans-serif; font-size: 14px; text-transform: capitalize;">
+                                                        <tr>
+                                                            <td style="font-size: 14px;">Nama</td>
+                                                            <td style="padding: 5px 0; font-size: 14px;">:
+                                                                {{data.fullname}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="font-size: 14px;">Email</td>
+                                                            <td style="text-transform: lowercase; padding: 5px 0;">:
+                                                                {{data.email}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="font-size: 14px;">No Handphone</td>
+                                                            <td style="padding: 5px 0; font-size: 14px;">:
+                                                                {{data.handphone}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="font-size: 14px;">Kerusakan</td>
+                                                            <td style="padding: 5px 0; font-size: 14px;">:
+                                                                {{data.cracker}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="font-size: 14px;">Perangkat</td>
+                                                            <td style="padding: 5px 0; font-size: 14px;">:
+                                                                {{data.device}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="font-size: 14px;">Merek</td>
+                                                            <td style="padding: 5px 0; font-size: 14px;">:
+                                                                {{data.brand}}</td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td style="font-size: 14px;">Layanan</td>
+                                                            <td style="padding: 5px 0; font-size: 14px;">:
+                                                                {{data.servicing}}</td>
+                                                        </tr>
+                                                    </table>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 0; font-family: sans-serif; font-size: 16px;">
+                                                    <p>Mohon untuk segera di periksa yah di halaman website
+                                                        Itindosolution, atau
+                                                        dengan mengeklik link di bawha ini:</p>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td><a href="{{url}}" target="_blank"
+                                                        style="font-family: sans-serif; font-size: 14px;">{{url}}</a>
+                                                </td>
+                                            </tr>
+                                            <tr>
+                                                <td style="padding: 20px 0; font-family: sans-serif; font-size: 16px;">
+                                                    Regards,
+                                                    <p>ITMU</p>
+                                                </td>
+                                            </tr>
+                                        </table>
                                     </td>
                                 </tr>
                             </table>
@@ -27,66 +160,26 @@
                     </tr>
                     <tr>
                         <td>
-                            <table cellpadding="0" cellspacing="0" width="100%">
+                            <table class="footer" cellpadding="0" cellspacing="0" width="100%">
                                 <tr>
-                                    <td
-                                        style="padding: 20px 0 20px 0; font-family: sans-serif; font-size: 16px; text-transform: capitalize;">
-                                        Hai, <span id="name">Admin ITMU</span>
+                                    <td style="font-size: 18px; padding: 15px 0;">
+                                        ITINDOSOLUTION
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td style="padding: 0; font-family: sans-serif; font-size: 16px;">
-                                        Terdapat permintaan service baru nih, Tolong di cek yah dengan data sebagai
-                                        berikut:
+                                    <td style="padding-top: 10px;">
+                                        Jl. Ampera No.89 RT.05/Rw.06, Duren Jaya, Kec. Bekasi Timur -
+                                        Kota Bekasi, Jawa Barat 1711
                                     </td>
                                 </tr>
                                 <tr>
-                                    <table cellpadding="0" cellspacing="0" width="100%"
-                                        style="margin: 10px 0; font-family: sans-serif; font-size: 16px; text-transform: capitalize;">
-                                        <tr>
-                                            <td>Nama</td>
-                                            <td style="padding: 5px 0;">: {{data.fullname}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Email</td>
-                                            <td style="text-transform: lowercase; padding: 5px 0;">: {{data.email}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>No Handphone</td>
-                                            <td style="padding: 5px 0;">: {{data.handphone}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Kerusakan</td>
-                                            <td style="padding: 5px 0;">: {{data.cracker}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Perangkat</td>
-                                            <td style="padding: 5px 0;">: {{data.device}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Merek</td>
-                                            <td style="padding: 5px 0;">: {{data.brand}}</td>
-                                        </tr>
-                                        <tr>
-                                            <td>Layanan</td>
-                                            <td style="padding: 5px 0;">: {{data.servicing}}</td>
-                                        </tr>
-                                    </table>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 0; font-family: sans-serif; font-size: 16px;">
-                                        <p>Mohon untuk segera di periksa yah di halaman website Itindosolution, atau
-                                            dengan mengeklik link di bawha ini:</p>
+                                    <td style="padding-top: 8px;">
+                                        Whatshapp : +62 814 1047 0445
                                     </td>
                                 </tr>
                                 <tr>
-                                    <td><a href="{{url}}" target="_blank"
-                                            style="font-family: sans-serif; font-size: 14px;">{{url}}</a></td>
-                                </tr>
-                                <tr>
-                                    <td style="padding: 20px 0; font-family: sans-serif; font-size: 16px;">
-                                        Regards,
-                                        <p>ITMU</p>
+                                    <td style="padding-top: 8px; padding-bottom: 10px;">
+                                        Phone Number : +62 857 1971 9528
                                     </td>
                                 </tr>
                             </table>
