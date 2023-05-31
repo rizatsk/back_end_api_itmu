@@ -33,7 +33,7 @@ class ProductsHandler {
     this.putImageProductsHandler = this.putImageProductsHandler.bind(this);
     this.deleteProductByIdHandler = this.deleteProductByIdHandler.bind(this);
     this.putPricePromotionProductByIdHandler = this.putPricePromotionProductByIdHandler.bind(this);
-    this.getProductsSaleOrServiceHandler = this.getProductsSaleOrServiceHandler.bind(this);
+    this.getProductsForUserHandler = this.getProductsForUserHandler.bind(this);
     this.getProductsByIdForUserHandler = this.getProductsByIdForUserHandler.bind(this);
   }
 
@@ -384,13 +384,14 @@ class ProductsHandler {
   }
 
   // For User
-  async getProductsSaleOrServiceHandler(request) {
+  async getProductsForUserHandler(request) {
     const { param } = request.params;
-    const { page, limit } = request.query;
+    const { page, limit, search } = request.query;
 
     const limitPage = limit || 10;
     const pages = parseInt(page) || 1;
     const offset = (pages - 1) * limitPage;
+    const searchQuery = search || '';
 
     let products;
     let totalData;
@@ -399,19 +400,29 @@ class ProductsHandler {
     switch (param) {
       case 'all':
         totalData = parseInt(
-          await this._service.getCountProductsSparepartOrNo('')
+          await this._service.getCountProductsForUser('', searchQuery)
         );
         totalPage = Math.ceil(totalData / limitPage);
 
-        products = await this._service.getProductsSparepartOrNo({ param: '', limit: limitPage, offset });
+        products = await this._service.getProductsForUser({ param: '', limit: limitPage, offset, searchQuery });
         break;
+
       case 'sparepart':
         totalData = parseInt(
-          await this._service.getCountProductsSparepartOrNo('sparepart')
+          await this._service.getCountProductsForUser('sparepart', searchQuery)
         );
         totalPage = Math.ceil(totalData / limitPage);
 
-        products = await this._service.getProductsSparepartOrNo({ param: 'sparepart', limit: limitPage, offset });
+        products = await this._service.getProductsForUser({ param: 'sparepart', limit: limitPage, offset, searchQuery });
+        break;
+
+      case 'promotion':
+        totalData = parseInt(
+          await this._service.getCountProductsForUser('promotion', searchQuery)
+        );
+        totalPage = Math.ceil(totalData / limitPage);
+
+        products = await this._service.getProductsForUser({ param: 'promotion', limit: limitPage, offset, searchQuery });
         break;
       default:
         throw new NotFoundError('Param tidak tersedia')

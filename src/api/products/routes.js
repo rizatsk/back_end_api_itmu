@@ -81,7 +81,7 @@ const routes = (handler) => [
   {
     method: "GET",
     path: "/product/type/{param}",
-    handler: handler.getProductsSaleOrServiceHandler,
+    handler: handler.getProductsForUserHandler,
   },
   {
     method: "GET",

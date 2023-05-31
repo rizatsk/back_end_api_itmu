@@ -1,3 +1,6 @@
+const JwtDecode = require("jwt-decode");
+const InvariantError = require("../../exceptions/InvariantError");
+
 class DashboardHandler {
     constructor({
         lock,
@@ -29,12 +32,24 @@ class DashboardHandler {
         }
     }
 
-    async getDataHomeHandler() {
-        const { imageBanner, productPromo, productSparepart } = await this._service.getDataProductForHome();
+    async getDataHomeHandler(request) {
+        let userId = '';
+        if (request.headers.authorization) {
+            try {
+                const { authorization: tokenAuthorization } = request.headers;
+                const token = tokenAuthorization.split(" ");
+                const { id: dataUserId } = JwtDecode(token[token.length - 1])
+                userId = dataUserId
+            } catch (error) {
+                throw new InvariantError('Token is invalid')
+            }
+        }
+
+        const { imageBanner, productPromo, productSparepart, dataUser } = await this._service.getDataProductForHome(userId);
 
         return {
             status: 'success',
-            data: { imageBanner, productPromo, productSparepart }
+            data: { dataUser, imageBanner, productPromo, productSparepart }
         }
     }
 }

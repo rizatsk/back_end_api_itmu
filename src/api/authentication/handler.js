@@ -132,7 +132,7 @@ class AuthenticationHandler {
     const { id: userId } = request.auth.credentials;
 
     const user = await this._usersService.getAdminUserById(userId);
-    user.profileImage = await createProfileImage(user.fullname)
+    user.profileImage = createProfileImage(user.fullname)
 
     return {
       status: "success",

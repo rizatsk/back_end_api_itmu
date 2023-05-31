@@ -1,4 +1,7 @@
+const InvariantError = require("../../exceptions/InvariantError");
+const NotFoundError = require("../../exceptions/NotFoundError");
 const { mapRoleUserAdminsDonuts, mapRequestServiceLine, mapStatusRequestServiceBar, MappingProductsForUser } = require("../../utils/MappingResultDB");
+const createProfileImage = require("../../utils/createProfileImage");
 
 class DashboardService {
     constructor({ pool }) {
@@ -63,7 +66,19 @@ class DashboardService {
     }
 
     // Home Mobile
-    async getDataProductForHome() {
+    async getDataProductForHome(userId) {
+        let dataUser = {
+            name: 'User ITMU',
+            countService: 0,
+            countServiceProcess: 0,
+            countServiceDone: 0,
+            profileImage: createProfileImage('User Itindo'),
+        }
+
+        if (userId) {
+            dataUser = await this.getDataUserForHome(userId)
+        }
+
         const resultProductPromo = await this._pool.query({
             text: `
             SELECT products.product_id, 
@@ -88,7 +103,26 @@ class DashboardService {
         const productPromo = resultProductPromo.rows.map(MappingProductsForUser);
         const productSparepart = resultProductSparepart.rows.map(MappingProductsForUser);
 
-        return { imageBanner, productPromo, productSparepart }
+        return { imageBanner, productPromo, productSparepart, dataUser }
+    }
+
+    async getDataUserForHome(userId) {
+        const resultProductPromo = await this._pool.query({
+            text: `
+                SELECT fullname AS name, 
+                (SELECT count(*) FROM request_services WHERE user_id = $1) AS countService,
+                (SELECT count(*) FROM request_services WHERE user_id = $1 AND status = 'progress') AS countServiceProcess,
+                (SELECT count(*) FROM request_services WHERE user_id = $1 AND status = 'done') AS countServiceDone
+                FROM users WHERE user_id = $1`,
+            values: [userId]
+        });
+
+        if (!resultProductPromo.rowCount) throw new NotFoundError('User tidak ada')
+
+        const result = resultProductPromo.rows[0];
+        result.profileImage = createProfileImage(result.name);
+
+        return result;
     }
 }
 

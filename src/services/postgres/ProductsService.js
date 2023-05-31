@@ -3,6 +3,7 @@ const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const { MappingProducts, MappingProductsForUser } = require("../../utils/MappingResultDB");
 const StringToLikeSearch = require("../../utils/StringToLikeSearch");
+const generateQuery = require("../../utils/generateQuerySearch");
 
 class ProductsService {
   constructor({ pool }) {
@@ -305,12 +306,15 @@ class ProductsService {
     return data;
   }
 
-  async getCountProductsSparepartOrNo(param) {
+  async getCountProductsForUser(param, searchQuery) {
     let where = '';
-    if (param) where = 'AND sparepart = true';
+    if (param == 'sparepart') where = 'AND sparepart = true';
+    if (param == 'promotion') where = 'AND price_promotion IS NOT NULL'
 
     const query = {
-      text: `SELECT count(*) AS count FROM products WHERE status = true ${where}`,
+      text: `SELECT count(*) AS count FROM products WHERE status = true 
+        AND ${generateQuery(searchQuery)}
+        ${where}`,
     };
 
     const result = await this._pool.query(query);
@@ -318,19 +322,23 @@ class ProductsService {
     return result.rows[0].count;
   }
 
-  async getProductsSparepartOrNo({ param, limit, offset }) {
+  async getProductsForUser({ param, limit, offset, searchQuery }) {
     let where = '';
-    if (param) where = 'AND sparepart = true';
+    if (param == 'sparepart') where = 'AND sparepart = true';
+    if (param == 'promotion') where = 'AND price_promotion IS NOT NULL'
 
     const query = {
       text: `select products.product_id, 
         name, price, price_promotion,
         (SELECT link FROM image_products WHERE product_id = products.product_id 
         ORDER BY created ASC LIMIT 1) AS image_link 
-        FROM products WHERE status = true ${where}
+        FROM products WHERE status = true 
+        AND ${generateQuery(searchQuery)}
+        ${where}
         ORDER BY created DESC LIMIT $1 OFFSET $2`,
-      values: [limit, offset],
+      values: [limit, offset]
     };
+    console.log(query)
 
     const result = await this._pool.query(query);
     const data = result.rows.map(MappingProductsForUser);
