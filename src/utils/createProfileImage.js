@@ -1,12 +1,6 @@
-// const svgCaptcha = require('svg-captcha');
-// const crypto = require('crypto');
-
 function createProfileImage(initials) {
   initials = initials.split(' ').slice(0, 2).map(word => word.charAt(0)).join('');
   initials = initials.toUpperCase();
-
-  // generate captcha
-  // const captcha = svgCaptcha.create({ size: 6, ignoreChars: '0o1i' });
 
   // buat SVG sederhana
   const svg = `

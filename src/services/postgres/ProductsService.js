@@ -1,7 +1,7 @@
 const { nanoid } = require("nanoid");
 const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
-const { MappingProducts, MappingProductsForUser } = require("../../utils/MappingResultDB");
+const { MappingProducts, MappingProductsForUser, MappingProductById } = require("../../utils/MappingResultDB");
 const StringToLikeSearch = require("../../utils/StringToLikeSearch");
 const generateQuery = require("../../utils/generateQuerySearch");
 
@@ -113,7 +113,8 @@ class ProductsService {
 
     if (!result.rowCount) throw new NotFoundError("Product tidak ditemukan");
 
-    return result.rows[0];
+    const data = result.rows.map(MappingProductById)
+    return data[0];
   }
 
   async checkNameProductForUpdate(name, productId) {
@@ -338,7 +339,6 @@ class ProductsService {
         ORDER BY created DESC LIMIT $1 OFFSET $2`,
       values: [limit, offset]
     };
-    console.log(query)
 
     const result = await this._pool.query(query);
     const data = result.rows.map(MappingProductsForUser);

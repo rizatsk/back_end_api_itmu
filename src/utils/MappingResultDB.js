@@ -72,6 +72,29 @@ const MappingProducts = ({
   sparepart
 });
 
+const MappingProductById = ({
+  product_id,
+  name,
+  price,
+  type_product,
+  deskripsi_product,
+  category_id,
+  price_promotion,
+  sparepart,
+  price_replacement
+}) => ({
+  product_id,
+  name,
+  price,
+  type_product,
+  deskripsi_product,
+  category_id,
+  price_promotion,
+  sparepart,
+  price_replacement,
+  percent_promotion: price_promotion ? Math.ceil(((price - price_promotion) / price) * 100) : null,
+});
+
 const MappingProductsForUser = ({
   product_id,
   name,
@@ -178,4 +201,5 @@ module.exports = {
   mapRequestServiceLine,
   mapRoleUserAdminsDonuts,
   mapStatusRequestServiceBar,
+  MappingProductById,
 };
