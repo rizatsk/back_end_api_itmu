@@ -1,11 +1,11 @@
-const InvariantError = require("../../exceptions/InvariantError");
 const NotFoundError = require("../../exceptions/NotFoundError");
 const { mapRoleUserAdminsDonuts, mapRequestServiceLine, mapStatusRequestServiceBar, MappingProductsForUser } = require("../../utils/MappingResultDB");
 const createProfileImage = require("../../utils/createProfileImage");
 
 class DashboardService {
-    constructor({ pool }) {
+    constructor({ pool, cacheService }) {
         this._pool = pool;
+        this._cacheService = cacheService;
     }
 
     async getAmountDataForDashboard() {
@@ -88,6 +88,7 @@ class DashboardService {
             FROM products WHERE status = true AND price_promotion IS NOT NULL
             LIMIT 3
         `});
+        const productPromo = resultProductPromo.rows.map(MappingProductsForUser);
 
         const resultProductSparepart = await this._pool.query({
             text: `
@@ -98,31 +99,39 @@ class DashboardService {
             FROM products WHERE status = true AND sparepart = true
             LIMIT 3
         `});
+        const productSparepart = resultProductSparepart.rows.map(MappingProductsForUser);
 
         const imageBanner = [`${process.env.URLIMAGE}/Banner/banner-1.webp`, `${process.env.URLIMAGE}/Banner/banner-2.webp`];
-        const productPromo = resultProductPromo.rows.map(MappingProductsForUser);
-        const productSparepart = resultProductSparepart.rows.map(MappingProductsForUser);
 
         return { imageBanner, productPromo, productSparepart, dataUser }
     }
 
     async getDataUserForHome(userId) {
-        const resultProductPromo = await this._pool.query({
-            text: `
+        try {
+            // mendapatkan catatan dari cache
+            const result = await this._cacheService.get(`userForHome:${userId}`);
+            return JSON.parse(result);
+        } catch (error) {
+            const resultProductPromo = await this._pool.query({
+                text: `
                 SELECT fullname AS name, 
                 (SELECT count(*) FROM request_services WHERE user_id = $1) AS countService,
                 (SELECT count(*) FROM request_services WHERE user_id = $1 AND status = 'progress') AS countServiceProcess,
                 (SELECT count(*) FROM request_services WHERE user_id = $1 AND status = 'done') AS countServiceDone
                 FROM users WHERE user_id = $1`,
-            values: [userId]
-        });
+                values: [userId]
+            });
 
-        if (!resultProductPromo.rowCount) throw new NotFoundError('User tidak ada')
+            if (!resultProductPromo.rowCount) throw new NotFoundError('User tidak ada')
 
-        const result = resultProductPromo.rows[0];
-        result.profileImage = createProfileImage(result.name);
+            const result = resultProductPromo.rows[0];
+            result.profileImage = createProfileImage(result.name);
 
-        return result;
+            // catatan akan disimpan pada cache sebelum fungsi getNotes dikembalikan
+            await this._cacheService.set(`userForHome:${userId}`, JSON.stringify(result));
+
+            return result;
+        }
     }
 }
 

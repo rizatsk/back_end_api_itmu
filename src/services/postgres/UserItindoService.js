@@ -6,8 +6,9 @@ const AuthenticationError = require("../../exceptions/AuthenticationError");
 const ActivationError = require("../../exceptions/ActivationError");
 
 class UserItindoService {
-  constructor({ pool }) {
+  constructor({ pool, cacheService }) {
     this._pool = pool;
+    this._cacheService = cacheService;
   }
 
   // Admin User
@@ -106,19 +107,17 @@ class UserItindoService {
   }
 
   async changeDataUserById({ user_id, fullname, no_handphone, address }) {
-    try {
-      const query = {
-        text:
-          "UPDATE users SET fullname = $2, no_handphone = $3, address = $4 WHERE user_id = $1 RETURNING user_id",
-        values: [user_id, fullname, no_handphone, address],
-      };
+    const query = {
+      text:
+        "UPDATE users SET fullname = $2, no_handphone = $3, address = $4 WHERE user_id = $1 RETURNING user_id",
+      values: [user_id, fullname, no_handphone, address],
+    };
 
-      const result = await this._pool.query(query);
-      if (!result.rowCount) throw new NotFoundError("User tidak ditemukan");
-    } catch (error) {
-      console.log(error);
-      throw new InvariantError("Server error");
-    }
+    const result = await this._pool.query(query);
+    if (!result.rowCount) throw new NotFoundError("User tidak ditemukan");
+
+    // Delete data cache user
+    await this._cacheService.delete(`userForHome:${user_id}`);
   }
 
   // Ganti Password
