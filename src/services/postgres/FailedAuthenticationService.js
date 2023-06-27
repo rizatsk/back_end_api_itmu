@@ -1,6 +1,6 @@
 const InvariantError = require("../../exceptions/InvariantError");
 const LoginAttemptsError = require("../../exceptions/LoginAttemptsError");
-const countDownMinutes = require("../../utils/countDownminutes");
+const countDownMinutes = require("../../utils/countDownMinutes");
 
 class FailedAuthenticationService {
     constructor({ pool }) {
