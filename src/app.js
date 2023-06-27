@@ -74,11 +74,16 @@ const DashboardService = require('./services/postgres/DashboardService');
 // Chace service
 const CacheService = require('./services/Redis/CacheService');
 
+// Failed Authentications 
+const FailedAuthenticationService = require('./services/postgres/FailedAuthenticationService')
+
 const app = async (pool) => {
   const lock = new Lock();
   const cacheService = new CacheService();
 
-  const usersService = new UsersService({ pool });
+  const failedAuthenticationService = new FailedAuthenticationService({ pool });
+
+  const usersService = new UsersService({ pool, failedAuthenticationService });
   const authenticationService = new AuthenticationService({ pool });
   const logActivityService = new LogActivityService({ pool });
   const packageServiceService = new PackageServiceService({ pool });

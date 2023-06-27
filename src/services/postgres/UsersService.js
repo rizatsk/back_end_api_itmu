@@ -5,12 +5,15 @@ const InvariantError = require("../../exceptions/InvariantError");
 const { nanoid } = require("nanoid");
 
 class UsersService {
-  constructor({ pool }) {
+  constructor({ pool, failedAuthenticationService }) {
     this._pool = pool;
+    this._failedAuthenticationService = failedAuthenticationService;
   }
 
   // Check data user admin saat login
-  async verifyAdminUserCredential({ parameter, password }) {
+  async verifyAdminUserCredential({ parameter, password, ip }) {
+    await this._failedAuthenticationService.checkFailedAuth(ip);
+
     const regexEmail = new RegExp("[a-z0-9]+@[a-z]+.[a-z]{2,3}");
     const type = regexEmail.test(parameter) === true ? "email" : "username";
 
@@ -22,7 +25,9 @@ class UsersService {
     const result = await this._pool.query(query);
 
     if (!result.rowCount) {
-      throw new NotFoundError(`${type} yang anda berikan salah`);
+      // Gagal login tambahkan/update failed auth
+      await this._failedAuthenticationService.addFailedAuth(ip);
+      throw new NotFoundError(`Email/Username atau password yang anda berikan salah`);
     }
 
     const {
@@ -30,14 +35,20 @@ class UsersService {
       password: hashedPassword,
       status,
     } = result.rows[0];
+
+    const match = await bcrypt.compare(password, hashedPassword);
+    if (!match) {
+      // Gagal login tambahkan/update failed auth
+      await this._failedAuthenticationService.addFailedAuth(ip);
+      throw new AuthenticationError("Email/Username atau password yang anda berikan salah");
+    }
+
     if (status === false) {
       throw new AuthenticationError("User tidak aktif");
     }
 
-    const match = await bcrypt.compare(password, hashedPassword);
-    if (!match) {
-      throw new AuthenticationError("Password yang anda berikan salah");
-    }
+    // jika berhasil login maka di hapus failed login
+    await this._failedAuthenticationService.deleteUpdateFailedAuth(ip);
 
     return { adminId };
   }

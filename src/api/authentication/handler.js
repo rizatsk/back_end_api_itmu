@@ -50,6 +50,7 @@ class AuthenticationHandler {
       } = await this._usersService.verifyAdminUserCredential({
         parameter,
         password,
+        ip
       });
 
       const accessToken = this._tokenManager.generateAccessToken({ id });
