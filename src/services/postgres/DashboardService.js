@@ -3,9 +3,8 @@ const { mapRoleUserAdminsDonuts, mapRequestServiceLine, mapStatusRequestServiceB
 const createProfileImage = require("../../utils/createProfileImage");
 
 class DashboardService {
-    constructor({ pool, cacheService }) {
+    constructor({ pool }) {
         this._pool = pool;
-        this._cacheService = cacheService;
     }
 
     async getAmountDataForDashboard() {
@@ -107,31 +106,22 @@ class DashboardService {
     }
 
     async getDataUserForHome(userId) {
-        try {
-            // mendapatkan catatan dari cache
-            const result = await this._cacheService.get(`userForHome:${userId}`);
-            return JSON.parse(result);
-        } catch (error) {
-            const resultProductPromo = await this._pool.query({
-                text: `
+        const resultProductPromo = await this._pool.query({
+            text: `
                 SELECT fullname AS name, 
                 (SELECT count(*) FROM request_services WHERE user_id = $1) AS countService,
                 (SELECT count(*) FROM request_services WHERE user_id = $1 AND status = 'progress') AS countServiceProcess,
                 (SELECT count(*) FROM request_services WHERE user_id = $1 AND status = 'done') AS countServiceDone
                 FROM users WHERE user_id = $1`,
-                values: [userId]
-            });
+            values: [userId]
+        });
 
-            if (!resultProductPromo.rowCount) throw new NotFoundError('User tidak ada')
+        if (!resultProductPromo.rowCount) throw new NotFoundError('User tidak ada')
 
-            const result = resultProductPromo.rows[0];
-            result.profileImage = createProfileImage(result.name);
+        const result = resultProductPromo.rows[0];
+        result.profileImage = createProfileImage(result.name);
 
-            // catatan akan disimpan pada cache sebelum fungsi getNotes dikembalikan
-            await this._cacheService.set(`userForHome:${userId}`, JSON.stringify(result));
-
-            return result;
-        }
+        return result;
     }
 }
 

@@ -71,15 +71,11 @@ const TokenValidationUserService = require('./services/postgres/TokenValidationU
 const dashboard = require("./api/dashboard");
 const DashboardService = require('./services/postgres/DashboardService');
 
-// Chace service
-const CacheService = require('./services/Redis/CacheService');
-
 // Failed Authentications 
 const FailedAuthenticationService = require('./services/postgres/FailedAuthenticationService')
 
 const app = async (pool) => {
   const lock = new Lock();
-  const cacheService = new CacheService();
 
   const failedAuthenticationService = new FailedAuthenticationService({ pool });
 
@@ -94,12 +90,12 @@ const app = async (pool) => {
   const storageImage = path.resolve(__dirname, "public/images");
   const storagePublic = path.resolve(__dirname, "public");
   const authorizationService = new AuthorizationService({ pool });
-  const userItindoService = new UserItindoService({ pool, cacheService });
+  const userItindoService = new UserItindoService({ pool });
   const categoryProductService = new CategoryProductService({ pool });
   const requestServiceService = new RequestServiceService({ pool });
   const setupServiceService = new SetupServiceService({ pool });
   const tokenValidationUserService = new TokenValidationUserService({ pool })
-  const dashboardService = new DashboardService({ pool, cacheService });
+  const dashboardService = new DashboardService({ pool });
 
   const server = Hapi.server({
     port: process.env.PORT,

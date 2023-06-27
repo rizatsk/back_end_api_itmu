@@ -6,9 +6,8 @@ const AuthenticationError = require("../../exceptions/AuthenticationError");
 const ActivationError = require("../../exceptions/ActivationError");
 
 class UserItindoService {
-  constructor({ pool, cacheService }) {
+  constructor({ pool }) {
     this._pool = pool;
-    this._cacheService = cacheService;
   }
 
   // Admin User
@@ -115,9 +114,6 @@ class UserItindoService {
 
     const result = await this._pool.query(query);
     if (!result.rowCount) throw new NotFoundError("User tidak ditemukan");
-
-    // Delete data cache user
-    await this._cacheService.delete(`userForHome:${user_id}`);
   }
 
   // Ganti Password
