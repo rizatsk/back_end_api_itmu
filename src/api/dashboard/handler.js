@@ -52,6 +52,14 @@ class DashboardHandler {
             data: { dataUser, imageBanner, productPromo, productSparepart }
         }
     }
+
+    async postDashboardHandler(request) {
+        console.log(request.payload);
+
+        return {
+            status: 'success'
+        }
+    }
 }
 
 module.exports = DashboardHandler;

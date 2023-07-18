@@ -8,6 +8,11 @@ const routes = (handler) => [
         },
     },
     {
+        path: "/dashboard",
+        method: "POST",
+        handler: handler.postDashboardHandler,
+    },
+    {
         path: "/mobile/home",
         method: "GET",
         handler: handler.getDataHomeHandler,

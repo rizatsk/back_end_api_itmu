@@ -1,4 +1,3 @@
-const InvariantError = require("../../exceptions/InvariantError");
 const createProfileImage = require("../../utils/createProfileImage");
 
 class AuthenticationHandler {
