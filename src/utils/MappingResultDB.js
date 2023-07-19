@@ -190,6 +190,22 @@ const mapStatusRequestServiceBar = (data) => {
   return transformedData;
 }
 
+const MappingProductsTest = ({
+  product_id,
+  name,
+  buy_price,
+  sale_price,
+  stock,
+  foto_product
+}) => ({
+  product_id,
+  name,
+  buy_price,
+  sale_price,
+  stock,
+  foto_product: foto_product ? `${process.env.URLIMAGE}${foto_product}` : null,
+})
+
 module.exports = {
   MappingCategoriesProduct,
   mappedDataCategories,
@@ -202,4 +218,5 @@ module.exports = {
   mapRoleUserAdminsDonuts,
   mapStatusRequestServiceBar,
   MappingProductById,
+  MappingProductsTest,
 };

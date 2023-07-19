@@ -74,6 +74,11 @@ const DashboardService = require('./services/postgres/DashboardService');
 // Failed Authentications 
 const FailedAuthenticationService = require('./services/postgres/FailedAuthenticationService')
 
+// Product test
+const productTest = require('./api/productTest');
+const ProductTestService = require('./services/postgres/ProductTestService')
+const ProductTestValidator = require('./validator/productTest')
+
 const app = async (pool) => {
   const lock = new Lock();
 
@@ -96,6 +101,7 @@ const app = async (pool) => {
   const setupServiceService = new SetupServiceService({ pool });
   const tokenValidationUserService = new TokenValidationUserService({ pool })
   const dashboardService = new DashboardService({ pool });
+  const productTestService = new ProductTestService({ pool });
 
   const server = Hapi.server({
     port: process.env.PORT,
@@ -299,6 +305,15 @@ const app = async (pool) => {
         lock,
         service: dashboardService,
         authorizationService,
+      },
+    },
+    {
+      plugin: productTest,
+      options: {
+        lock,
+        service: productTestService,
+        storageService,
+        validator: ProductTestValidator,
       },
     },
   ]);
