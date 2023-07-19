@@ -86,7 +86,9 @@ class ProductTestHandler {
 
         await this._lock.acquire("data", async () => {
             const { id: productId } = request.params;
-            const { foto_product } = request.payload;
+            const { foto_product, name } = request.payload;
+
+            await this._service.checkNameProductForUpdate(name, productId);
 
             if (foto_product) {
                 this._validator.validateImageHeaderSchema(foto_product.hapi?.headers);
