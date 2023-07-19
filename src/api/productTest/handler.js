@@ -84,37 +84,32 @@ class ProductTestHandler {
     async putProductByIdHandler(request) {
         this._validator.validatePutProductPayload(request.payload);
 
-        try {
-            await this._lock.acquire("data", async () => {
-                const { id: productId } = request.params;
-                const { foto_product } = request.payload;
+        await this._lock.acquire("data", async () => {
+            const { id: productId } = request.params;
+            const { foto_product } = request.payload;
 
-                if (foto_product) {
-                    this._validator.validateImageHeaderSchema(foto_product.hapi?.headers);
+            if (foto_product) {
+                this._validator.validateImageHeaderSchema(foto_product.hapi?.headers);
 
-                    // Delete old foto image
-                    const folder = "products_test"
-                    const oldFotoProduct = await this._service.getFotoProductById(productId);
-                    let oldFotoProductName = oldFotoProduct.split("/");
-                    oldFotoProductName = oldFotoProductName[oldFotoProductName.length - 1];
-                    await this._storageService.deleteFile(oldFotoProductName, folder);
+                // Delete old foto image
+                const folder = "products_test"
+                const oldFotoProduct = await this._service.getFotoProductById(productId);
+                let oldFotoProductName = oldFotoProduct.split("/");
+                oldFotoProductName = oldFotoProductName[oldFotoProductName.length - 1];
+                await this._storageService.deleteFile(oldFotoProductName, folder);
 
 
-                    const filename = await this._storageService.writeFile(
-                        foto_product,
-                        foto_product.hapi,
-                        folder
-                    );
-                    request.payload.foto_product = `/images/${folder}/${filename}`;
-                }
+                const filename = await this._storageService.writeFile(
+                    foto_product,
+                    foto_product.hapi,
+                    folder
+                );
+                request.payload.foto_product = `/images/${folder}/${filename}`;
+            }
 
-                request.payload.productId = productId;
-                await this._service.editProductsById(request.payload);
-            });
-        } catch (error) {
-            console.log(error)
-            return 'error'
-        }
+            request.payload.productId = productId;
+            await this._service.editProductsById(request.payload);
+        });
 
         return {
             status: 'success',
