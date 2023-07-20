@@ -196,7 +196,8 @@ const MappingProductsTest = ({
   buy_price,
   sale_price,
   stock,
-  foto_product
+  foto_product,
+  created,
 }) => ({
   product_id,
   name,
@@ -204,6 +205,7 @@ const MappingProductsTest = ({
   sale_price,
   stock,
   foto_product: foto_product ? `${process.env.URLIMAGE}${foto_product}` : null,
+  created,
 })
 
 module.exports = {

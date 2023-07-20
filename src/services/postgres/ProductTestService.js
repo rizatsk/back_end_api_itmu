@@ -71,7 +71,8 @@ class ProductTestService {
             text: `SELECT product_id, name, 
                 buy_price,
                 sale_price,
-                stock, created
+                stock, foto_product,
+                created
                 FROM products_test 
                 WHERE LOWER(name) ILIKE $3
                 ORDER BY created
@@ -80,8 +81,9 @@ class ProductTestService {
         };
 
         const result = await this._pool.query(query);
+        const data = result.rows.map(MappingProductsTest)
 
-        return result.rows;
+        return data;
     }
 
     async getProductsById(productId) {
